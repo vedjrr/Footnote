@@ -33,7 +33,7 @@ export function Tooltip({
           side={side}
           sideOffset={4}
           collisionPadding={16}
-          className="z-50 max-w-64 rounded-sm bg-ink px-2 py-1 type-caption text-paper"
+          className="z-50 max-w-64 rounded-sm border border-rule bg-paper px-2 py-1 type-caption text-ink shadow-float"
         >
           {content}
         </RadixTooltip.Content>

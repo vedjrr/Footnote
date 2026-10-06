@@ -9,10 +9,11 @@ export interface FieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   /** A sentence saying what is wrong and what to do. */
   error?: string;
   id?: string;
+  inputClassName?: string;
   ref?: Ref<HTMLInputElement>;
 }
 
-export function Field({ label, hint, error, id, className, ...rest }: FieldProps) {
+export function Field({ label, hint, error, id, className, inputClassName, ...rest }: FieldProps) {
   const auto = useId();
   const inputId = id ?? auto;
   const hintId = hint ? `${inputId}-hint` : undefined;
@@ -28,8 +29,9 @@ export function Field({ label, hint, error, id, className, ...rest }: FieldProps
         aria-describedby={cx(hintId, errorId) || undefined}
         className={cx(
           'min-h-10 rounded-sm border bg-wash px-3 type-body text-ink placeholder:text-ink-3',
-          'disabled:cursor-not-allowed disabled:opacity-50',
+          'disabled:cursor-not-allowed disabled:border-dashed disabled:bg-paper disabled:text-ink-3',
           error ? 'border-critical' : 'border-rule hover:not-disabled:border-ink-3',
+          inputClassName,
         )}
         {...rest}
       />

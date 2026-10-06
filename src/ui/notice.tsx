@@ -24,9 +24,11 @@ export function Status({
   return (
     <p className={cx('flex items-start gap-2 type-small text-ink', className)}>
       <span className={cx('flex h-5 items-center', t.color)}>
-        <Icon name={t.icon} label={t.word} />
+        <Icon name={t.icon} />
       </span>
-      <span>{children}</span>
+      <span>
+        <span className={cx('font-medium', t.color)}>{t.word}.</span> {children}
+      </span>
     </p>
   );
 }

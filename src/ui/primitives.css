@@ -132,6 +132,7 @@
 /* Wide tables scroll inside their own container with the first column
    fixed; the page never scrolls sideways (§5). */
 .fn-table-wrap {
+  width: fit-content;
   max-width: 100%;
   overflow-x: auto;
   border: 1px solid var(--rule);
@@ -197,6 +198,7 @@
 
 /* The same table on ledger, inside the working paper: no outer box. */
 .fn-table-ledger {
+  width: 100%;
   border: 0;
 }
 .fn-table-ledger .fn-table th,
