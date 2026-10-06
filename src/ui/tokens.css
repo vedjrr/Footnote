@@ -157,6 +157,10 @@
      steps 1, 2, 3, 4, 6, 8, 12, 16 and 24 of this base. */
   --spacing: 4px;
 
+  /* Layout widths (§5): phone under 768, tablet 768 to 1199, desktop
+     from 1200, where the working paper becomes a column. */
+  --breakpoint-wide: 75rem;
+
   --radius-*: initial;
   --radius-sm: 2px;
   --radius-md: 6px;
