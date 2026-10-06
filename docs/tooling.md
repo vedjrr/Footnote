@@ -36,6 +36,14 @@ gives; record changes here.
 | @types/node | 24.19.1 (see D-013) |
 | radix-ui (added T02, D-016) | 1.7.0 |
 | lucide-react (added T02, D-016) | 1.52.0 |
+| @duckdb/duckdb-wasm (added T03, D-020) | 1.33.1-dev57.0; engine reports `duckdb v1.5.4 (duckdb-wasm)` |
+| apache-arrow (added T03) | 17.0.0, pinned to the version duckdb-wasm depends on, so there is one copy |
+| @duckdb/node-api (dev, added T03) | 1.5.6-r.1; engine reports `duckdb v1.5.6 (node-api)` |
+
+The two engines are different DuckDB versions (1.5.4 in the browser, 1.5.6
+in Node). The parity suite (`tests/parity/`, 55 statements) passes on both;
+rerun it after changing either package. Node has Parquet and JSON built in;
+the browser loads them from `public/duckdb/extensions/` (D-020).
 
 CI: GitHub Actions, `actions/checkout@v7`, `actions/setup-node@v7`, Node 24.
 

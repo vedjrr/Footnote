@@ -191,12 +191,61 @@ Format for a new decision:
   two-state toggle gives no way back to following the system.
 - Considered: a single button that flips light and dark.
 
+### D-020 DuckDB-WASM and its extensions are served from this site (answers Q-01)
+- Date: 2026-10-06, task T03
+- Decision: `scripts/copy-duckdb.mjs` copies the eh and mvp bundles (wasm
+  and worker) from `node_modules` into `public/duckdb/`, and downloads the
+  `parquet` and `json` extensions for engine `v1.5.4` (`wasm_eh`,
+  `wasm_mvp`) into `public/duckdb/extensions/<version>/<platform>/`. It runs
+  on `postinstall` (a failed download warns) and before `dev` and `build`
+  (`--strict`: a missing file fails). Nothing under `public/duckdb/` is
+  committed. The adapter sets `custom_extension_repository` to this site and
+  runs `LOAD parquet` and `LOAD json` when the engine starts.
+- Why: the browser build has no Parquet or JSON reader built in. Left alone
+  it fetches them from extensions.duckdb.org on first use, so a Parquet file
+  failed with the network cut (seen in the offline test). Loading them at
+  start from this site means no third-party request and offline loading
+  works. Vercel's 100 MB Hobby limit is on CLI uploads; these files are
+  built in the Vercel build, the largest is 41 MB (`duckdb-mvp.wasm`).
+- Cost: about 4 MB more at engine start (the two extensions, eh). The
+  engine starts lazily, on first use.
+- Considered: jsDelivr for the bundles (a third-party request on every
+  visit, would need a note on the About page); committing the extension
+  files (8 MB of binaries per engine version in history); converting
+  Parquet to CSV on ingest (still needs a Parquet reader).
+- When the `@duckdb/duckdb-wasm` package changes, update `ENGINE_VERSION`
+  in the script to what `engineVersion()` reports, or the offline test
+  fails.
+
+### D-021 Normalisation details at the engine boundary
+- Date: 2026-10-06, task T03
+- Decision: timestamps are kept to the millisecond (`YYYY-MM-DDTHH:MM:SS`,
+  plus `.sss` only when not zero), because Arrow in the browser hands back
+  milliseconds. NaN and both infinities become `null`. Query result columns
+  report `nullable: true`; `describe()` reports DuckDB's own nullability. In
+  the browser, an Arrow `DECIMAL(38,0)` is read as an integer, because that
+  is how DuckDB exports `HUGEINT` (so `SUM` of a `BIGINT` matches Node).
+- Why: these were the places the two adapters could disagree; the parity
+  suite pins each one.
+- Limit: a user column declared `DECIMAL(38,0)` shows as integer in the
+  browser and decimal in Node. Unlikely in CSV or Parquet input.
+
+### D-022 Engine harness page, one engine per page, ES2020 target
+- Date: 2026-10-06, task T03
+- Decision: `/dev/engine` is a test page for Playwright (404 in production
+  builds). It keeps one engine for the life of the page. `tsconfig.json`
+  targets ES2020 so `bigint` literals typecheck. Test files in `src/core`
+  may import `vitest` and `fast-check`; core code still may not.
+- Why: React runs effects twice in development. With an engine created
+  and closed per effect, the first query stalled in 4 of 7 runs; with one
+  engine per page it passed 5 of 5. The exact cause inside DuckDB-WASM was
+  not traced. The real app should also hold one engine per page (T06/T10).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
 
-- Q-01 (T03): serve the DuckDB WASM files from this site or from jsDelivr?
-  Prefer this site.
+- Q-01 (T03): answered in D-020, this site.
 - Q-02 (T53): which Gemini model id is on the free tier now and good enough
   for planning? Check Google AI Studio.
 - Q-03 (T10): do the file size limits in NFR-07 hold up when measured?
