@@ -139,9 +139,10 @@ Answer these in the task named, then move the answer up into a decision.
   session's tool permission check refused to read that file. The next agent
   that reads it should look for conflicts with the other specs.
 - Q-10 (Ved): `gh` is logged in as `vedjr02` while the repository and
-  `CLAUDE.md` use `vedjrr`. Pushing works over HTTPS. Confirm which account
-  owns the repo and that `ambreved3@gmail.com` is verified on it, so commits
-  show as Ved's.
+  `CLAUDE.md` use `vedjrr`. Pushing works over HTTPS, and GitHub links the
+  first commit to the `vedjrr` account, so authorship is fine. Only `gh`
+  commands that need write access to `vedjrr/Footnote` (issues, releases)
+  may fail until `gh` is switched to `vedjrr`.
 
 ## Later
 

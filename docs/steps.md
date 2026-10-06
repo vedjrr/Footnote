@@ -26,7 +26,7 @@ one task, hands off in `progress.md`, and stops.
 ## Board
 
 Phase 0, foundations
-- [ ] T00 Preflight: repository, identity, hooks, tooling
+- [x] T00 Preflight: repository, identity, hooks, tooling
 - [ ] T01 Scaffold and quality gates
 - [ ] T02 Design tokens, type and primitives
 - [ ] T03 Query engine port, adapters and parity

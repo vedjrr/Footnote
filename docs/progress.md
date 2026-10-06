@@ -10,14 +10,17 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: none
-- Next task: T00 Preflight: repository, identity, hooks, tooling
+- Last finished task: T00 Preflight (done)
+- Next task: T01 Scaffold and quality gates
 - In progress: nothing
-- Build: no code yet
+- Build: no code yet; repo is the spec pack plus `docs/tooling.md`
 - Evals: not run
 - Blocked on Ved: nothing
-- Watch out for: nothing yet
-- Updated: not yet
+- Watch out for: open questions Q-06 to Q-10 in `decisions.md`, raised in
+  T00. `docs/architecture.md` was not skimmed in T00 (Q-09). The
+  `frontend-design` skill is missing; `docs/tooling.md` names the substitute.
+  `.gitignore` exists with `.DS_Store` and `.env*`; T01 extends it.
+- Updated: 2026-10-06, T00
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -55,4 +58,31 @@ Template:
 
 ## Log
 
-No entries yet.
+### T00 Preflight: repository, identity, hooks, tooling
+- Date: 2026-10-06
+- Outcome: done
+- What changed: `git init -b main`, remote `origin` set to
+  `https://github.com/vedjrr/Footnote.git`, hooks made executable,
+  `core.hooksPath` set to `.githooks`. Added `.gitignore` (`.DS_Store`,
+  `.env*`). First commit of the spec pack. Added `docs/tooling.md`. Added
+  Q-06 to Q-10 to `decisions.md`.
+- Verified: `git config --get user.name` printed `vedjrr`;
+  `git config --get user.email` printed `ambreved3@gmail.com`;
+  `.claude/settings.json` parses, `attribution` is `commit: false, pr: false`;
+  first commit made with a `Co-Authored-By: Test` line, and
+  `git log -1 --format=%B` showed it removed; `git log -1 --format='%an <%ae>'`
+  printed `vedjrr <ambreved3@gmail.com>`; `gh api .../commits/62bc4e5` shows
+  author login `vedjrr`; `git config core.hooksPath` printed `.githooks`.
+- Decisions: none. Open questions Q-06 to Q-10 added.
+- Differs from the spec: the folder was not a clone, so the repo was
+  initialised here and the remote added (Ved approved). The first copy of the
+  pack lacked the `.claude` files; Ved supplied the zip, the six files were
+  extracted, the rest of the pack was compared and matched, and the zip was
+  deleted.
+- Not done: the skim of `docs/architecture.md`. The tool permission check
+  refused to read it in this session (Q-09). Every other doc was skimmed.
+- For the next agent: `npm run check` does not exist yet; T01 creates it.
+  Read `architecture.md` in full in T01 and note any conflict.
+- Ved should know: `gh` is logged in as `vedjr02`, not `vedjrr` (Q-10).
+  Commits still link to `vedjrr` on GitHub.
+- Commits: 62bc4e5..(this handoff)
