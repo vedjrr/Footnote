@@ -7,7 +7,9 @@ import prettier from 'eslint-config-prettier/flat';
 const boundaries = [
   {
     // core is pure TypeScript: only core itself and three libraries.
+    // Test files next to core code may also use the test libraries.
     files: ['src/core/**'],
+    ignores: ['src/core/**/*.test.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -16,6 +18,23 @@ const boundaries = [
             {
               regex: '^(?!(zod|d3-array|yaml)$|@/core/|\\.\\.?/)',
               message: 'core may import only from core, zod, d3-array and yaml (architecture §5).',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/core/**/*.test.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: '^(?!(zod|d3-array|yaml|vitest|fast-check)$|@/core/|\\.\\.?/)',
+              message:
+                'core tests may import only from core and the test libraries (architecture §5).',
             },
           ],
         },
