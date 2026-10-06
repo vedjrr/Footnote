@@ -58,6 +58,12 @@ try {
           colorScheme: theme,
         });
         await page.goto(new URL(route, base).toString(), { waitUntil: 'networkidle' });
+        // Pages that query the engine mark their progress line data-loading.
+        await page
+          .waitForFunction(() => !document.querySelector('[data-loading]'), null, {
+            timeout: 60_000,
+          })
+          .catch(() => console.warn(`still loading after 60 s: ${route} ${width} ${theme}`));
         const path = fileName(route, width, theme);
         await page.screenshot({ path, fullPage: true });
         await page.close();
