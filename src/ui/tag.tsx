@@ -16,6 +16,7 @@ export function Tag({ label, value, assumed, className, type = 'button', ...rest
   return (
     <button
       type={type}
+      aria-label={`${label} ${value}${assumed ? ', assumed' : ''}`}
       className={cx(
         tagClass,
         'hover:border-ink-3 data-[state=open]:border-ink transition-colors duration-(--duration-quick)',

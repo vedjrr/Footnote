@@ -176,7 +176,7 @@ export function MarkDemo() {
 export function MarkStates() {
   return (
     <Notes paperId={PAPER_ID} selected={3}>
-      <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <dl inert className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex flex-col gap-1">
           <dt className="type-caption text-ink-3">Rest</dt>
           <dd className="type-prose text-ink">
