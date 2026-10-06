@@ -182,7 +182,7 @@ export const RETAIL_EFFECTS: Effect[] = [
   {
     id: 'R5',
     spec: 'The top 20% of customers hold about 60% of revenue',
-    briefing: false,
+    briefing: true,
     parameters: {
       customers: P.CUSTOMERS,
       customerSigma: P.CUSTOMER_SIGMA,
@@ -258,7 +258,7 @@ export const RETAIL_EFFECTS: Effect[] = [
   {
     id: 'R7',
     spec: 'Data problems: 1.2% exact duplicate rows, most of them in the week of 10 June 2024; 0.8% of region values in lower case; 0.5% of customer_segment empty; 12 rows with negative quantity',
-    briefing: false,
+    briefing: true,
     parameters: { ...P.R7 },
     checks: [
       {

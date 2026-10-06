@@ -279,6 +279,18 @@ Format for a new decision:
   Headphones spike sits in December, so the check allows a category change
   of up to 1.5 points. The split is still mostly mix: rate over mix is 0.32.
 
+### D-024 Retail R5 and R7 are briefing effects, as the spec says
+- Date: 2026-10-06, task T05
+- Decision: `truth.json` for retail marks R1, R5 and R7 `briefing: true`,
+  following analytics-spec §10 ("Expected in the default briefing: retail
+  R1, R5, R7"). T04 had marked only R1, and its test expected only R1.
+- Why: evals recall (evals.md) counts every `briefing: true` effect. With
+  R5 and R7 unmarked, recall would have been measured against the wrong set.
+  The data and the content hash do not change; only the flags and the test.
+- Considered: keeping R1 alone because "the main planted effect sits in the
+  final month". That sentence explains where the main effect sits; it does
+  not limit the briefing to it.
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.

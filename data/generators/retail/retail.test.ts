@@ -71,7 +71,7 @@ describe('retail sample', () => {
     expect(truth.effects.map((e) => e.id)).toEqual(['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7']);
   });
 
-  it('expects only the latest-month effect in the default briefing', () => {
-    expect(truth.effects.filter((e) => e.briefing).map((e) => e.id)).toEqual(['R1']);
+  it('marks the effects the spec expects in the default briefing', () => {
+    expect(truth.effects.filter((e) => e.briefing).map((e) => e.id)).toEqual(['R1', 'R5', 'R7']);
   });
 });
