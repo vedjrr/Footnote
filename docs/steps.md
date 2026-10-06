@@ -30,7 +30,7 @@ Phase 0, foundations
 - [x] T01 Scaffold and quality gates
 - [x] T02 Design tokens, type and primitives
 - [x] T03 Query engine port, adapters and parity
-- [ ] T04 Sample data: framework and retail
+- [x] T04 Sample data: framework and retail
 - [ ] T05 Sample data: subscriptions and support
 - [ ] T06 App shell, routes and workspace switching
 

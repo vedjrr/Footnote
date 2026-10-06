@@ -10,31 +10,30 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T03 Query engine port, adapters and parity (done)
-- Next task: T04 Sample data: framework and retail
+- Last finished task: T04 Sample data: framework and retail (done)
+- Next task: T05 Sample data: subscriptions and support
 - In progress: nothing
-- Build: Next.js 16.3 app. Routes `/`, `/styleguide`, and `/dev/engine`
-  (engine test page, 404 in production). `npm run check` (eslint, prettier,
-  typegen + tsc, vitest 55 tests incl. Node parity) and `npm run build`
-  pass. `npm run test:e2e` 12 passed. CI green.
-- Engine: port in `src/core/engine/types.ts`, shared normalisation in
-  `src/core/engine/normalise.ts`. `createNodeEngine()` in
-  `src/adapters/duckdb-node`, `createWasmEngine()` in
-  `src/adapters/duckdb-wasm` (lazy, one per page, D-022). Parity: 55
-  statements in `tests/parity/`, expected output in `expected.json`.
-- Hosting: `scripts/copy-duckdb.mjs` fills `public/duckdb/` (not
-  committed) with bundles and the parquet/json extensions (D-020).
+- Build: Next.js 16.3 app. Routes `/`, `/styleguide`, `/dev/engine`
+  (404 in production). `npm run check` (eslint, prettier, typegen + tsc,
+  vitest 69 tests incl. Node parity and retail truth) and `npm run build`
+  pass. `npm run test:e2e` 12 passed at T03.
+- Engine: port `src/core/engine/types.ts`; `createNodeEngine()` and
+  `createWasmEngine()` (one per page, D-022). Parity in `tests/parity/`.
+- Sample data: `npm run data:generate` (tsx, `scripts/generate-data.mts`)
+  writes `data/demo/retail/orders.parquet` (59,881 rows, 0.75 MB) and
+  `truth.json` (R1-R7, realised by query, content hash). Framework in
+  `data/generators/` (rng, write, truth); retail in `retail/` (D-023).
 - UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/`.
 - Scripts: `dev`, `check`, `build`, `test`, `test:coverage`, `test:e2e`,
-  `shots`, `format`. `precompute`, `data:generate`, `eval` do not exist yet.
+  `shots`, `format`, `data:generate`. `precompute`, `eval` do not exist yet.
 - Evals: not run
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
   `next dev` run by an agent appends a block to `CLAUDE.md` (D-014).
-  Playwright browser missing: `npx playwright install chromium`. After
-  changing a DuckDB package, update `ENGINE_VERSION` in the copy script
-  and rerun parity. Open questions Q-06 to Q-10 in `decisions.md`.
-- Updated: 2026-10-06, T03
+  After changing a generator, rerun `npm run data:generate` and commit the
+  data, or the retail tests fail on the hash. `data/demo/` is not
+  prettier-formatted. Open questions Q-06 to Q-11 in `decisions.md`.
+- Updated: 2026-10-06, T04
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -71,6 +70,38 @@ Template:
 ```
 
 ## Log
+
+### T04 Sample data: framework and retail
+- Date: 2026-10-06
+- Outcome: done
+- What changed: `data/generators/rng.ts` (sfc32, allocate, weighted
+  picker, tests); `write.ts` (rows to Parquet via the Node adapter, content
+  hash); `truth.ts` (truth shape, range failures, §6.2 mix and rate);
+  `retail/` (params, generator, R1-R7 measures and ranges, tests);
+  `scripts/generate-data.mts`; `npm run data:generate`; `tsx` dev
+  dependency; `data/demo/retail/orders.parquet` and `truth.json`.
+- Verified: `npm run data:generate && npm run check`: 59,881 rows,
+  0.75 MB, no effect out of range, 69 tests passed. Ran the generator
+  twice: same Parquet sha1 (388e2cfc...) and same content hash
+  (2dbf7644...). Probes: changing R1 `keep` without regenerating failed 2
+  tests (hash, truth); regenerating with it failed the range test and the
+  script printed 4 out-of-range lines. Both restored. CI green on the
+  three code commits.
+- Realised: R1 Electronics -29.2%, Online West -76.3%, share of fall 1.06,
+  total -7.95%; R2 margin -4.23 pts, mostly rate; R3 3.08x; R4 peaks 34.6%
+  and 33.7%, growth 7.7%; R5 58.7%; R6 +0.685 pts, rate/mix 0.32; R7 dups
+  1.20% (68% in the week), lower case 0.79%, empty 0.50%, 12 negative.
+- Decisions: D-023; Q-11 added (0.5% empty segment is under the H3 floor)
+- Differs from the spec: nothing. Growth and customer parameters differ
+  from the realised values; D-023 explains why.
+- Not done: nothing
+- For the next agent: T05 reuses `rng.ts`, `write.ts`, `truth.ts`; add a
+  folder like `retail/` and call it from `scripts/generate-data.mts`.
+  Allocate counts per slot rather than sampling, or effects drown in noise.
+  Set ranges in truth before tuning. `truth.json` has no drill path for R1
+  yet (Q-08, for T30).
+- Ved should know: nothing
+- Commits: debdacf..(this handoff)
 
 ### T03 Query engine port, adapters and parity
 - Date: 2026-10-06
