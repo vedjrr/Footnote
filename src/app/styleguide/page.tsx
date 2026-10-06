@@ -7,7 +7,8 @@ import { Notice, Status } from '@/ui/notice';
 import { Rule } from '@/ui/rule';
 import { StaticTag, Tag } from '@/ui/tag';
 import { ThemeToggle } from '@/ui/theme-toggle';
-import { CopyDemo, MenuDemo, PanelDemo, TooltipDemo } from './_parts/interactive';
+import { CopyButton } from '@/ui/copy-button';
+import { MenuDemo, PanelDemo, TooltipDemo } from './_parts/interactive';
 import { MarkDemo, MarkStates, WorkingPaperSpecimen } from './_parts/mark-demo';
 import { Swatches } from './_parts/swatches';
 
@@ -308,7 +309,7 @@ export default function Styleguide() {
           <Sub title="Quiet">
             <div className="flex flex-wrap gap-6">
               <State label="Rest">
-                <CopyDemo />
+                <CopyButton text="SELECT 1" />
               </State>
               <State label="Hover">
                 <Button variant="quiet" className="underline">

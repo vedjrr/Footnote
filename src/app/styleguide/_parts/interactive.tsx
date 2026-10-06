@@ -82,18 +82,3 @@ export function PanelDemo() {
     </div>
   );
 }
-
-export function CopyDemo() {
-  const [copied, setCopied] = useState(false);
-  return (
-    <Button
-      variant="quiet"
-      onClick={() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
-      }}
-    >
-      {copied ? 'Copied' : 'Copy SQL'}
-    </Button>
-  );
-}

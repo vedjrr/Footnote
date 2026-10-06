@@ -5,12 +5,20 @@ import { Highlight, Mark, Notes, useNotes } from '@/ui/mark';
 import { Button } from '@/ui/button';
 import { Disclosure } from '@/ui/disclosure';
 import { Status } from '@/ui/notice';
-import { CopyDemo } from './interactive';
+import { CopyButton } from '@/ui/copy-button';
 
 // A specimen of the briefing's one designed moment: select a mark and the
 // number and its evidence light up together. Figures are a specimen only.
 
 const PAPER_ID = 'styleguide-working-paper';
+
+const SPECIMEN_SQL = `SELECT date_trunc('month', order_date) AS month,
+       CAST(SUM(revenue) AS DOUBLE) AS revenue
+FROM orders
+WHERE order_date >= DATE '2025-02-01'
+  AND order_date <  DATE '2025-04-01'
+GROUP BY 1
+ORDER BY 1`;
 
 function Row({ label, value, note }: { label: string; value: string; note?: number }) {
   return (
@@ -262,18 +270,12 @@ export function WorkingPaperSpecimen() {
             </Disclosure>
             <Disclosure summary="SQL" defaultOpen className="border-t border-ledger-rule py-1">
               <pre className="type-code break-words whitespace-pre-wrap text-ink">
-                {`SELECT date_trunc('month', order_date) AS month,
-       CAST(SUM(revenue) AS DOUBLE) AS revenue
-FROM orders
-WHERE order_date >= DATE '2025-02-01'
-  AND order_date <  DATE '2025-04-01'
-GROUP BY 1
-ORDER BY 1`}
+                {SPECIMEN_SQL}
               </pre>
             </Disclosure>
           </div>
           <div className="flex flex-wrap items-center gap-4">
-            <CopyDemo />
+            <CopyButton text={SPECIMEN_SQL} />
             <Button>Add to report</Button>
           </div>
         </section>
