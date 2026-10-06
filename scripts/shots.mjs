@@ -43,7 +43,7 @@ let base = process.env.SHOTS_URL ?? 'http://localhost:3000';
 let server = null;
 if (!(await isUp(base))) {
   base = 'http://localhost:3100';
-  server = spawn('npx', ['next', 'dev', '--port', '3100'], { stdio: 'ignore' });
+  server = spawn('npx', ['next', 'dev', '--port', '3100'], { stdio: 'ignore', detached: true });
   await waitFor(base, 120_000);
 }
 
@@ -67,5 +67,6 @@ try {
   }
 } finally {
   await browser.close();
-  server?.kill();
+  // Kill the whole process group: npx leaves next dev running otherwise.
+  if (server) process.kill(-server.pid);
 }
