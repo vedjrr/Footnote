@@ -96,3 +96,11 @@ export function describeSql(table: string): string {
   assertTableName(table);
   return `DESCRIBE "${table}"`;
 }
+
+/** A little-endian two's complement integer held in 32-bit words. */
+export function bigIntFromWords(words: ArrayLike<number>): bigint {
+  let value = 0n;
+  for (let i = words.length - 1; i >= 0; i--) value = (value << 32n) | BigInt(words[i] >>> 0);
+  const negative = words.length > 0 && (words[words.length - 1] & 0x80000000) !== 0;
+  return negative ? value - (1n << BigInt(words.length * 32)) : value;
+}

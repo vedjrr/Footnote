@@ -2,8 +2,7 @@
 // optional bound parameters on a first line `-- params: [...]`.
 
 import { readFileSync, readdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 
 export interface ParityStatement {
   name: string;
@@ -11,7 +10,9 @@ export interface ParityStatement {
   params: (string | number | boolean | null)[];
 }
 
-const here = dirname(fileURLToPath(import.meta.url));
+// Vitest and Playwright both run from the repository root and compile this
+// file differently, so resolve from there rather than import.meta.
+const here = join(process.cwd(), 'tests', 'parity');
 
 export const fixtureSql = readFileSync(join(here, 'fixture.sql'), 'utf8');
 export const expectedPath = join(here, 'expected.json');

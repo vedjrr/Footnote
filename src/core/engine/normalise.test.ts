@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
   assertTableName,
+  bigIntFromWords,
   cellFromBigInt,
   cellFromNumber,
   cellFromScaledDecimal,
@@ -51,4 +52,10 @@ describe('normalise', () => {
     expect(() => assertTableName('x"; DROP TABLE y; --')).toThrow();
     expect(loadFileSql('t', "it's.csv", 'csv')).toContain("'it''s.csv'");
   });
+});
+
+test('decodes 128-bit words', () => {
+  expect(bigIntFromWords([1234, 0, 0, 0])).toBe(1234n);
+  expect(bigIntFromWords([0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff])).toBe(-1n);
+  expect(bigIntFromWords([1, 1, 0, 0])).toBe(4294967297n);
 });
