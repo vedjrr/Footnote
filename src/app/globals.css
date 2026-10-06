@@ -1,1 +1,48 @@
 @import 'tailwindcss';
+@import '../ui/tokens.css';
+@import '../ui/primitives.css';
+
+@layer base {
+  html {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--paper);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--mark);
+    color: var(--paper);
+  }
+
+  input,
+  textarea {
+    caret-color: var(--mark);
+  }
+
+  a {
+    color: var(--mark);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+
+  /* Focus ring: 2 px mark, 2 px offset, on everything focusable (§6). */
+  :focus-visible {
+    outline: 2px solid var(--mark);
+    outline-offset: 2px;
+  }
+
+  @media (forced-colors: active) {
+    :focus-visible {
+      outline-color: Highlight;
+    }
+  }
+}

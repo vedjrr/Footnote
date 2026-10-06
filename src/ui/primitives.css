@@ -1,0 +1,235 @@
+/*
+ * Styles that utilities cannot express cleanly: the reference mark and its
+ * highlight, panel motion, and tables. ui-ux-rules §6 and §8.
+ */
+
+/* Reference mark ---------------------------------------------------------- */
+
+.fn-mark {
+  position: relative;
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+/* Clickable area of at least 24 by 24 px around a small glyph. */
+.fn-mark::after {
+  content: '';
+  position: absolute;
+  inset: -4px -2px;
+}
+
+.fn-ref {
+  margin-left: 1px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--text-mark);
+  line-height: 1;
+  vertical-align: super;
+  color: var(--mark);
+}
+
+.fn-caution {
+  display: inline-flex;
+  margin-left: 2px;
+  vertical-align: super;
+  color: var(--caution);
+}
+
+.fn-mark:hover .fn-number,
+.fn-mark:focus-visible .fn-number {
+  text-decoration: underline 1px var(--mark);
+  text-underline-offset: 4px;
+}
+
+/* Highlight: wipes left to right in 180 ms (§8). Shared by the number in
+   the text and the matching cell in the working paper. */
+.fn-number,
+.fn-highlight {
+  position: relative;
+  isolation: isolate;
+  transition: color var(--duration-wipe) ease-out;
+}
+
+.fn-number::before,
+.fn-highlight::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0 -2px;
+  background: var(--highlight);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--duration-wipe) cubic-bezier(0.2, 0, 0, 1);
+}
+
+.fn-mark[aria-expanded='true'] .fn-number,
+.fn-highlight[data-active] {
+  color: var(--highlight-ink);
+}
+
+.fn-mark[aria-expanded='true'] .fn-number::before,
+.fn-highlight[data-active]::before {
+  transform: scaleX(1);
+}
+
+@media (forced-colors: active) {
+  .fn-mark[aria-expanded='true'] .fn-number,
+  .fn-highlight[data-active] {
+    forced-color-adjust: none;
+    background: Mark;
+    color: MarkText;
+  }
+  .fn-number::before,
+  .fn-highlight::before {
+    display: none;
+  }
+}
+
+/* Working paper content cross-fades in 120 ms when the note changes. */
+.fn-fade {
+  animation: fn-fade var(--duration-quick) ease-out;
+}
+
+@keyframes fn-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Panels and sheets enter in 240 ms (§8). */
+.panel-slide[data-state='open'] {
+  animation: panel-slide var(--duration-panel) var(--ease-panel);
+}
+.sheet-rise[data-state='open'] {
+  animation: sheet-rise var(--duration-panel) var(--ease-panel);
+}
+
+@keyframes panel-slide {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes sheet-rise {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+/* Recomputing: old content held at 60% until replaced (§6 Progress). */
+.fn-stale {
+  opacity: 0.6;
+}
+
+/* Tables ------------------------------------------------------------------ */
+
+/* Wide tables scroll inside their own container with the first column
+   fixed; the page never scrolls sideways (§5). */
+.fn-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+
+.fn-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-small);
+  line-height: var(--text-small--line-height);
+  color: var(--ink);
+}
+
+.fn-table caption {
+  caption-side: bottom;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+  color: var(--ink-3);
+}
+
+.fn-table th,
+.fn-table td {
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+
+.fn-table thead th {
+  background: var(--wash);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.fn-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.fn-table tbody th,
+.fn-table tbody td:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--paper);
+  font-weight: 400;
+}
+
+.fn-table thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.fn-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The same table on ledger, inside the working paper: no outer box. */
+.fn-table-ledger {
+  border: 0;
+}
+.fn-table-ledger .fn-table th,
+.fn-table-ledger .fn-table td {
+  padding: 4px 0;
+  border-bottom-color: var(--ledger-rule);
+}
+.fn-table-ledger .fn-table th + th,
+.fn-table-ledger .fn-table td + td,
+.fn-table-ledger .fn-table th + td {
+  padding-left: 16px;
+}
+.fn-table-ledger .fn-table thead th,
+.fn-table-ledger .fn-table tbody th,
+.fn-table-ledger .fn-table tbody td:first-child {
+  background: var(--ledger);
+}
+
+/* Theme toggle shows the sun in light and the moon in dark. */
+.theme-icon-dark {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .theme-icon-light {
+    display: none;
+  }
+  :root:not([data-theme='light']) .theme-icon-dark {
+    display: flex;
+  }
+}
+:root[data-theme='dark'] .theme-icon-light {
+  display: none;
+}
+:root[data-theme='dark'] .theme-icon-dark {
+  display: flex;
+}
