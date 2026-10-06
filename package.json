@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/copy-duckdb.mjs",
+    "predev": "node scripts/copy-duckdb.mjs --strict",
     "dev": "next dev",
-    "prebuild": "node scripts/copy-duckdb.mjs",
+    "prebuild": "node scripts/copy-duckdb.mjs --strict",
     "build": "next build",
     "start": "next start",
     "lint": "eslint --max-warnings 0 && prettier --check .",

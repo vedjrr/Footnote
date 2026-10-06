@@ -24,8 +24,9 @@ import type {
   QueryResult,
 } from '@/core/engine/types';
 
-/** Where scripts/copy-duckdb.mjs puts the bundles (D-020). */
+/** Where scripts/copy-duckdb.mjs puts the bundles and extensions (D-020). */
 const BUNDLE_PATH = '/duckdb';
+const PRELOADED_EXTENSIONS = ['parquet', 'json'];
 
 interface Started {
   db: duckdb.AsyncDuckDB;
@@ -114,11 +115,13 @@ async function startDuckDb(): Promise<Started> {
   const db = new duckdb.AsyncDuckDB(new duckdb.VoidLogger(), worker);
   await db.instantiate(bundle.mainModule);
   await db.open({
-    // A user's file must load with no network: never fetch extensions.
     query: { castBigIntToDouble: false, castDecimalToDouble: false },
   });
   const conn = await db.connect();
-  await conn.query('SET autoinstall_known_extensions = false');
+  // The browser build has no Parquet or JSON reader built in. Load both now,
+  // from this site, so a file still loads if the network drops later.
+  await conn.query(`SET custom_extension_repository = '${base}/extensions'`);
+  for (const name of PRELOADED_EXTENSIONS) await conn.query(`LOAD ${name}`);
   return { db, conn, worker };
 }
 
