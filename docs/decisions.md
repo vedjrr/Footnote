@@ -241,6 +241,44 @@ Format for a new decision:
   engine per page it passed 5 of 5. The exact cause inside DuckDB-WASM was
   not traced. The real app should also hold one engine per page (T06/T10).
 
+### D-023 Sample data generators: how they run and how effects are planted
+- Date: 2026-10-06, task T04
+- Decision: generators live in `data/generators/` and run with `tsx`
+  (dev dependency) from `scripts/generate-data.mts`. `.mts` is needed
+  because the package is CommonJS, and the script uses top-level await. The
+  RNG is sfc32 seeded through splitmix32 (`rng.ts`). Line counts are not
+  sampled. They are split by largest remainder per month across category ×
+  sub-category × region × channel, and returns are split exactly per month
+  and sub-category. Randomness stays in customer, date, price, quantity,
+  discount and which rows get returned. Rows go to Parquet through the Node
+  adapter: JSON lines, then a typed `CREATE TABLE`, then `COPY ... (FORMAT
+  parquet, COMPRESSION zstd)`. The content hash is sha256 over each row as
+  text, sorted. The output is byte-identical between runs.
+- Why: with free sampling, Electronics Feb-to-March noise was about 5%,
+  as large as the gaps between the spec's ranges. With per-slot counts,
+  only price and quantity noise remain.
+- Alternatives: per-line random choice of category (too noisy); a fixed
+  seed per effect (does not fix noise).
+- Truth ranges: wherever the spec says "about X", the range in
+  `data/generators/<set>/truth.ts` was written down before any tuning and
+  has not been changed since. Effects are measured on the raw data, problems
+  included. R2 and R6 use the §6.2 mix and rate split ("mostly rate" or
+  "mostly mix" per the 2× rule), with a local copy of the formula until
+  T42 builds the real one.
+- Retail column choices: `discount_pct` is whole percentage points
+  (10 means 10%). Money columns are `DECIMAL(12,2)` (`unit_price`
+  `DECIMAL(10,2)`). An empty `customer_segment` is NULL. Duplicate rows sit
+  next to their original. A negative-quantity row is never copied, so that
+  count stays at exactly 12. Negative rows also have negative `revenue`
+  and `cost`.
+- Tuned parameters, and why realised values differ from them:
+  `GROWTH_PER_YEAR` is 5%, which realises as 7.7% for 2024 on 2023. The June
+  duplicates and the Q4 2024 Electronics mix (R6) add to growth.
+  `CUSTOMERS` is 6,800, which gives 5,910 customers with orders. In R6,
+  Electronics' own return rate rises 0.69 points in Q4 2024 because the R3
+  Headphones spike sits in December, so the check allows a category change
+  of up to 1.5 points. The split is still mostly mix: rate over mix is 0.32.
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
@@ -281,6 +319,13 @@ Answer these in the task named, then move the answer up into a decision.
   first commit to the `vedjrr` account, so authorship is fine. Only `gh`
   commands that need write access to `vedjrr/Footnote` (issues, releases)
   may fail until `gh` is switched to `vedjrr`.
+- Q-11 (T13): R7 plants `customer_segment` empty in 0.5% of retail rows,
+  but H3 reports empty values only at 1% or more. As written, the health
+  screen will not show this planted problem. The other R7 problems are
+  caught: duplicates at 1.2% are serious under H1, lower-case regions at
+  0.8% are minor under H4, and negative quantities are minor under H6.
+  Either lower the H3 floor for dictionary columns, or accept that the
+  0.5% only shows in profile null counts.
 
 ## Later
 
