@@ -17,6 +17,30 @@ Git identity for this repository: `vedjrr <ambreved3@gmail.com>` (global
 config). Remote: `https://github.com/vedjrr/Footnote.git`, branch `main`.
 Pushing over HTTPS works with the stored credentials.
 
+## Project packages
+
+Installed in T01 on 2026-10-06 (`npm ls --depth=0`). Use what the installer
+gives; record changes here.
+
+| Package | Version |
+|---|---|
+| next, eslint-config-next | 16.3.8 |
+| react, react-dom | 19.2.8 |
+| typescript | 5.9.3 |
+| tailwindcss, @tailwindcss/postcss | 4.3.3 |
+| eslint | 9.39.5 |
+| prettier | 3.9.9 |
+| vitest, @vitest/coverage-v8 | 5.0.3 |
+| fast-check | 4.10.2 |
+| @playwright/test (Chromium installed) | 1.63.0 |
+| @types/node | 24.19.1 (see D-013) |
+
+CI: GitHub Actions, `actions/checkout@v7`, `actions/setup-node@v7`, Node 24.
+
+`npm audit` (T01): 5 high, all from `braces` under `eslint-config-next`
+(lint-time only, not shipped). The only fix offered is `--force`, which
+would break the lint setup. Recheck when `eslint-config-next` updates.
+
 ## Skills for the jobs in `CLAUDE.md`
 
 | Job | Skill to use | Status |

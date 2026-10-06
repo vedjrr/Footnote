@@ -106,6 +106,44 @@ Format for a new decision:
 - Why: the free Gemini tier may use submitted content to improve Google's
   products.
 
+### D-013 Node 24 in CI, Node types 24
+- Date: 2026-10-06, task T01
+- Decision: CI runs Node 24. `@types/node` is pinned to `^24` and
+  `package.json` declares `engines.node >=24`. Ved's machine runs Node 26.
+- Why: Vitest 5 needs `@types/node` 22 or later, and create-next-app put in
+  20. Node 24 is the active LTS line, so CI tests the oldest version a
+  contributor or Vercel is likely to run.
+- Considered: `--legacy-peer-deps` (hides a real conflict); Node 26 in CI
+  (not LTS, and nothing here needs it).
+
+### D-014 The Next.js agent-rules block stays in CLAUDE.md
+- Date: 2026-10-06, task T01
+- Decision: commit the block that `next dev` appends to `CLAUDE.md`
+  (between the `nextjs-agent-rules` markers) and leave it there.
+- Why: Next 16 writes it whenever `next dev` runs under an agent
+  (`node_modules/next/dist/server/lib/app-info-log.js`,
+  `ensureAgentRulesForDev`) and writes it again if removed, so deleting it
+  leaves a dirty tree after every dev run. Its advice (read the bundled
+  Next docs in `node_modules/next/dist/docs/`) matches `CLAUDE.md`'s rule
+  not to write Next code from memory.
+- Considered: moving it to an `AGENTS.md` (stops the rewrite, but agents
+  here read `CLAUDE.md`, so the advice would be lost); there is no config
+  switch to turn the generator off.
+
+### D-015 Import boundaries are enforced by three ESLint rules
+- Date: 2026-10-06, task T01
+- Decision: `no-restricted-imports` with a regex limits `src/core` to core,
+  `zod`, `d3-array` and `yaml` (this also blocks `node:` built-ins);
+  `import/no-restricted-paths` catches relative paths that leave a folder
+  (core, ui, adapters); `@typescript-eslint/no-restricted-imports` with
+  `allowTypeImports` lets adapters take only types from core, plus values
+  from `core/engine` (the ports).
+- Why: one rule alone misses either package imports or relative paths.
+  All are in `eslint.config.mjs`.
+- Considered: `eslint-plugin-boundaries` (another dependency for the same
+  result). Not enforced: core using DOM globals without importing them;
+  T03 can drop `dom` from a core-only tsconfig if that matters.
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
@@ -138,6 +176,10 @@ Answer these in the task named, then move the answer up into a decision.
 - Q-09 (T00): the T00 skim of `docs/architecture.md` did not happen. The
   session's tool permission check refused to read that file. The next agent
   that reads it should look for conflicts with the other specs.
+  T01: read in full, it opened normally. Within §3, §5 and §12 no conflict
+  with `steps.md` was found. Installed versions differ from §3's "seen"
+  column (TypeScript 5.9, React 19.2); §3 says to use what installers
+  give. Still open: a cross-check of architecture against the other specs.
 - Q-10 (Ved): `gh` is logged in as `vedjr02` while the repository and
   `CLAUDE.md` use `vedjrr`. Pushing works over HTTPS, and GitHub links the
   first commit to the `vedjrr` account, so authorship is fine. Only `gh`
