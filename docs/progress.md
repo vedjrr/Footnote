@@ -10,20 +10,25 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T01 Scaffold and quality gates (done)
-- Next task: T02 Design tokens, type and primitives
+- Last finished task: T02 Design tokens, type and primitives (done)
+- Next task: T03 Query engine port, adapters and parity
 - In progress: nothing
-- Build: Next.js 16.3 app, home page shows "Footnote" only. `npm run check`
-  (eslint, prettier --check, next typegen + tsc, vitest) passes. CI on
-  GitHub Actions runs check and build on every push, green.
+- Build: Next.js 16.3 app. Routes `/` (name only) and `/styleguide`, the
+  visual reference for every token and primitive in both themes.
+  `npm run check` (eslint, prettier, typegen + tsc, vitest 46 tests) and
+  `npm run build` pass. `npm run test:e2e` 8 passed. CI green.
+- UI: tokens in `src/ui/tokens.css` (Tailwind defaults cleared, D-018);
+  primitives in `src/ui/` on Radix and Lucide (D-016); mark and highlight
+  in `src/ui/mark.tsx` (`Notes`, `Mark`, `Highlight`).
 - Scripts: `dev`, `check`, `build`, `test`, `test:coverage`, `test:e2e`,
   `shots`, `format`. `precompute`, `data:generate`, `eval` do not exist yet.
 - Evals: not run
 - Blocked on Ved: nothing
-- Watch out for: `next dev` run by an agent appends a block to `CLAUDE.md`;
-  it is committed on purpose (D-014). Dark screenshots look like light until
-  T02 adds theme tokens. Open questions Q-06 to Q-10 in `decisions.md`.
-- Updated: 2026-10-06, T01
+- Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
+  `next dev` run by an agent appends a block to `CLAUDE.md` (D-014). If
+  Playwright says its browser is missing, run `npx playwright install
+  chromium`. Open questions Q-06 to Q-10 in `decisions.md`.
+- Updated: 2026-10-06, T02
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -60,6 +65,49 @@ Template:
 ```
 
 ## Log
+
+### T02 Design tokens, type and primitives
+- Date: 2026-10-06
+- Outcome: done
+- What changed: `src/ui/tokens.css` (colour light and dark, chart series,
+  type scale as `type-*` utilities, 4 px spacing base, radii, the one
+  shadow, motion with reduced-motion zeroing). Plex Serif, Sans and Mono via
+  `next/font`, theme script before paint (`src/ui/theme.ts`). Primitives:
+  Button, Field, Menu, Tag, Rule, Notice and Status, Icon, Panel, Sheet,
+  Tooltip, ThemeToggle, Disclosure, table styles (`primitives.css`), Mark
+  and Highlight. `/styleguide` with a live mark demo and a full selected
+  working paper specimen. `radix-ui` 1.7.0 and `lucide-react` 1.52.0 added.
+- Verified: `npm run check` passed (46 tests, incl. 40 contrast pairs, the
+  dark-block match and the raw-hex scan; probes with a hex in `src/ui` and
+  a low `--ink-3` each made it fail); `npm run build` passed, `/styleguide`
+  static; `npx playwright test` 8 passed (mark by mouse, by keyboard, 24 px
+  target, reduced motion gives 0s wipe, panel and sheet focus return, theme
+  remembered); `gh run list` CI success on cdffda7.
+- UI check: `npm run shots -- /styleguide`, all six read (cropped to tiles)
+  before and after fixes. No page overflow; wide tables scroll in their box
+  with the first column fixed. Tabbed the page at 1440: order follows
+  reading order, focus ring on every stop. Critic pass (fresh subagent,
+  screenshots and rules only) gave five items: fixed the missing selected
+  working paper, the generic full-width table and loose SQL block, status
+  shown by colour alone (now a visible word), the swatch-grid colour section
+  (now a table with live contrast), and unlabelled field states. Also took
+  its tooltip and bordered-claim notes. Kept: no static drawing of panel
+  and sheet (they open from buttons and are covered by e2e); no motion
+  replay button (selecting a mark shows it); no extra scroll cue on phone
+  tables beyond the fixed first column.
+- Decisions: D-016 Radix and Lucide, D-017 no scrim on panels, D-018 where
+  colours live and how it is checked, D-019 three-way theme control
+- Differs from the spec: dark `--ink` on paper computes to 15.0, the §2
+  table says 15.1 (rounding; the test allows it). Status lines show the
+  word Passed, Caution or Problem before the sentence, to meet §11.
+- Not done: nothing
+- For the next agent: `Mark` needs a `Notes` provider with the working
+  paper's id; `Highlight` with the same note number lights up with it.
+  Panel and Sheet are controlled (`open`, `onOpenChange`) and return focus
+  themselves. `scripts/shots.mjs` now kills its own dev server (fixed here).
+- Ved should know: Playwright's Chromium had to be downloaded again
+  (about 94 MB, free).
+- Commits: 08f17f4..(this handoff)
 
 ### T01 Scaffold and quality gates
 - Date: 2026-10-06

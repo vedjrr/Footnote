@@ -144,6 +144,53 @@ Format for a new decision:
   result). Not enforced: core using DOM globals without importing them;
   T03 can drop `dom` from a core-only tsconfig if that matters.
 
+### D-016 Primitives are Radix through the `radix-ui` package, icons Lucide
+- Date: 2026-10-06, task T02
+- Decision: Menu, Tooltip, Panel and Sheet wrap Radix primitives imported
+  from the unified `radix-ui` package (1.7.0); icons come from
+  `lucide-react` (1.52.0) through `src/ui/icon.tsx`, which exposes only the
+  eleven icons named in ui-ux-rules §4 at a 1.5 px stroke.
+- Why: architecture §3 names Radix; the unified package is what Radix now
+  recommends and avoids version skew between primitives. A closed icon list
+  stops decorative icons creeping in.
+- Considered: the per-primitive `@radix-ui/react-*` packages (same code,
+  more entries in package.json).
+
+### D-017 Panels and sheets have no dimming scrim
+- Date: 2026-10-06, task T02
+- Decision: the Panel and Sheet overlays are transparent. They still catch
+  outside clicks. The panel and sheet carry the one float shadow and a
+  hairline instead.
+- Why: ui-ux-rules §2 rules out translucency, and a scrim is a translucent
+  layer. The page stays readable behind the working paper.
+- Considered: an opaque scrim (hides the claim the evidence belongs to),
+  a translucent ink scrim (breaks §2).
+
+### D-018 Where colours live, and how that is checked
+- Date: 2026-10-06, task T02
+- Decision: all colours, the chart series included, are CSS variables in
+  `src/ui/tokens.css`. Tailwind's default palette, type scale, radii and
+  shadows are cleared, so only token utilities exist. `--highlight-ink` is
+  a token of its own (ink in light, `#FFF3BF` in dark, from the §2 table).
+  `src/ui/tokens.test.ts` fails on a raw hex anywhere in `src/` except
+  `tokens.css` and a future `src/ui/charts/palette.(ts|css)`, checks 20 text
+  pairs per theme at 4.5:1, and checks the two dark blocks are identical.
+  Spacing uses Tailwind's `--spacing: 4px`, so the scale is steps 1, 2, 3,
+  4, 6, 8, 12, 16 and 24; other steps are not blocked by a rule.
+- Why: one source for colour, and a test is cheaper than a custom lint rule.
+- Considered: a Stylelint rule (another tool), an ESLint rule on class
+  strings (misses CSS files).
+
+### D-019 The theme control offers three choices
+- Date: 2026-10-06, task T02
+- Decision: the theme toggle is a small menu with "Same as system", "Light"
+  and "Dark". The choice is stored in `localStorage` (`footnote-theme`) and
+  applied by an inline script before first paint. "Same as system" removes
+  the stored value.
+- Why: §2 asks for a toggle that overrides the system and is remembered; a
+  two-state toggle gives no way back to following the system.
+- Considered: a single button that flips light and dark.
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.

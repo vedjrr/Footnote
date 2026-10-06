@@ -32,8 +32,10 @@ gives; record changes here.
 | prettier | 3.9.9 |
 | vitest, @vitest/coverage-v8 | 5.0.3 |
 | fast-check | 4.10.2 |
-| @playwright/test (Chromium installed) | 1.63.0 |
+| @playwright/test (Chromium installed) | 1.63.0. In T02 the headless shell (build 1243) was missing from the cache and was reinstalled with `npx playwright install chromium`; run that if `shots` or `test:e2e` says the executable does not exist |
 | @types/node | 24.19.1 (see D-013) |
+| radix-ui (added T02, D-016) | 1.7.0 |
+| lucide-react (added T02, D-016) | 1.52.0 |
 
 CI: GitHub Actions, `actions/checkout@v7`, `actions/setup-node@v7`, Node 24.
 
