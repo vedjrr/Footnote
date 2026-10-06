@@ -291,6 +291,41 @@ Format for a new decision:
   final month". That sentence explains where the main effect sits; it does
   not limit the briefing to it.
 
+### D-025 Subscriptions and support generators
+- Date: 2026-10-06, task T05
+- Decision: workspace ids and folders are `saas` (table `subscriptions`)
+  and `support` (table `tickets`), matching the T06 routes. Each sample is
+  a `DemoSpec` (`data/generators/demo.ts`) and shares one test suite
+  (`demo-suite.ts`); retail moved onto it with no change to its data.
+- Slotwise: 2,250 accounts already active in January 2023 (`is_new` false
+  on their first row), then 52 new a month. Churn is an exact count per
+  plan and month; which accounts churn is a weighted draw (Paid search
+  weight 2, S3). A churner's last row has `is_churned` true, and an account
+  that stops before December 2024 always has one. Initial plan and channel
+  mix is new share divided by churn rate, so January 2023 already looks
+  like a survivor base. `mrr` = seats × price per seat by plan
+  (15, 25, 40, 55); `seats` 0 rows (S6) keep their `mrr`. `industry` is
+  NULL for a whole account (2% of accounts, 2.36% of rows).
+- S4 tuning: with no seat growth, APAC fell 6.3% in 2024 because churned
+  Enterprise accounts are larger than new ones. APAC Enterprise seats grow
+  0.7% a month in 2024 (others 3%), which gives -0.46%.
+- Kettle: tickets per day allocated from weekday factors (Monday 1.4,
+  weekend about 0.3) with 5% noise and the 18 July spike. Breaches are
+  allocated per team and month, with 2 to 31 December as its own period.
+  `first_response_minutes` is above the priority's target exactly when
+  `sla_breached` is true. CSAT counts per score are allocated per category
+  and month over 41% of resolved tickets. Open tickets (no `resolved_at`,
+  no `resolution_hours`, no `csat`) are 0.5%, and 25% from 24 December.
+  Timestamps are UTC with no zone. A ticket resolved before it was created
+  has a negative `resolution_hours`. A repeated id copies the id of the
+  row before it.
+- Measures: T1 compares November with 2 to 31 December, as the briefing
+  would; T2 compares November with January to October; T4 compares with
+  the mean of the other Thursdays; T3 leaves 18 July out.
+- Considered: sampling churn per account (Starter Nov to Dec would vary
+  by ±30%); a separate account list file for Slotwise (the spec asks for
+  one table).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.

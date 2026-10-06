@@ -10,19 +10,20 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T04 Sample data: framework and retail (done)
-- Next task: T05 Sample data: subscriptions and support
+- Last finished task: T05 Sample data: subscriptions and support (done)
+- Next task: T06 App shell, routes and workspace switching
 - In progress: nothing
 - Build: Next.js 16.3 app. Routes `/`, `/styleguide`, `/dev/engine`
   (404 in production). `npm run check` (eslint, prettier, typegen + tsc,
-  vitest 69 tests incl. Node parity and retail truth) and `npm run build`
-  pass. `npm run test:e2e` 12 passed at T03.
+  vitest 83 tests incl. Node parity and three sample suites) and
+  `npm run build` pass. `npm run test:e2e` 12 passed at T03.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()` and
   `createWasmEngine()` (one per page, D-022). Parity in `tests/parity/`.
-- Sample data: `npm run data:generate` (tsx, `scripts/generate-data.mts`)
-  writes `data/demo/retail/orders.parquet` (59,881 rows, 0.75 MB) and
-  `truth.json` (R1-R7, realised by query, content hash). Framework in
-  `data/generators/` (rng, write, truth); retail in `retail/` (D-023).
+- Sample data: `npm run data:generate` writes `data/demo/<id>/<table>.parquet`
+  and `truth.json` for `retail` (orders, 59,881 rows), `saas`
+  (subscriptions, 56,352 rows, snapshot) and `support` (tickets, 40,000).
+  Each is a `DemoSpec` in `data/generators/<id>/index.ts`; shared tests in
+  `data/generators/demo-suite.ts` (D-023, D-025). No `dictionary.yaml` yet.
 - UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/`.
 - Scripts: `dev`, `check`, `build`, `test`, `test:coverage`, `test:e2e`,
   `shots`, `format`, `data:generate`. `precompute`, `eval` do not exist yet.
@@ -31,9 +32,9 @@ each new session automatically, so it must be enough to start from.
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
   `next dev` run by an agent appends a block to `CLAUDE.md` (D-014).
   After changing a generator, rerun `npm run data:generate` and commit the
-  data, or the retail tests fail on the hash. `data/demo/` is not
+  data, or the sample tests fail on the hash. `data/demo/` is not
   prettier-formatted. Open questions Q-06 to Q-11 in `decisions.md`.
-- Updated: 2026-10-06, T04
+- Updated: 2026-10-06, T05
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -70,6 +71,39 @@ Template:
 ```
 
 ## Log
+
+### T05 Sample data: subscriptions and support
+- Date: 2026-10-06
+- Outcome: done
+- What changed: `data/generators/saas/` (Slotwise: params, month-by-month
+  account simulation, S1-S6 truth, snapshot test) and `support/` (Kettle
+  Helpdesk: params, generator, T1-T5 truth, consistency test).
+  `demo.ts` (`DemoSpec`, `generateDemo`, `demoTruth`) and `demo-suite.ts`
+  (shared tests); retail moved onto them, data unchanged. Summary helpers
+  moved to `truth.ts`. Retail R5 and R7 now `briefing: true` (D-024).
+- Verified: `npm run data:generate && npm run check`: no line out of
+  range, 83 tests passed. Generated twice: all three Parquet files and
+  truth files byte-identical (sha1 saas 4e4c78fd..., support e8138962...).
+  Sizes 0.75, 0.16, 0.62 MB. Probes: dropping one account-month made the
+  snapshot test fail; Technical rate 0.12 printed T1 out of range. Both
+  restored. CI success on the first four commits; fifth in progress at
+  handoff.
+- Realised: S1 Starter 3.36% to 6.71% (1.997x), other plans within 0.003
+  pts; S2 MRR +23.9%, Enterprise expansion 0.96 of it; S3 Paid search
+  38.6% of new, churn 1.88x; S4 APAC -0.46%, EMEA +28.5%, Americas +37.0%;
+  S5 unique 100%, sum/Dec 10.88; S6 seats 0 0.60%, industry empty 2.36%.
+  T1 8.01% to 21.99%, others within 0.15 pts; T2 -0.60; T3 1.40; T4
+  3.59x; T5 1.5% early, 0.4% repeated ids, csat empty 59.4%.
+- Decisions: D-024 (retail briefing flags), D-025
+- Differs from the spec: nothing
+- Not done: nothing
+- For the next agent: ids are `retail`, `saas`, `support`; table names
+  `orders`, `subscriptions`, `tickets`. `month` is a DATE (first of
+  month). Ticket timestamps are UTC without a zone. Q-06 (S6 cannot reach
+  the briefing) and Q-07 (empty csat) are still open for T13.
+- Ved should know: T04 had marked only R1 for the retail briefing; the spec
+  lists R1, R5 and R7. Fixed in its own commit (ea84219), see D-024.
+- Commits: ea84219..(this handoff)
 
 ### T04 Sample data: framework and retail
 - Date: 2026-10-06
