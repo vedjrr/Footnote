@@ -8,7 +8,7 @@ import { Rule } from '@/ui/rule';
 import { StaticTag, Tag } from '@/ui/tag';
 import { ThemeToggle } from '@/ui/theme-toggle';
 import { CopyDemo, MenuDemo, PanelDemo, TooltipDemo } from './_parts/interactive';
-import { MarkDemo, MarkStates } from './_parts/mark-demo';
+import { MarkDemo, MarkStates, WorkingPaperSpecimen } from './_parts/mark-demo';
 import { Swatches } from './_parts/swatches';
 
 export const metadata: Metadata = { title: 'Styleguide' };
@@ -21,17 +21,17 @@ const surfaces = [
   { token: '--ledger-rule', use: 'Hairlines on ledger' },
 ];
 const inks = [
-  { token: '--ink', use: 'Text, primary buttons' },
-  { token: '--ink-2', use: 'Secondary text' },
-  { token: '--ink-3', use: 'Captions, axis labels, placeholders' },
-  { token: '--mark', use: 'Reference marks, links, focus ring' },
+  { token: '--ink', on: '--paper', use: 'Text, primary buttons' },
+  { token: '--ink-2', on: '--paper', use: 'Secondary text' },
+  { token: '--ink-3', on: '--paper', use: 'Captions, axis labels, placeholders' },
+  { token: '--mark', on: '--paper', use: 'Reference marks, links, focus ring' },
   { token: '--highlight', use: 'The linked highlight, nothing else' },
-  { token: '--highlight-ink', use: 'Text on the highlight' },
+  { token: '--highlight-ink', on: '--highlight', use: 'Text on the highlight' },
 ];
 const statuses = [
-  { token: '--good', use: 'Passed, with icon and word' },
-  { token: '--caution', use: 'Caution, with icon and word' },
-  { token: '--critical', use: 'Problem, with icon and word' },
+  { token: '--good', on: '--paper', use: 'Passed, with icon and word' },
+  { token: '--caution', on: '--paper', use: 'Caution, with icon and word' },
+  { token: '--critical', on: '--paper', use: 'Problem, with icon and word' },
 ];
 const series = [
   { token: '--series-1', use: 'Series 1, emphasis, rise' },
@@ -154,21 +154,35 @@ export default function Styleguide() {
             in the working paper light up together.
           </p>
           <MarkDemo />
-          <MarkStates />
+          <Sub title="Mark states">
+            <MarkStates />
+          </Sub>
+          <Sub title="Working paper with note 1 selected">
+            <WorkingPaperSpecimen />
+          </Sub>
         </Section>
 
         <Section id="colour" title="Colour">
           <Sub title="Surfaces and lines">
-            <Swatches items={surfaces} />
+            <Swatches items={surfaces} caption="Values in the current theme." />
           </Sub>
           <Sub title="Ink, mark and highlight">
-            <Swatches items={inks} />
+            <Swatches
+              items={inks}
+              caption="Contrast is worked out from the values in the current theme."
+            />
           </Sub>
           <Sub title="Status">
-            <Swatches items={statuses} />
+            <Swatches
+              items={statuses}
+              caption="Status colour always comes with an icon and a word."
+            />
           </Sub>
           <Sub title="Chart series">
-            <Swatches items={series} />
+            <Swatches
+              items={series}
+              caption="Every chart also has direct labels and a table view."
+            />
           </Sub>
         </Section>
 
@@ -209,9 +223,15 @@ export default function Styleguide() {
             </State>
           </div>
           <Sub title="Rules">
-            <Rule kind="section" />
-            <Rule />
-            <div className="bg-ledger p-4">
+            <State label="Section start, 32 px in ink">
+              <Rule kind="section" />
+            </State>
+            <div className="flex flex-col gap-2">
+              <span className="type-caption text-ink-3">Hairline on paper</span>
+              <Rule />
+            </div>
+            <div className="flex flex-col gap-2 bg-ledger p-4">
+              <span className="type-caption text-ink-3">Hairline on ledger</span>
               <Rule surface="ledger" />
             </div>
           </Sub>
@@ -232,6 +252,7 @@ export default function Styleguide() {
         </Section>
 
         <Section id="icons" title="Icons">
+          <p className="type-small text-ink-2">Lucide, 1.5 px stroke, at 16 and 20 px.</p>
           <ul className="flex flex-wrap gap-6">
             {iconNames.map((name) => (
               <li key={name} className="flex w-20 flex-col items-start gap-2 text-ink">
@@ -310,18 +331,42 @@ export default function Styleguide() {
 
         <Section id="fields" title="Fields">
           <div className="grid max-w-170 grid-cols-1 gap-8 md:grid-cols-2">
-            <Field label="Workspace name" placeholder="Harbour & Pine" />
-            <Field
-              label="Workspace name"
-              defaultValue="Harbour & Pine"
-              hint="Shown in the top bar."
-            />
-            <Field
-              label="Gemini API key"
-              defaultValue="abc"
-              error="This key is too short. Paste the whole key from Google AI Studio and try again."
-            />
-            <Field label="Workspace name" defaultValue="Harbour & Pine" disabled />
+            <State label="Rest, with placeholder">
+              <Field label="Workspace name" placeholder="Harbour & Pine" className="w-full" />
+            </State>
+            <State label="Focus">
+              <Field
+                label="Find a column"
+                defaultValue="order_date"
+                className="w-full"
+                inputClassName="outline-2 outline-offset-2 outline-mark"
+              />
+            </State>
+            <State label="Filled, with help text">
+              <Field
+                label="Report title"
+                defaultValue="March revenue review"
+                hint="Shown at the top of the exported report."
+                className="w-full"
+              />
+            </State>
+            <State label="Error">
+              <Field
+                label="Gemini API key"
+                defaultValue="abc"
+                error="This key is too short. Paste the whole key from Google AI Studio and try again."
+                className="w-full"
+              />
+            </State>
+            <State label="Disabled">
+              <Field
+                label="Model"
+                defaultValue="Flash"
+                hint="Unavailable while AI assist is off."
+                disabled
+                className="w-full"
+              />
+            </State>
           </div>
         </Section>
 
@@ -362,7 +407,9 @@ export default function Styleguide() {
           <Sub title="Tooltip">
             <div className="flex items-center gap-4">
               <TooltipDemo />
-              <span className="rounded-sm bg-ink px-2 py-1 type-caption text-paper">Copy SQL</span>
+              <span className="rounded-sm border border-rule bg-paper px-2 py-1 type-caption text-ink shadow-float">
+                Copy SQL
+              </span>
             </div>
           </Sub>
         </Section>
@@ -386,7 +433,7 @@ export default function Styleguide() {
         </Section>
 
         <Section id="tables" title="Tables">
-          <Sub title="On paper, scrolling inside its own box with the first column fixed">
+          <Sub title="On paper. Sized to its content; when too wide it scrolls inside its box with the first column fixed">
             <div className="fn-table-wrap">
               <table className="fn-table">
                 <caption>Revenue by region, January to March 2025</caption>
@@ -446,17 +493,6 @@ export default function Styleguide() {
                 </tbody>
               </table>
             </div>
-          </Sub>
-          <Sub title="SQL">
-            <pre className="overflow-x-auto rounded-sm border border-rule bg-wash p-4 type-code whitespace-pre-wrap text-ink">
-              {`SELECT region,
-       CAST(SUM(revenue) AS DOUBLE) AS revenue
-FROM orders
-WHERE order_date >= DATE '2025-03-01'
-  AND order_date <  DATE '2025-04-01'
-GROUP BY region
-ORDER BY revenue DESC`}
-            </pre>
           </Sub>
         </Section>
 

@@ -2,7 +2,10 @@
 
 import type { ReactNode } from 'react';
 import { Highlight, Mark, Notes, useNotes } from '@/ui/mark';
+import { Button } from '@/ui/button';
+import { Disclosure } from '@/ui/disclosure';
 import { Status } from '@/ui/notice';
+import { CopyDemo } from './interactive';
 
 // A specimen of the briefing's one designed moment: select a mark and the
 // number and its evidence light up together. Figures are a specimen only.
@@ -138,8 +141,8 @@ function WorkingPaper() {
 export function MarkDemo() {
   return (
     <Notes paperId={PAPER_ID}>
-      <div className="grid grid-cols-1 border border-rule lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
-        <div className="flex flex-col gap-4 p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-16">
+        <div className="flex flex-col gap-4 py-6">
           <p className="type-lead text-ink">
             Revenue fell{' '}
             <Mark note={1} description="how 7.4% was computed">
@@ -205,6 +208,76 @@ export function MarkStates() {
           </dd>
         </div>
       </dl>
+    </Notes>
+  );
+}
+
+/**
+ * The working paper with note 1 selected, every part in the order of
+ * ui-ux-rules §6: title, definition, scope, result, checks, rows behind it,
+ * SQL, actions.
+ */
+export function WorkingPaperSpecimen() {
+  const specimenId = 'styleguide-paper-specimen';
+  return (
+    <Notes paperId={specimenId} selected={1}>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-16">
+        <p inert className="type-lead py-6 text-ink">
+          Revenue fell{' '}
+          <Mark note={1} description="how 7.4% was computed">
+            7.4%
+          </Mark>{' '}
+          in March, from 1.31M to 1.21M.
+        </p>
+        <section
+          id={specimenId}
+          aria-label="Working paper, note 1"
+          className="flex flex-col gap-6 border-t border-ledger-rule bg-ledger p-6 lg:border-t-0"
+        >
+          <div className="flex flex-col gap-2">
+            <h3 className="flex gap-3 type-body font-medium text-ink">
+              <span className="text-mark">1</span>
+              <span>Revenue, March 2025 against February</span>
+            </h3>
+            <p className="type-small text-ink-2">Revenue is the sum of revenue.</p>
+            <p className="type-small text-ink-2">
+              Orders dated 1 February to 31 March 2025. No filters.
+            </p>
+          </div>
+          <ResultTable>
+            <Row label="Feb 2025" value="1,307,412" />
+            <Row label="Mar 2025" value="1,210,655" />
+            <Row label="Change" value="−7.4%" note={1} />
+          </ResultTable>
+          <div className="flex flex-col gap-2">
+            <Status tone="good">Parts add up to the total.</Status>
+            <Status tone="good">4,212 rows in March.</Status>
+            <Status tone="good">March is a complete month.</Status>
+          </div>
+          <div className="flex flex-col border-y border-ledger-rule">
+            <Disclosure summary="Rows behind it" className="py-1">
+              <p className="type-small text-ink-2">
+                4,212 rows. Five are shown here when this opens.
+              </p>
+            </Disclosure>
+            <Disclosure summary="SQL" defaultOpen className="border-t border-ledger-rule py-1">
+              <pre className="type-code break-words whitespace-pre-wrap text-ink">
+                {`SELECT date_trunc('month', order_date) AS month,
+       CAST(SUM(revenue) AS DOUBLE) AS revenue
+FROM orders
+WHERE order_date >= DATE '2025-02-01'
+  AND order_date <  DATE '2025-04-01'
+GROUP BY 1
+ORDER BY 1`}
+              </pre>
+            </Disclosure>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <CopyDemo />
+            <Button>Add to report</Button>
+          </div>
+        </section>
+      </div>
     </Notes>
   );
 }
