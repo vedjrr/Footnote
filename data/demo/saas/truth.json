@@ -1,0 +1,219 @@
+{
+  "dataset": "saas",
+  "name": "Slotwise",
+  "synthetic": true,
+  "seed": 20261006,
+  "table": "subscriptions",
+  "contentHash": "a06e2d03d85d35c3288440b8e3896f48f3dd51d01102afb7ddced0e3187f983c",
+  "summary": {
+    "rows": {
+      "label": "Rows (account-months)",
+      "min": 50000,
+      "max": 60000,
+      "realised": 56352
+    },
+    "accounts": {
+      "label": "Distinct accounts",
+      "min": 3200,
+      "max": 3800,
+      "realised": 3498
+    },
+    "months": {
+      "label": "Distinct months",
+      "min": 24,
+      "max": 24,
+      "realised": 24
+    }
+  },
+  "effects": [
+    {
+      "id": "S1",
+      "spec": "December 2024: churn rate on the Starter plan about doubles on November. Other plans unchanged. A rate effect",
+      "briefing": true,
+      "parameters": {
+        "month": "2024-12",
+        "plan": "Starter",
+        "factor": 2,
+        "planChurn": [
+          0.035,
+          0.022,
+          0.015,
+          0.008
+        ]
+      },
+      "expected": {
+        "starter_dec_over_nov": {
+          "label": "Starter churn rate, December 2024 over November 2024",
+          "min": 1.7,
+          "max": 2.3
+        },
+        "max_other_plan_change_pts": {
+          "label": "Largest change in another plan’s churn rate, Dec on Nov (points)",
+          "max": 0.5
+        },
+        "mix_over_rate": {
+          "label": "|mix| / |rate| for churn by plan (mostly rate at 0.5 or less, §6.2)",
+          "max": 0.5
+        }
+      },
+      "realised": {
+        "starter_nov_pct": 3.3588,
+        "starter_dec_pct": 6.7073,
+        "starter_dec_over_nov": 1.997,
+        "max_other_plan_change_pts": 0.0032,
+        "overall_change_pts": 0.9198,
+        "mix_over_rate": 0.0004
+      }
+    },
+    {
+      "id": "S2",
+      "spec": "Through 2024, most of the MRR growth comes from Enterprise accounts adding seats",
+      "briefing": false,
+      "parameters": {
+        "enterpriseSeatGrowth": {
+          "2023": 0.004,
+          "2024": 0.03
+        },
+        "planPrice": [
+          15,
+          25,
+          40,
+          55
+        ]
+      },
+      "expected": {
+        "mrr_growth_pct": {
+          "label": "MRR, December 2024 on December 2023 (%)",
+          "min": 5
+        },
+        "enterprise_expansion_share": {
+          "label": "Share of that growth from seats added by Enterprise accounts active in both months",
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "realised": {
+        "mrr_growth_pct": 25.2032,
+        "enterprise_expansion": 926860,
+        "enterprise_expansion_share": 0.9589
+      }
+    },
+    {
+      "id": "S3",
+      "spec": "Paid search brings about 35% of new accounts but they churn about twice as fast",
+      "briefing": false,
+      "parameters": {
+        "channelNewShare": [
+          0.3,
+          0.35,
+          0.15,
+          0.2
+        ],
+        "channelChurnWeight": [
+          1,
+          2,
+          1,
+          1
+        ]
+      },
+      "expected": {
+        "paid_share_of_new_pct": {
+          "label": "Share of new accounts from Paid search (%)",
+          "min": 30,
+          "max": 40
+        },
+        "churn_ratio": {
+          "label": "Monthly churn rate, Paid search over the other channels",
+          "min": 1.7,
+          "max": 2.3
+        }
+      },
+      "realised": {
+        "paid_share_of_new_pct": 38.6218,
+        "paid_churn_pct": 3.2654,
+        "other_churn_pct": 1.733,
+        "churn_ratio": 1.8842
+      }
+    },
+    {
+      "id": "S4",
+      "spec": "APAC MRR is flat across 2024 while the other regions grow",
+      "briefing": false,
+      "parameters": {
+        "region": "APAC",
+        "year": 2024,
+        "seatGrowth": 0.007
+      },
+      "expected": {
+        "apac_change_pct": {
+          "label": "APAC MRR, December 2024 on December 2023 (%)",
+          "min": -3,
+          "max": 3
+        },
+        "apac_max_monthly_gap_pct": {
+          "label": "Largest gap between an APAC month in 2024 and its 2024 mean (%)",
+          "max": 5
+        },
+        "min_other_change_pct": {
+          "label": "Slowest other region, December 2024 on December 2023 (%)",
+          "min": 8
+        }
+      },
+      "realised": {
+        "apac_change_pct": -0.4615,
+        "apac_max_monthly_gap_pct": 2.4138,
+        "emea_change_pct": 28.5274,
+        "americas_change_pct": 36.9544,
+        "min_other_change_pct": 28.5274
+      }
+    },
+    {
+      "id": "S5",
+      "spec": "MRR is a snapshot metric: the 2024 figure is December's, not the sum of twelve months",
+      "briefing": false,
+      "parameters": {},
+      "expected": {
+        "unique_account_month_pct": {
+          "label": "Rows whose (account_id, month) pair is unique (%; §2.7 needs 99 or more)",
+          "min": 100,
+          "max": 100
+        },
+        "sum_over_december": {
+          "label": "Sum of 2024 monthly MRR over December 2024 MRR (what summing would overstate)",
+          "min": 10,
+          "max": 12.5
+        }
+      },
+      "realised": {
+        "unique_account_month_pct": 100,
+        "mrr_2024": 4801625,
+        "sum_over_december": 10.838
+      }
+    },
+    {
+      "id": "S6",
+      "spec": "Data problems: 0.6% of rows have seats 0 with mrr above 0; industry empty in 2%",
+      "briefing": true,
+      "parameters": {
+        "zeroSeatsShare": 0.006,
+        "emptyIndustryShare": 0.02
+      },
+      "expected": {
+        "zero_seats_pct": {
+          "label": "Rows with seats 0 and mrr above 0 (%)",
+          "min": 0.5,
+          "max": 0.7
+        },
+        "empty_industry_pct": {
+          "label": "Rows with industry empty (%)",
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "realised": {
+        "zero_seats_pct": 0.5998,
+        "empty_industry_pct": 2.3619
+      }
+    }
+  ]
+}
