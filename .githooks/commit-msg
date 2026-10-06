@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Keeps Ved as the only credited author. Removes co-author trailers, tool
+# attribution lines and session links from every commit message, whoever or
+# whatever wrote it. Enabled with: git config core.hooksPath .githooks
+
+msg_file="$1"
+[ -f "$msg_file" ] || exit 0
+
+tmp="${msg_file}.clean"
+
+grep -viE \
+  -e '^[[:space:]]*co-authored-by:' \
+  -e '^[[:space:]]*claude-session:' \
+  -e 'generated with .*claude' \
+  -e 'claude\.ai/code/session' \
+  -e 'noreply@anthropic\.com' \
+  "$msg_file" > "$tmp" || true
+
+# Drop blank lines left at the end of the message.
+awk '{ lines[NR] = $0 } END { n = NR; while (n > 0 && lines[n] ~ /^[[:space:]]*$/) n--; for (i = 1; i <= n; i++) print lines[i] }' "$tmp" > "$msg_file"
+rm -f "$tmp"
+
+# A message that was nothing but attribution is not a commit message.
+if ! grep -qE '[^[:space:]]' "$msg_file"; then
+  echo "commit-msg: the message is empty after removing attribution lines." >&2
+  exit 1
+fi
+
+exit 0
