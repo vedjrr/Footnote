@@ -16,7 +16,8 @@
     "format": "prettier --write .",
     "test:e2e": "playwright test",
     "shots": "node scripts/shots.mjs",
-    "postinstall": "node scripts/copy-duckdb.mjs"
+    "postinstall": "node scripts/copy-duckdb.mjs",
+    "data:generate": "tsx scripts/generate-data.mts"
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.33.1-dev57.0",

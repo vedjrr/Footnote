@@ -7,3 +7,6 @@ package-lock.json
 
 # written by the parity test, compared byte for byte
 tests/parity/expected.json
+
+# written by npm run data:generate, compared by the truth tests
+data/demo/

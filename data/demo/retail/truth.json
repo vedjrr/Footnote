@@ -1,0 +1,262 @@
+{
+  "dataset": "retail",
+  "name": "Harbour & Pine",
+  "synthetic": true,
+  "seed": 20261005,
+  "table": "orders",
+  "contentHash": "2dbf76446be6f7dec183160199cd4f850d82811dcfd144f05496e756ac6731f0",
+  "summary": {
+    "rows": {
+      "label": "Rows, duplicates included",
+      "min": 55000,
+      "max": 65000,
+      "realised": 59881
+    },
+    "customers": {
+      "label": "Distinct customers",
+      "min": 5500,
+      "max": 6500,
+      "realised": 5910
+    }
+  },
+  "effects": [
+    {
+      "id": "R1",
+      "spec": "March 2025: Electronics revenue falls about 30% on February, almost all in Online in the West, where it falls about 75%. Total revenue falls 6% to 9%",
+      "briefing": true,
+      "parameters": {
+        "month": "2025-03",
+        "category": "Electronics",
+        "region": "West",
+        "channel": "Online",
+        "keep": 0.22
+      },
+      "expected": {
+        "electronics_change_pct": {
+          "label": "Electronics revenue, March on February (%)",
+          "min": -35,
+          "max": -25
+        },
+        "online_west_change_pct": {
+          "label": "Electronics Online West revenue, March on February (%)",
+          "min": -80,
+          "max": -70
+        },
+        "online_west_share_of_fall": {
+          "label": "Online West's share of the Electronics fall",
+          "min": 0.8,
+          "max": 1.1
+        },
+        "total_change_pct": {
+          "label": "Total revenue, March on February (%)",
+          "min": -9,
+          "max": -6
+        }
+      },
+      "realised": {
+        "electronics_change_pct": -29.2141,
+        "online_west_change_pct": -76.286,
+        "online_west_share_of_fall": 1.0615,
+        "total_change_pct": -7.9525
+      }
+    },
+    {
+      "id": "R2",
+      "spec": "From October 2024: Furniture discounts rise in every segment, so Furniture margin falls about 4 points. A rate effect",
+      "briefing": false,
+      "parameters": {
+        "from": "2024-10",
+        "category": "Furniture",
+        "discountRise": 5.5
+      },
+      "expected": {
+        "margin_change_pts": {
+          "label": "Furniture margin, Oct 2024 to Mar 2025 against Apr to Sep 2024 (points)",
+          "min": -5,
+          "max": -3
+        },
+        "min_segment_discount_rise_pts": {
+          "label": "Smallest rise in mean Furniture discount across segments (points)",
+          "min": 3
+        },
+        "mix_over_rate": {
+          "label": "|mix| / |rate| for margin by segment (mostly rate at 0.5 or less, §6.2)",
+          "max": 0.5
+        }
+      },
+      "realised": {
+        "margin_change_pts": -4.2274,
+        "min_segment_discount_rise_pts": 5.2476,
+        "mix_pts": -0.083,
+        "rate_pts": -4.1444,
+        "mix_over_rate": 0.02
+      }
+    },
+    {
+      "id": "R3",
+      "spec": "December 2024: return rate for the Headphones sub-category is about three times its usual level",
+      "briefing": false,
+      "parameters": {
+        "month": "2024-12",
+        "subCategory": "Headphones",
+        "factor": 3
+      },
+      "expected": {
+        "ratio_to_usual": {
+          "label": "Headphones return rate, Dec 2024 over all other months",
+          "min": 2.5,
+          "max": 3.5
+        }
+      },
+      "realised": {
+        "dec_2024_rate_pct": 21.0526,
+        "usual_rate_pct": 6.8391,
+        "ratio_to_usual": 3.0783
+      }
+    },
+    {
+      "id": "R4",
+      "spec": "November and December are about 35% above the monthly average in both years; underlying growth about 8% a year",
+      "briefing": false,
+      "parameters": {
+        "growthPerYear": 0.05,
+        "peakMonths": [
+          11,
+          12
+        ],
+        "peakFactor": 1.4
+      },
+      "expected": {
+        "peak_lift_2023_pct": {
+          "label": "Nov and Dec 2023 against the 2023 monthly average (%)",
+          "min": 30,
+          "max": 40
+        },
+        "peak_lift_2024_pct": {
+          "label": "Nov and Dec 2024 against the 2024 monthly average (%)",
+          "min": 30,
+          "max": 40
+        },
+        "growth_2024_pct": {
+          "label": "Revenue 2024 on 2023 (%)",
+          "min": 5,
+          "max": 11
+        }
+      },
+      "realised": {
+        "peak_lift_2023_pct": 34.5739,
+        "peak_lift_2024_pct": 33.6543,
+        "growth_2024_pct": 7.7038
+      }
+    },
+    {
+      "id": "R5",
+      "spec": "The top 20% of customers hold about 60% of revenue",
+      "briefing": false,
+      "parameters": {
+        "customers": 6800,
+        "customerSigma": 1,
+        "segmentBoost": [
+          1,
+          1.5,
+          2.5
+        ]
+      },
+      "expected": {
+        "top_20_share_pct": {
+          "label": "Share of revenue held by the top 20% of customers (%)",
+          "min": 55,
+          "max": 65
+        }
+      },
+      "realised": {
+        "top_20_share_pct": 58.7418
+      }
+    },
+    {
+      "id": "R6",
+      "spec": "Q4 2024: overall return rate rises about 0.6 points because Electronics, which has a higher return rate, takes a larger share. Category rates are flat. A mix effect",
+      "briefing": false,
+      "parameters": {
+        "months": [
+          "2024-10",
+          "2024-11",
+          "2024-12"
+        ],
+        "category": "Electronics",
+        "factor": 1.28
+      },
+      "expected": {
+        "overall_change_pts": {
+          "label": "Return rate, Q4 2024 against Q3 2024 (points)",
+          "min": 0.4,
+          "max": 0.8
+        },
+        "rate_over_mix": {
+          "label": "|rate| / |mix| by category (mostly mix at 0.5 or less, §6.2)",
+          "max": 0.5
+        },
+        "max_category_change_pts": {
+          "label": "Largest change in any category return rate (points; Electronics holds R3)",
+          "max": 1.5
+        }
+      },
+      "realised": {
+        "overall_change_pts": 0.685,
+        "mix_pts": 0.5202,
+        "rate_pts": 0.1648,
+        "rate_over_mix": 0.3168,
+        "max_category_change_pts": 0.689
+      }
+    },
+    {
+      "id": "R7",
+      "spec": "Data problems: 1.2% exact duplicate rows, most of them in the week of 10 June 2024; 0.8% of region values in lower case; 0.5% of customer_segment empty; 12 rows with negative quantity",
+      "briefing": false,
+      "parameters": {
+        "duplicateShare": 0.012,
+        "duplicateWeek": {
+          "from": "2024-06-10",
+          "to": "2024-06-16"
+        },
+        "duplicateShareInWeek": 0.7,
+        "lowercaseRegionShare": 0.008,
+        "emptySegmentShare": 0.005,
+        "negativeQuantityRows": 12
+      },
+      "expected": {
+        "duplicate_rows_pct": {
+          "label": "Rows that repeat an earlier row (%)",
+          "min": 1,
+          "max": 1.4
+        },
+        "duplicates_in_week_pct": {
+          "label": "Of those, share dated 10 to 16 June 2024 (%)",
+          "min": 60
+        },
+        "lowercase_region_pct": {
+          "label": "Rows with region in lower case (%)",
+          "min": 0.6,
+          "max": 1
+        },
+        "empty_segment_pct": {
+          "label": "Rows with customer_segment empty (%)",
+          "min": 0.3,
+          "max": 0.7
+        },
+        "negative_quantity_rows": {
+          "label": "Rows with negative quantity",
+          "min": 12,
+          "max": 12
+        }
+      },
+      "realised": {
+        "duplicate_rows_pct": 1.2007,
+        "duplicates_in_week_pct": 68.0111,
+        "lowercase_region_pct": 0.7916,
+        "empty_segment_pct": 0.4993,
+        "negative_quantity_rows": 12
+      }
+    }
+  ]
+}
