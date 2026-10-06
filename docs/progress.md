@@ -10,17 +10,20 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T00 Preflight (done)
-- Next task: T01 Scaffold and quality gates
+- Last finished task: T01 Scaffold and quality gates (done)
+- Next task: T02 Design tokens, type and primitives
 - In progress: nothing
-- Build: no code yet; repo is the spec pack plus `docs/tooling.md`
+- Build: Next.js 16.3 app, home page shows "Footnote" only. `npm run check`
+  (eslint, prettier --check, next typegen + tsc, vitest) passes. CI on
+  GitHub Actions runs check and build on every push, green.
+- Scripts: `dev`, `check`, `build`, `test`, `test:coverage`, `test:e2e`,
+  `shots`, `format`. `precompute`, `data:generate`, `eval` do not exist yet.
 - Evals: not run
 - Blocked on Ved: nothing
-- Watch out for: open questions Q-06 to Q-10 in `decisions.md`, raised in
-  T00. `docs/architecture.md` was not skimmed in T00 (Q-09). The
-  `frontend-design` skill is missing; `docs/tooling.md` names the substitute.
-  `.gitignore` exists with `.DS_Store` and `.env*`; T01 extends it.
-- Updated: 2026-10-06, T00
+- Watch out for: `next dev` run by an agent appends a block to `CLAUDE.md`;
+  it is committed on purpose (D-014). Dark screenshots look like light until
+  T02 adds theme tokens. Open questions Q-06 to Q-10 in `decisions.md`.
+- Updated: 2026-10-06, T01
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -57,6 +60,41 @@ Template:
 ```
 
 ## Log
+
+### T01 Scaffold and quality gates
+- Date: 2026-10-06
+- Outcome: done
+- What changed: Next.js app (App Router, TS strict, Tailwind 4, `src/`,
+  `@/` alias) scaffolded in scratchpad and moved in. `eslint.config.mjs`
+  with the §5 import boundaries (D-015) and Prettier. Vitest + coverage +
+  fast-check (`vitest.config.mts`, one test in `src/config/`). Playwright
+  config and smoke test `tests/e2e/home.spec.ts`. `scripts/shots.mjs`.
+  `.gitignore`, `.env.example`, `src/config/product.ts`,
+  `.github/workflows/ci.yml`. Versions in `docs/tooling.md`.
+- Verified: `npm run check` passed (2 tests); `npm run build` passed (static
+  `/`); `npm run test:e2e` 1 passed; `npm run shots -- /` wrote six files,
+  `ls .screens` listed home-{390,834,1440}-{light,dark}.png; a probe
+  `src/core/react-probe.ts` importing `react` failed eslint with
+  no-restricted-imports (exit 1), then deleted; earlier probes also showed
+  core blocks `node:fs` and relative `../config`, ui blocks `@/app`,
+  adapters block value imports from core outside `engine/`, while `zod`,
+  in-core relative and type-only imports pass; `gh run list` showed CI run
+  37484660596 success, and the run for the last push is checked below.
+- UI check: home at 390 px dark looked at; plain text, as expected before T02
+- Decisions: D-013 Node 24 in CI, D-014 agent block in CLAUDE.md, D-015
+  how boundaries are linted. Q-09 partly answered.
+- Differs from the spec: `vitest.config.mts` not `.ts` (Vite warns on ESM in
+  a CommonJS package). `devIndicators: false` in `next.config.ts` keeps the
+  dev badge out of screenshots. `lint` also runs `prettier --check`.
+  Scaffold README dropped (T74 writes it).
+- Not done: nothing
+- For the next agent: `npm run typecheck` runs `next typegen` first because
+  `LayoutProps` comes from generated types. `shots` reuses a server on
+  :3000 or starts `next dev` on :3100; `test:e2e` uses :3200. Prettier
+  ignores `*.md` and `docs/`.
+- Ved should know: `npm audit` reports 5 high in `braces`, lint-time only
+  (see tooling.md). `CLAUDE.md` gained a Next.js block (D-014).
+- Commits: 73fe5c5..(this handoff)
 
 ### T00 Preflight: repository, identity, hooks, tooling
 - Date: 2026-10-06
