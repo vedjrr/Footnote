@@ -1,4 +1,29 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+.vercel
+
+# tests
+/coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# screenshots from npm run shots
+/.screens/
+
+# env files: never commit, except the example
+.env*
+!.env.example
+
+# misc
 .DS_Store
-.env
-.env.local
-.env*.local
+*.pem
+npm-debug.log*

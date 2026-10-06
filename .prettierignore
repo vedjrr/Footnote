@@ -1,0 +1,6 @@
+# Hand-written prose: keep its line breaks as written.
+*.md
+docs/
+.claude/
+.githooks/
+package-lock.json
