@@ -1,0 +1,187 @@
+{
+  "dataset": "support",
+  "name": "Kettle Helpdesk",
+  "synthetic": true,
+  "seed": 20261007,
+  "table": "tickets",
+  "contentHash": "2824af5db1e35d79d271612e245110fbb52837ec8a75781501db3b82f08183ba",
+  "summary": {
+    "rows": {
+      "label": "Rows (tickets, repeated ids included)",
+      "min": 38000,
+      "max": 42000,
+      "realised": 40000
+    },
+    "days": {
+      "label": "Distinct days with tickets",
+      "min": 366,
+      "max": 366,
+      "realised": 366
+    }
+  },
+  "effects": [
+    {
+      "id": "T1",
+      "spec": "From 2 December 2024: SLA breach rate in the Technical team rises from about 8% to about 22%. Other teams flat. A rate effect",
+      "briefing": true,
+      "parameters": {
+        "from": "2024-12-02",
+        "team": "Technical",
+        "rate": 0.22,
+        "breachRate": [
+          0.07,
+          0.08,
+          0.09,
+          0.06
+        ]
+      },
+      "expected": {
+        "technical_before_pct": {
+          "label": "Technical breach rate, November 2024 (%)",
+          "min": 6,
+          "max": 10
+        },
+        "technical_after_pct": {
+          "label": "Technical breach rate, 2 to 31 December 2024 (%)",
+          "min": 19,
+          "max": 25
+        },
+        "max_other_team_change_pts": {
+          "label": "Largest change in another team’s breach rate, same periods (points)",
+          "max": 2
+        },
+        "mix_over_rate": {
+          "label": "|mix| / |rate| for breach rate by team (mostly rate at 0.5 or less, §6.2)",
+          "max": 0.5
+        }
+      },
+      "realised": {
+        "technical_before_pct": 8.0139,
+        "technical_after_pct": 21.9913,
+        "max_other_team_change_pts": 0.1478,
+        "overall_change_pts": 4.8089,
+        "mix_over_rate": 0.0085
+      }
+    },
+    {
+      "id": "T2",
+      "spec": "November 2024: CSAT for \"Login issues\" falls by about 0.6",
+      "briefing": false,
+      "parameters": {
+        "month": "2024-11",
+        "category": "Login issues",
+        "shares": [
+          0.12,
+          0.13,
+          0.18,
+          0.29,
+          0.28
+        ],
+        "usualShares": [
+          0.04,
+          0.06,
+          0.12,
+          0.33,
+          0.45
+        ]
+      },
+      "expected": {
+        "login_change": {
+          "label": "Login issues mean CSAT, November against January to October 2024",
+          "min": -0.8,
+          "max": -0.4
+        },
+        "max_other_category_change": {
+          "label": "Largest change for another category, same periods",
+          "max": 0.2
+        }
+      },
+      "realised": {
+        "login_nov": 3.4912,
+        "login_usual": 4.0876,
+        "login_change": -0.5964,
+        "max_other_category_change": 0.007
+      }
+    },
+    {
+      "id": "T3",
+      "spec": "Mondays carry about 40% more tickets than other weekdays. This must not be reported as unusual",
+      "briefing": false,
+      "parameters": {
+        "weekdayFactor": [
+          0.3,
+          1.4,
+          1,
+          1,
+          1,
+          1,
+          0.35
+        ],
+        "dayNoise": 0.05
+      },
+      "expected": {
+        "monday_over_other_weekdays": {
+          "label": "Mean tickets on a Monday over the mean on Tuesday to Friday",
+          "min": 1.3,
+          "max": 1.5
+        }
+      },
+      "realised": {
+        "monday_over_other_weekdays": 1.4008
+      }
+    },
+    {
+      "id": "T4",
+      "spec": "18 July 2024: ticket volume is about 3.5 times normal for one day",
+      "briefing": true,
+      "parameters": {
+        "date": "2024-07-18",
+        "factor": 3.5
+      },
+      "expected": {
+        "spike_over_usual": {
+          "label": "Tickets on 18 July 2024 over the mean of the other Thursdays",
+          "min": 3,
+          "max": 4
+        }
+      },
+      "realised": {
+        "spike_tickets": 446,
+        "usual_thursday": 124.2745,
+        "spike_over_usual": 3.5888
+      }
+    },
+    {
+      "id": "T5",
+      "spec": "Data problems: 1.5% of tickets resolved before they were created; 0.4% repeated ticket_id. Empty csat is expected and must be described as \"rated tickets only\", not as a problem",
+      "briefing": true,
+      "parameters": {
+        "resolvedBeforeCreatedShare": 0.015,
+        "repeatedIdShare": 0.004,
+        "ratedShare": 0.41
+      },
+      "expected": {
+        "resolved_before_created_pct": {
+          "label": "Tickets with resolved_at before created_at (%)",
+          "min": 1.3,
+          "max": 1.7
+        },
+        "repeated_id_pct": {
+          "label": "Rows whose ticket_id appeared on an earlier row (%)",
+          "min": 0.3,
+          "max": 0.5
+        },
+        "csat_empty_pct": {
+          "label": "Tickets with csat empty (%)",
+          "min": 55,
+          "max": 65
+        }
+      },
+      "realised": {
+        "resolved_before_created_pct": 1.5,
+        "repeated_id_pct": 0.4,
+        "csat_empty_pct": 59.4225
+      }
+    }
+  ]
+}
