@@ -3,7 +3,7 @@
 import { mkdir, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { QueryEngine } from '@/core/engine/types';
-import { failures, measureAll, queryNumbers, tidy } from '../truth';
+import { failures, measureAll, measureSummary, queryNumbers, summaryFailures } from '../truth';
 import { contentHash, writeParquet, type ColumnSpec } from '../write';
 import { generateRetail } from './generate';
 import * as P from './params';
@@ -29,7 +29,6 @@ export const RETAIL_COLUMNS: ColumnSpec[] = [
 /** Measures the planted effects in the `orders` table of `engine`. */
 export async function retailTruth(engine: QueryEngine) {
   const q = queryNumbers(engine);
-  const [summary] = await q(summarySql);
   return {
     dataset: 'retail',
     name: 'Harbour & Pine',
@@ -37,25 +36,9 @@ export async function retailTruth(engine: QueryEngine) {
     seed: P.SEED,
     table: 'orders',
     contentHash: await contentHash(engine, 'orders'),
-    summary: Object.fromEntries(
-      SUMMARY_CHECKS.map((c) => [
-        c.key,
-        { label: c.label, min: c.min, max: c.max, realised: tidy(summary[c.key]) },
-      ]),
-    ),
+    summary: await measureSummary(q, summarySql, SUMMARY_CHECKS),
     effects: await measureAll(RETAIL_EFFECTS, q),
   };
-}
-
-export function summaryFailures(
-  summary: Record<string, { min?: number; max?: number; realised: number }>,
-): string[] {
-  return Object.entries(summary)
-    .filter(
-      ([, s]) =>
-        (s.min !== undefined && s.realised < s.min) || (s.max !== undefined && s.realised > s.max),
-    )
-    .map(([key, s]) => `summary ${key} = ${s.realised}, expected [${s.min ?? ''}, ${s.max ?? ''}]`);
 }
 
 export async function generateRetailDemo(engine: QueryEngine, outDir: string): Promise<string[]> {

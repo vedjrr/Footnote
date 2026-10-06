@@ -110,3 +110,34 @@ export function mixRate(segments: Segment[]): { mix: number; rate: number; chang
   }
   return { mix, rate, change: R1 - R0 };
 }
+
+export interface SummaryValue {
+  label: string;
+  min?: number;
+  max?: number;
+  realised: number;
+}
+
+/** Runs one summary query and pairs each value with its expected range. */
+export async function measureSummary(
+  q: Query,
+  sql: string,
+  checks: readonly Check[],
+): Promise<Record<string, SummaryValue>> {
+  const [row] = await q(sql);
+  return Object.fromEntries(
+    checks.map((c) => [
+      c.key,
+      { label: c.label, min: c.min, max: c.max, realised: tidy(row[c.key]) },
+    ]),
+  );
+}
+
+export function summaryFailures(summary: Record<string, SummaryValue>): string[] {
+  return Object.entries(summary)
+    .filter(
+      ([, s]) =>
+        (s.min !== undefined && s.realised < s.min) || (s.max !== undefined && s.realised > s.max),
+    )
+    .map(([key, s]) => `summary ${key} = ${s.realised}, expected [${s.min ?? ''}, ${s.max ?? ''}]`);
+}

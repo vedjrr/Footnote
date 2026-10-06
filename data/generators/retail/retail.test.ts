@@ -6,16 +6,16 @@ import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createNodeEngine } from '@/adapters/duckdb-node';
 import type { QueryEngine } from '@/core/engine/types';
-import { failures, type TruthEffect } from '../truth';
+import { failures, summaryFailures, type SummaryValue, type TruthEffect } from '../truth';
 import { contentHash, writeParquet } from '../write';
 import { generateRetail } from './generate';
-import { RETAIL_COLUMNS, retailTruth, summaryFailures } from './index';
+import { RETAIL_COLUMNS, retailTruth } from './index';
 
 const dir = join(import.meta.dirname, '..', '..', 'demo', 'retail');
 const parquetPath = join(dir, 'orders.parquet');
 const truth = JSON.parse(readFileSync(join(dir, 'truth.json'), 'utf8')) as {
   contentHash: string;
-  summary: Record<string, { min?: number; max?: number; realised: number }>;
+  summary: Record<string, SummaryValue>;
   effects: TruthEffect[];
 };
 
