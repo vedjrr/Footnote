@@ -49,7 +49,7 @@ export function GlancePaper({
       <p className="text-ink-2">
         The period being reported and a summary of data health will be added here.
       </p>
-      {marks && (
+      {marks && data && (
         <p className="text-ink-2">Select a numbered mark to see how that number was worked out.</p>
       )}
     </div>

@@ -5,7 +5,7 @@ import type { ColumnType } from '@/core/engine/types';
 import { formatDay, formatInteger } from '@/core/narrative/format';
 import { useSample, type LoadedSample } from '@/features/workspace/sample-store';
 import { findSample, type Sample } from '@/features/workspace/samples';
-import { GlancePaper, dayRange } from '@/features/workspace/glance-paper';
+import { GlancePaper } from '@/features/workspace/glance-paper';
 import { WorkspacePage } from '@/features/workspace/workspace-page';
 import { Button } from '@/ui/button';
 import { CopyButton } from '@/ui/copy-button';
@@ -28,8 +28,9 @@ const TYPE_WORDS: Record<ColumnType, string> = {
 
 const TITLES: Record<number, string> = {
   1: 'Rows in the file',
-  2: 'Days the data covers',
-  3: 'Columns in the file',
+  2: 'First day in the data',
+  3: 'Last day in the data',
+  4: 'Columns in the file',
 };
 
 export function SampleFacts({ sampleId }: { sampleId: string }) {
@@ -46,14 +47,15 @@ export function SampleFacts({ sampleId }: { sampleId: string }) {
       <article className="flex flex-col gap-4">
         <h1 className="type-h2 text-ink">{sample.name}</h1>
         {state.status === 'loading' && (
-          <p role="status" className="type-small text-ink-2">
+          <p role="status" data-loading className="type-small text-ink-2">
             {state.step}
           </p>
         )}
         {state.status === 'error' && (
           <div className="flex flex-col items-start gap-4">
             <Status tone="critical">
-              The {sample.name} sample did not load. {state.message}. Reload the page to try again.
+              The {sample.name} sample did not load. {state.message}. Reload to try again, or choose
+              another sample from the menu at the top.
             </Status>
             <Button onClick={() => window.location.reload()}>Reload</Button>
           </div>
@@ -75,7 +77,7 @@ export function SampleFacts({ sampleId }: { sampleId: string }) {
 }
 
 function Facts({ sample, data }: { sample: Sample; data: LoadedSample }) {
-  const { rows, columns } = data.glance;
+  const { rows, columns, firstDay, lastDay } = data.glance;
   if (rows === 0)
     return (
       <p className="type-prose text-ink">
@@ -89,11 +91,15 @@ function Facts({ sample, data }: { sample: Sample; data: LoadedSample }) {
         <span data-testid="row-count">{formatInteger(rows)}</span>
       </Mark>{' '}
       {sample.rowNoun} dated{' '}
-      <Mark note={2} description="where the first and last days come from">
-        {dayRange(data)}
+      <Mark note={2} description="where the first day comes from">
+        {firstDay ? formatDay(firstDay) : 'no day'}
+      </Mark>{' '}
+      to{' '}
+      <Mark note={3} description="where the last day comes from">
+        {lastDay ? formatDay(lastDay) : 'no day'}
       </Mark>
       , in{' '}
-      <Mark note={3} description="which columns were found">
+      <Mark note={4} description="which columns were found">
         {formatInteger(columns)}
       </Mark>{' '}
       columns.
@@ -102,15 +108,15 @@ function Facts({ sample, data }: { sample: Sample; data: LoadedSample }) {
 }
 
 function Paper({ note, sample, data }: { note: number; sample: Sample; data: LoadedSample }) {
-  const isColumns = note === 3;
+  const isColumns = note === 4;
   const sql = isColumns ? data.describeSql : data.glanceSql;
   return (
     <>
       <div className="flex flex-col gap-2 type-small text-ink-2">
         <p>
           {note === 1 && 'Every row in the file is counted, duplicates included.'}
-          {note === 2 &&
-            `The earliest and latest ${sample.timeColumn} in the file, read as calendar days.`}
+          {note === 2 && `The earliest ${sample.timeColumn} in the file, read as a calendar day.`}
+          {note === 3 && `The latest ${sample.timeColumn} in the file, read as a calendar day.`}
           {isColumns && 'Every column the query engine found, with the type it read.'}
         </p>
         <p>All rows of the {sample.table} table. No filters.</p>
@@ -157,7 +163,7 @@ function GlanceTable({ data }: { data: LoadedSample }) {
           <tr>
             <th scope="row">Last day</th>
             <td className="num">
-              <Highlight note={2}>{lastDay ? formatDay(lastDay) : 'none'}</Highlight>
+              <Highlight note={3}>{lastDay ? formatDay(lastDay) : 'none'}</Highlight>
             </td>
           </tr>
         </tbody>
@@ -173,11 +179,11 @@ function ColumnTable({ data }: { data: LoadedSample }) {
   const shown = all ? data.columns : data.columns.slice(0, SHOWN);
   return (
     <div className="flex flex-col items-start gap-2">
+      <p className="type-small text-ink">
+        <Highlight note={4}>{formatInteger(data.columns.length)}</Highlight> columns
+      </p>
       <div className="fn-table-wrap fn-table-ledger">
         <table className="fn-table">
-          <caption>
-            <Highlight note={3}>{formatInteger(data.columns.length)}</Highlight> columns
-          </caption>
           <thead>
             <tr>
               <th scope="col">Column</th>

@@ -21,7 +21,7 @@ import { ThemeToggle } from '@/ui/theme-toggle';
 import { VIEWS, locate, viewHref, type ViewSlug } from './routes';
 
 const quietControl =
-  'flex h-8 items-center gap-1 rounded-sm px-2 text-ink hover:bg-wash data-[state=open]:bg-wash';
+  'flex h-8 items-center gap-1 rounded-sm px-2 hover:bg-wash data-[state=open]:bg-wash';
 
 function navClass(current: boolean) {
   return cx(
@@ -56,10 +56,13 @@ export function TopBar() {
   }));
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-rule bg-paper px-4 type-small md:gap-6 md:px-8">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-rule bg-paper px-4 type-small md:gap-6 md:px-8">
       <Link href="/" className="flex shrink-0 items-start text-ink no-underline">
         <span className="font-serif text-[18px] leading-6 font-medium">{product.name}</span>
-        <sup className="ml-px mt-0.5 font-sans text-[11px] leading-none font-semibold text-mark">
+        <sup
+          aria-hidden
+          className="ml-px mt-0.5 font-sans text-[11px] leading-none font-semibold text-mark"
+        >
           1
         </sup>
       </Link>
@@ -79,7 +82,7 @@ export function TopBar() {
         ))}
       </nav>
 
-      <div className="ml-auto flex shrink-0 items-center gap-2 md:gap-4">
+      <div className="ml-auto flex shrink-0 items-center gap-1 md:gap-4">
         <Link
           href="/accuracy"
           aria-current={pathname === '/accuracy' ? 'page' : undefined}
@@ -91,13 +94,13 @@ export function TopBar() {
         <Link
           href={viewHref(sample.id, 'ask')}
           aria-current={view === 'ask' ? 'page' : undefined}
-          className={cx('md:hidden', navClass(view === 'ask'))}
+          className={cx('px-2 md:hidden', navClass(view === 'ask'))}
         >
           Ask
         </Link>
         <button
           type="button"
-          className={cx(quietControl, 'lg:hidden')}
+          className={cx(quietControl, 'text-ink-2 lg:hidden')}
           aria-haspopup="dialog"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen(true)}
@@ -133,7 +136,7 @@ export function TopBar() {
             </Link>
           ))}
         </nav>
-        <AiAssist className="flex md:hidden" />
+        <AiAssist className="-ml-2 flex self-start md:hidden" />
       </Sheet>
     </header>
   );
@@ -146,10 +149,10 @@ function WorkspaceSwitcher({ current, view }: { current: string; view: ViewSlug 
     <Menu>
       <MenuTrigger
         aria-label={`Workspace: ${sample.name}, sample data`}
-        className={cx(quietControl, 'min-w-0 shrink')}
+        className={cx(quietControl, '-ml-2 min-w-0 shrink text-ink md:ml-0')}
       >
         <span className="truncate">
-          {sample.name} <span className="text-ink-3">(sample)</span>
+          {sample.name} <span className="hidden text-ink-3 sm:inline">(sample)</span>
         </span>
         <Icon name="chevron-down" className="shrink-0 text-ink-3" />
       </MenuTrigger>
@@ -172,7 +175,7 @@ function WorkspaceSwitcher({ current, view }: { current: string; view: ViewSlug 
 function AiAssist({ className }: { className?: string }) {
   return (
     <Menu>
-      <MenuTrigger className={cx(quietControl, 'whitespace-nowrap', className)}>
+      <MenuTrigger className={cx(quietControl, 'whitespace-nowrap text-ink', className)}>
         AI assist <span className="text-ink-3">Off</span>
       </MenuTrigger>
       <MenuContent align="end" className="max-w-80 p-3">
