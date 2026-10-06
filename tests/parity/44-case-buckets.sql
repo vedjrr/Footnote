@@ -1,0 +1,2 @@
+SELECT CASE WHEN units < 30 THEN 'low' WHEN units < 70 THEN 'mid' ELSE 'high' END AS band,
+  CAST(COUNT(*) AS BIGINT) AS n FROM fx GROUP BY 1 ORDER BY 1;

@@ -1,0 +1,2 @@
+SELECT 1::TINYINT AS tiny, 2::SMALLINT AS small, 3::INTEGER AS int, 4::BIGINT AS big,
+  5::HUGEINT AS huge, 6::UBIGINT AS ubig, 1.5::FLOAT AS f;

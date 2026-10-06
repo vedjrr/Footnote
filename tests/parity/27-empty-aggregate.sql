@@ -1,0 +1,1 @@
+SELECT CAST(SUM(revenue) AS DOUBLE) AS revenue, CAST(COUNT(*) AS BIGINT) AS n FROM fx WHERE id < 0;

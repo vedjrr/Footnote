@@ -1,0 +1,2 @@
+SELECT plan, CAST(SUM(units) AS BIGINT) AS units FROM fx
+GROUP BY plan HAVING SUM(units) > 500 ORDER BY plan NULLS LAST;

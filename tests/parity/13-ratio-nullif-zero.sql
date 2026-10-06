@@ -1,0 +1,1 @@
+SELECT CAST(SUM(revenue) AS DOUBLE) / NULLIF(CAST(SUM(units * 0) AS DOUBLE), 0) AS ratio FROM fx;

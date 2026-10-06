@@ -4,3 +4,6 @@ docs/
 .claude/
 .githooks/
 package-lock.json
+
+# written by the parity test, compared byte for byte
+tests/parity/expected.json

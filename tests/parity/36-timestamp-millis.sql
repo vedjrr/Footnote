@@ -1,0 +1,1 @@
+SELECT id, created_at + INTERVAL 123 MILLISECOND AS at_ms FROM fx ORDER BY id LIMIT 10;
