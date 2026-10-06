@@ -10,25 +10,31 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T02 Design tokens, type and primitives (done)
-- Next task: T03 Query engine port, adapters and parity
+- Last finished task: T03 Query engine port, adapters and parity (done)
+- Next task: T04 Sample data: framework and retail
 - In progress: nothing
-- Build: Next.js 16.3 app. Routes `/` (name only) and `/styleguide`, the
-  visual reference for every token and primitive in both themes.
-  `npm run check` (eslint, prettier, typegen + tsc, vitest 46 tests) and
-  `npm run build` pass. `npm run test:e2e` 8 passed. CI green.
-- UI: tokens in `src/ui/tokens.css` (Tailwind defaults cleared, D-018);
-  primitives in `src/ui/` on Radix and Lucide (D-016); mark and highlight
-  in `src/ui/mark.tsx` (`Notes`, `Mark`, `Highlight`).
+- Build: Next.js 16.3 app. Routes `/`, `/styleguide`, and `/dev/engine`
+  (engine test page, 404 in production). `npm run check` (eslint, prettier,
+  typegen + tsc, vitest 55 tests incl. Node parity) and `npm run build`
+  pass. `npm run test:e2e` 12 passed. CI green.
+- Engine: port in `src/core/engine/types.ts`, shared normalisation in
+  `src/core/engine/normalise.ts`. `createNodeEngine()` in
+  `src/adapters/duckdb-node`, `createWasmEngine()` in
+  `src/adapters/duckdb-wasm` (lazy, one per page, D-022). Parity: 55
+  statements in `tests/parity/`, expected output in `expected.json`.
+- Hosting: `scripts/copy-duckdb.mjs` fills `public/duckdb/` (not
+  committed) with bundles and the parquet/json extensions (D-020).
+- UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/`.
 - Scripts: `dev`, `check`, `build`, `test`, `test:coverage`, `test:e2e`,
   `shots`, `format`. `precompute`, `data:generate`, `eval` do not exist yet.
 - Evals: not run
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
-  `next dev` run by an agent appends a block to `CLAUDE.md` (D-014). If
-  Playwright says its browser is missing, run `npx playwright install
-  chromium`. Open questions Q-06 to Q-10 in `decisions.md`.
-- Updated: 2026-10-06, T02
+  `next dev` run by an agent appends a block to `CLAUDE.md` (D-014).
+  Playwright browser missing: `npx playwright install chromium`. After
+  changing a DuckDB package, update `ENGINE_VERSION` in the copy script
+  and rerun parity. Open questions Q-06 to Q-10 in `decisions.md`.
+- Updated: 2026-10-06, T03
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -65,6 +71,41 @@ Template:
 ```
 
 ## Log
+
+### T03 Query engine port, adapters and parity
+- Date: 2026-10-06
+- Outcome: done
+- What changed: `src/core/engine/types.ts` (port as in architecture §4, plus
+  `FileSource` and `FileFormat`), `normalise.ts` with tests. Node adapter on
+  `@duckdb/node-api` 1.5.6-r.1 (dev dependency). WASM adapter on
+  `@duckdb/duckdb-wasm` 1.33.1-dev57.0 in a worker, Arrow decoded to
+  `Cell`. `scripts/copy-duckdb.mjs` (postinstall, predev, prebuild).
+  `tests/parity/` (fixture + 55 statements, Vitest suite),
+  `tests/e2e/parity.spec.ts`, `tests/e2e/offline.spec.ts`, `/dev/engine`.
+- Verified: `npm run check` passed (55 tests); `npm run test:e2e -- parity
+  offline` 4 passed; `npm run test:e2e` 12 passed; parity repeated 5 times,
+  5 passed; a changed value in `expected.json` made browser parity fail
+  (restored); `npm run build` passed and `next start` gave 404 on
+  `/dev/engine` and 200 `application/wasm` for `/duckdb/duckdb-eh.wasm`;
+  `gh run list` CI success on the docs commit.
+- Decisions: D-020 (answers Q-01: serve from this site, host the
+  extensions), D-021 normalisation details, D-022 harness, one engine per
+  page, ES2020 target, core tests may import vitest
+- Differs from the spec: `FileSource` was not defined in the spec; it is a
+  union of bytes (both adapters) and path (Node only). The browser build
+  needs a download for Parquet and JSON; both are hosted and loaded at
+  engine start. Engines differ: 1.5.4 (browser), 1.5.6 (Node).
+- Not done: nothing
+- For the next agent: create one WASM engine per page and start it early
+  (for example on page load), or files cannot load offline. Node reads
+  Parquet and JSON with no download. The fixture is built from `range()`
+  in SQL, so no data file is needed. Timestamps come back to the
+  millisecond. If parity breaks after an upgrade, read the soft-assert diff
+  per statement in the Playwright report.
+- Ved should know: first use of the engine downloads about 36 MB of WASM
+  (the eh build) plus 4 MB of extensions. Vercel compression and caching for
+  these files is untested until T75.
+- Commits: 5400d2e..(this handoff)
 
 ### T02 Design tokens, type and primitives
 - Date: 2026-10-06
