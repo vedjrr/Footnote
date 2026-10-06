@@ -1,7 +1,7 @@
 'use client';
 
 import { Dialog } from 'radix-ui';
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { cx } from './cx';
 import { Icon } from './icon';
 
@@ -14,6 +14,24 @@ interface OverlayProps {
   children: ReactNode;
   /** `ledger` for the working paper, `paper` for anything else. */
   surface?: 'ledger' | 'paper';
+}
+
+/**
+ * These dialogs are opened from state, not from a Dialog.Trigger, so Radix
+ * has no trigger to give focus back to. Remember what had focus on open and
+ * return to it on close.
+ */
+function useReturnFocus() {
+  const returnTo = useRef<HTMLElement | null>(null);
+  return {
+    onOpenAutoFocus: () => {
+      returnTo.current = document.activeElement as HTMLElement | null;
+    },
+    onCloseAutoFocus: (event: Event) => {
+      event.preventDefault();
+      returnTo.current?.focus();
+    },
+  };
 }
 
 function Header({ title, description }: { title: ReactNode; description?: ReactNode }) {
@@ -50,11 +68,13 @@ export function Panel({
   children,
   surface = 'ledger',
 }: OverlayProps) {
+  const focus = useReturnFocus();
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40" />
         <Dialog.Content
+          {...focus}
           className={cx(
             'fixed inset-y-0 right-0 z-50 flex w-full max-w-100 flex-col gap-6 overflow-y-auto border-l p-6 shadow-float panel-slide',
             surface === 'ledger' ? 'bg-ledger border-ledger-rule' : 'bg-paper border-rule',
@@ -80,11 +100,13 @@ export function Sheet({
   children,
   surface = 'ledger',
 }: OverlayProps) {
+  const focus = useReturnFocus();
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40" />
         <Dialog.Content
+          {...focus}
           className={cx(
             'fixed inset-x-0 bottom-0 z-50 flex max-h-[80dvh] flex-col gap-6 overflow-y-auto rounded-t-md border-t p-4 pb-8 shadow-float sheet-rise',
             surface === 'ledger' ? 'bg-ledger border-ledger-rule' : 'bg-paper border-rule',
