@@ -10,31 +10,32 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T05 Sample data: subscriptions and support (done)
-- Next task: T06 App shell, routes and workspace switching
+- Last finished task: T06 App shell, routes and workspace switching (done)
+- Next task: T10 Use your own file
 - In progress: nothing
-- Build: Next.js 16.3 app. Routes `/`, `/styleguide`, `/dev/engine`
-  (404 in production). `npm run check` (eslint, prettier, typegen + tsc,
-  vitest 83 tests incl. Node parity and three sample suites) and
-  `npm run build` pass. `npm run test:e2e` 12 passed at T03.
+- Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
+  briefing), `/w/<retail|saas|support>/<briefing|ask|metrics|health|report>`,
+  `/accuracy`, `/about`; `/styleguide`, `/dev/engine` outside the shell.
+  `npm run check` (99 tests), `npm run build` and `npm run test:e2e`
+  (14) pass.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()` and
-  `createWasmEngine()` (one per page, D-022). Parity in `tests/parity/`.
-- Sample data: `npm run data:generate` writes `data/demo/<id>/<table>.parquet`
-  and `truth.json` for `retail` (orders, 59,881 rows), `saas`
-  (subscriptions, 56,352 rows, snapshot) and `support` (tickets, 40,000).
-  Each is a `DemoSpec` in `data/generators/<id>/index.ts`; shared tests in
-  `data/generators/demo-suite.ts` (D-023, D-025). No `dictionary.yaml` yet.
-- UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/`.
+  `createWasmEngine()`. In the app, `features/workspace/sample-store.ts`
+  holds the page's one engine and loads each sample once (`useSample`).
+- Sample data: `data/demo/<id>/` (committed) copied to `public/demo/<id>/`
+  by `scripts/copy-demo.mjs` (D-026). Registry with time columns in
+  `features/workspace/samples.ts`. No `dictionary.yaml` yet.
+- UI: tokens in `src/ui/tokens.css` (breakpoint `wide` = 1200 px);
+  primitives in `src/ui/`; `WorkspacePage` lays out reading column and
+  working paper at all three widths.
 - Scripts: `dev`, `check`, `build`, `test`, `test:coverage`, `test:e2e`,
-  `shots`, `format`, `data:generate`. `precompute`, `eval` do not exist yet.
+  `shots` (waits for `[data-loading]` to go), `format`, `data:generate`.
 - Evals: not run
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
-  `next dev` run by an agent appends a block to `CLAUDE.md` (D-014).
-  After changing a generator, rerun `npm run data:generate` and commit the
-  data, or the sample tests fail on the hash. `data/demo/` is not
-  prettier-formatted. Open questions Q-06 to Q-11 in `decisions.md`.
-- Updated: 2026-10-06, T05
+  A dev server left on port 3100 stops `npm run test:e2e` starting.
+  After a route move, delete `.next/dev/types` if tsc names a missing page.
+  Open questions Q-06 to Q-11 in `decisions.md`.
+- Updated: 2026-10-06, T06
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -71,6 +72,44 @@ Template:
 ```
 
 ## Log
+
+### T06 App shell, routes and workspace switching
+- Date: 2026-10-06
+- Outcome: done
+- What changed: `scripts/copy-demo.mjs` and `public/demo/` (ignored);
+  `core/profile/glance.ts` (rows, first and last day), `core/narrative/
+  format.ts` (integers, days; T23 extends it); `features/workspace/`
+  (samples, sample store, `WorkspacePage`, glance paper, planned views);
+  `features/shell/` (routes, top bar with switcher, nav, AI assist Off,
+  theme, phone and tablet menu); `features/briefing/sample-facts.tsx`
+  (facts with four marks, working paper with table and SQL);
+  `ui/copy-button.tsx`; routes under `src/app/(app)/`.
+- Verified: `npm run check`: 99 tests passed. `npm run test:e2e`: 14
+  passed, including loads `/`, reads 59,881, switches to Slotwise, reads
+  56,352. `npm run build`: all workspace routes static. `npm run shots --
+  / /w/saas/briefing /w/support/briefing`: 18 images, all opened.
+- UI check: 390, 834, 1440, light and dark. Fixed: long date-range mark
+  would not wrap on phones (now one mark per day), column count in a
+  caption was indented, menu items misaligned. States seen in scripted
+  shots: loading (download held), error (404 on the file, Reload), empty
+  (code path, no sample has 0 rows), ideal, selected mark on desktop, panel
+  on tablet, sheet on phone, menu sheet, switcher, AI assist. Tab order:
+  wordmark, switcher, five views, Accuracy, AI assist, theme, marks 1-4.
+  Critic pass not required for T06; not run. Not a generic template: the
+  ledger working paper and linked highlight carry it already.
+- Decisions: D-026, D-027
+- Differs from the spec: tablet (768-1023 px) shows the view links behind
+  "Menu" (D-027). Facts are queried in the browser, not in the initial
+  HTML; FR-01's static briefing is T45's job.
+- Not done: nothing
+- For the next agent: T10 adds "Use your own file" to `WorkspaceSwitcher`
+  in `features/shell/top-bar.tsx`; local workspaces will need an id the
+  `w/[workspace]/layout.tsx` 404 check accepts. On phones the switcher
+  truncates "Harbour & Pine"; the full name is in its accessible name.
+  Dev logs a React warning about the theme `<script>` in `layout.tsx`
+  (from T02, harmless).
+- Ved should know: nothing
+- Commits: f7859cb..(this handoff)
 
 ### T05 Sample data: subscriptions and support
 - Date: 2026-10-06

@@ -341,6 +341,25 @@ Format for a new decision:
   handler that streams from `data/` (needs a server per request, and the
   sample pages are meant to be static).
 
+### D-027 App shell: routes, sample loading and the top bar at each width
+- Date: 2026-10-06, task T06
+- Decision: the shell lives in the `(app)` route group, so `/styleguide`
+  and `/dev/engine` keep no top bar. `/` renders the retail briefing and
+  `/w/<id>/<view>` the others; `/w/<id>` redirects to the briefing and an
+  unknown id is a 404. Samples are listed in
+  `src/features/workspace/samples.ts` with their time column until the
+  dictionary exists (T12). `sample-store.ts` keeps one WASM engine per page
+  and loads each sample once (all three tables can sit in it at once);
+  views read it with `useSample`. The top bar shows the view links from
+  1024 px; below that they sit behind "Menu" with Accuracy and About.
+- Why: at 834 px the wordmark, switcher, five links, Accuracy, AI assist
+  and theme control do not fit on one 56 px line. A menu keeps the bar to
+  one line; §5 only describes the collapse for phones.
+- Considered: a second row for the links on tablets (another 40 px of
+  chrome above every page); a Zustand store now (architecture §8 names it
+  for per-workspace UI state; nothing per-workspace is kept yet, so it is
+  left for the task that needs it).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.

@@ -32,7 +32,7 @@ Phase 0, foundations
 - [x] T03 Query engine port, adapters and parity
 - [x] T04 Sample data: framework and retail
 - [x] T05 Sample data: subscriptions and support
-- [ ] T06 App shell, routes and workspace switching
+- [x] T06 App shell, routes and workspace switching
 
 Phase 1, understand the data
 - [ ] T10 Use your own file
