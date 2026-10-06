@@ -326,6 +326,21 @@ Format for a new decision:
   by ±30%); a separate account list file for Slotwise (the spec asks for
   one table).
 
+### D-026 Sample Parquet is copied into public/ at build, not committed twice
+- Date: 2026-10-06, task T06
+- Decision: `data/demo/<id>/` stays the one committed copy.
+  `scripts/copy-demo.mjs` copies each `*.parquet` to `public/demo/<id>/`
+  on `postinstall`, before `dev` and `build`, and after
+  `npm run data:generate`. `public/demo/` is git-ignored. The browser
+  fetches `/demo/<id>/<table>.parquet` and registers it with the engine.
+- Why: architecture §8 serves samples from `public/demo/<id>/`, while T04
+  and T05 write and test them under `data/demo/`. Committing both would
+  put 1.5 MB of binaries in history twice and let them drift.
+- Considered: moving the generator output to `public/demo/` (truth.json
+  would then be served too, and T30 reads it from `data/`); a route
+  handler that streams from `data/` (needs a server per request, and the
+  sample pages are meant to be static).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.

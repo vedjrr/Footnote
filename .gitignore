@@ -30,3 +30,6 @@ npm-debug.log*
 
 # DuckDB-WASM bundles, copied from node_modules by scripts/copy-duckdb.mjs
 /public/duckdb/
+
+# Sample Parquet files, copied from data/demo by scripts/copy-demo.mjs
+/public/demo/
