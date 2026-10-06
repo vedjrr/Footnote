@@ -118,6 +118,30 @@ Answer these in the task named, then move the answer up into a decision.
 - Q-04 (T21): is DuckDB's own SQL parser usable for the guard in both
   adapters?
 - Q-05 (Ved): final repository name and whether to buy a domain.
+- Q-06 (T13, T45): S6 is marked `briefing: true` (analytics-spec §10.3), but
+  the briefing's caveats list only serious health problems (§7 step 3).
+  `industry` empty in 2% is minor under H3 (serious only at 20%), and no check
+  in §3 detects `seats` 0 with `mrr` above 0. As written, S6 cannot appear in
+  the briefing. Either add a check (for example "measure is zero while a
+  related measure is positive") or drop `briefing: true` from S6.
+- Q-07 (T13): `csat` is empty for about 60% of tickets, which H3 calls
+  serious (20% or more on a dictionary column). T5 says empty `csat` must be
+  described as "rated tickets only", not as a problem. The rule that exempts
+  it is not written. Options: a dictionary flag such as `optional: true` on
+  the hand-written dictionary, or treat rating-like `avg` measures as
+  optional.
+- Q-08 (T30, T42): for a change question already filtered to a segment
+  ("Where did the March drop in electronics revenue come from?"), does the
+  `truth.json` path for R1 include the filter value (Electronics, Online,
+  West) or only the drill-down below it (Online, West)? evals §4 says the
+  path must equal truth; the goldens need one convention.
+- Q-09 (T00): the T00 skim of `docs/architecture.md` did not happen. The
+  session's tool permission check refused to read that file. The next agent
+  that reads it should look for conflicts with the other specs.
+- Q-10 (Ved): `gh` is logged in as `vedjr02` while the repository and
+  `CLAUDE.md` use `vedjrr`. Pushing works over HTTPS. Confirm which account
+  owns the repo and that `ambreved3@gmail.com` is verified on it, so commits
+  show as Ved's.
 
 ## Later
 
