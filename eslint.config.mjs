@@ -103,6 +103,8 @@ const eslintConfig = defineConfig([
     'playwright-report/**',
     'test-results/**',
     'next-env.d.ts',
+    // DuckDB-WASM bundles copied from node_modules by scripts/copy-duckdb.mjs.
+    'public/duckdb/**',
   ]),
 ]);
 
