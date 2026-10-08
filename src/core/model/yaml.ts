@@ -25,7 +25,8 @@ export function parseModelYaml(text: string): YamlResult {
       problems: doc.errors.map((e) => ({
         line: e.linePos?.[0].line ?? 0,
         path: '',
-        message: e.message.split('\n')[0],
+        // The line is reported separately, so drop the library's own position.
+        message: e.message.split('\n')[0].replace(/ at line \d+, column \d+:?$/, ''),
       })),
     };
   }

@@ -126,7 +126,7 @@ function Dictionary({ workspace, data }: { workspace: Workspace; data: LoadedSam
         {message}
       </p>
 
-      <Section id="metrics-list" title="Metrics">
+      <Section id="metrics-list" title="Metric definitions">
         <ul className="flex flex-col">
           {model.metrics.map((m) => (
             <MetricRow key={m.id} model={model} metric={m} apply={apply} />
@@ -326,7 +326,7 @@ function MetricForm({
       </div>
       <SynonymsEditor synonyms={synonyms} onChange={setSynonyms} />
       {error && <Status tone="critical">{error}</Status>}
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex max-w-xl flex-wrap items-center gap-4">
         <Button type="submit">Save</Button>
         <Button variant="quiet" onClick={close}>
           Cancel

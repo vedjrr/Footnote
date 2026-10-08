@@ -62,6 +62,7 @@ describe('parseModelYaml', () => {
     if (result.ok) return;
     expect(result.problems[0].line).toBeGreaterThanOrEqual(3);
     expect(result.problems[0].path).toBe('');
+    expect(result.problems[0].message).not.toMatch(/at line/);
   });
 
   test('a wrong value reports its own line and path', () => {
