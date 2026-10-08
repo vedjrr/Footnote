@@ -84,6 +84,11 @@ export interface Compiled {
   range: DayRange | null;
   /** The days it is compared against. */
   comparison: DayRange | null;
+  /**
+   * The `base AS (...)` CTE alone with its parameters, so result checks can
+   * count the rows in scope with the same filters (T21).
+   */
+  base: { cte: string; params: Cell[]; compared: boolean };
 }
 
 /** Names of helper columns the compiler adds; never dictionary ids. */
@@ -219,6 +224,8 @@ export function compile(
     ...(where.length ? [`  WHERE ${where.join('\n    AND ')}`] : []),
     `)`,
   ].join('\n');
+
+  const baseParams = [...params];
 
   // ------------------------------------------------------------- grouped
   const aggregate = (m: SimpleMetric, onSide: string | null): string => {
@@ -362,7 +369,15 @@ export function compile(
     ...(spec.limit ? [`LIMIT ${spec.limit}`] : []),
   ].join('\n');
 
-  return { sql, params, displaySql: displaySql(sql, params), columns, range, comparison };
+  return {
+    sql,
+    params,
+    displaySql: displaySql(sql, params),
+    columns,
+    range,
+    comparison,
+    base: { cte: base, params: baseParams, compared: compare !== undefined },
+  };
 }
 
 function filterSql(
