@@ -124,15 +124,15 @@ metrics:
     synonyms: [unit price, list price]
     description: The price before discount, averaged over order lines.
   - kind: simple
-    id: average_discount
-    label: Average discount
+    id: discount_rate
+    label: Discount rate
     column: discount_pct
     agg: avg
     overTime: sum
     format: { style: number, unit: '%', decimals: 1 }
     direction: lower_better
     importance: 0.4
-    synonyms: [discount, discount rate, markdown, promotion depth]
+    synonyms: [discount, average discount percent, markdown, promotion depth]
     description: Discount in percent of list price, averaged over order lines.
   - kind: simple
     id: returned_lines

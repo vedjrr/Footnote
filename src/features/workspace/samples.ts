@@ -48,3 +48,8 @@ export function findSample(id: string): Sample | undefined {
 export function sampleUrl(sample: Sample): string {
   return `/demo/${sample.id}/${sample.table}.parquet`;
 }
+
+/** The hand-written dictionary the app uses for a sample (analytics-spec §2.8). */
+export function dictionaryUrl(sample: Sample): string {
+  return `/demo/${sample.id}/dictionary.yaml`;
+}

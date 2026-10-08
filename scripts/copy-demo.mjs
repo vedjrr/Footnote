@@ -1,4 +1,4 @@
-// Puts the sample Parquet files where the site serves them: data/demo/<id>/
+// Puts the sample Parquet files and dictionaries where the site serves them: data/demo/<id>/
 // to public/demo/<id>/ (architecture §8, D-026). data/demo/ is the committed
 // source; public/demo/ is rebuilt here before dev and build and never committed.
 
@@ -14,7 +14,7 @@ for (const entry of await readdir(source, { withFileTypes: true })) {
   const dir = join(target, entry.name);
   await mkdir(dir, { recursive: true });
   for (const file of await readdir(join(source, entry.name))) {
-    if (!file.endsWith('.parquet')) continue;
+    if (!file.endsWith('.parquet') && !file.endsWith('.yaml')) continue;
     await copyFile(join(source, entry.name, file), join(dir, file));
     copied++;
   }

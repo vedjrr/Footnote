@@ -10,10 +10,14 @@ import { describeSql } from '@/core/engine/normalise';
 import type { ColumnInfo, QueryEngine } from '@/core/engine/types';
 import { checkSize, fileKind, sizeWarning } from '@/core/ingest/file';
 import { ingestFile } from '@/core/ingest/ingest';
+import { inferDictionary } from '@/core/model/infer';
+import type { SemanticModel } from '@/core/model/types';
+import { parseModelYaml } from '@/core/model/yaml';
 import { formatMegabytes } from '@/core/narrative/format';
 import { glanceSql, readGlance, type Glance } from '@/core/profile/glance';
+import { profileTable } from '@/core/profile/profile';
 import { fileId } from './file-id';
-import { SAMPLES, findSample, sampleUrl, type Sample } from './samples';
+import { SAMPLES, dictionaryUrl, findSample, sampleUrl, type Sample } from './samples';
 
 /** A sample or one of the user's files: what the views need to name it. */
 export interface Workspace {
@@ -34,6 +38,10 @@ export interface LoadedSample {
   /** The statements that ran, shown as they ran. */
   glanceSql: string;
   describeSql: string;
+  /** The dictionary in use, with the user's edits (FR-13). */
+  model: SemanticModel;
+  /** The dictionary as first loaded, to bring hidden columns back. */
+  original: SemanticModel;
 }
 
 export type SampleState =
@@ -99,13 +107,28 @@ async function load(sample: Sample): Promise<LoadedSample> {
   });
 
   set(sample.id, { status: 'loading', step: `Counting the ${sample.rowNoun}` });
-  return glance(engine, sample, columns);
+  const model = await sampleDictionary(sample);
+  return glance(engine, sample, columns, model);
+}
+
+async function sampleDictionary(sample: Sample): Promise<SemanticModel> {
+  const response = await fetch(dictionaryUrl(sample));
+  if (!response.ok) throw new Error(`The server answered ${response.status} for the dictionary`);
+  const parsed = parseModelYaml(await response.text());
+  if (!parsed.ok) {
+    const first = parsed.problems[0];
+    throw new Error(
+      `The sample's dictionary has a problem on line ${first.line}: ${first.message}`,
+    );
+  }
+  return parsed.model;
 }
 
 async function glance(
   engine: QueryEngine,
   workspace: Workspace,
   columns: ColumnInfo[],
+  model: SemanticModel,
 ): Promise<LoadedSample> {
   const sql = glanceSql(workspace.table, workspace.timeColumn);
   return {
@@ -113,7 +136,20 @@ async function glance(
     glance: readGlance(await engine.query(sql), columns),
     glanceSql: sql,
     describeSql: describeSql(workspace.table),
+    model,
+    original: model,
   };
+}
+
+/**
+ * Replaces the dictionary in use for a loaded workspace. The model must
+ * already be checked (core/model/edit.ts does that); edits last until the
+ * page is closed.
+ */
+export function setModel(id: string, model: SemanticModel): void {
+  const state = states.get(id);
+  if (state?.status !== 'ready') return;
+  set(id, { status: 'ready', data: { ...state.data, model } });
 }
 
 let opened = 0;
@@ -162,8 +198,10 @@ export async function openFile(file: File, onStep: (step: string) => void): Prom
     timeColumn,
     file: { name: file.name, bytes: file.size, warning: sizeWarning(file.size, ingested.rows) },
   };
+  onStep('Working out what each column holds');
+  const model = await inferDictionary(engine, await profileTable(engine, table));
   if (timeColumn) onStep(`Finding the first and last ${timeColumn}`);
-  const data = await glance(engine, workspace, ingested.columns);
+  const data = await glance(engine, workspace, ingested.columns, model);
   files = [...files, workspace];
   set(workspace.id, { status: 'ready', data });
   return workspace;
