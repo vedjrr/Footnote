@@ -10,14 +10,14 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T20 Query spec, periods and the SQL compiler (done)
-- Next task: T21 Result checks and the raw SQL guard
+- Last finished task: T21 Result checks and the raw SQL guard (done)
+- Next task: T22 Chart components
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   (`retail`, `saas`, `support`) and files (`file-1`, ...), `/open`,
   `/accuracy`, `/about`; `/styleguide`, `/dev/engine` outside the shell.
-  `npm run check` (253 tests) and `npm run test:e2e` (29) pass;
+  `npm run check` (328 tests) and `npm run test:e2e` (29) pass;
   `npm run build` last run in T10.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
   `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
@@ -42,15 +42,17 @@ each new session automatically, so it must be enough to start from.
 - Query: `querySpecSchema` in `core/query/spec.ts`; `compile(spec, model,
   { time: facts })` in `core/query/compile.ts` (D-035); periods in
   `core/findings/periods.ts` (`timeFactsSql`, `resolveRange`,
-  `currentPeriod`, `comparisonRange`). Nothing in the app calls them yet.
+  `currentPeriod`, `comparisonRange`). `checkResult` (C1 to C8) in
+  `core/query/checks.ts`; `guardSql` and `withTimeout` in
+  `core/query/guard.ts` (D-036). Nothing in the app calls them yet.
 - UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/`.
 - Evals: not run
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
   A dev server left on port 3100 or 3200 is reused by shots or e2e.
   Engine-backed tests of core go in `tests/` and need adding to `include`
-  in `vitest.config.mts`. Open questions Q-08 to Q-10.
-- Updated: 2026-10-08, T20
+  in `vitest.config.mts`. Open questions Q-02, Q-05, Q-08 to Q-10.
+- Updated: 2026-10-08, T21
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -87,6 +89,36 @@ Template:
 ```
 
 ## Log
+
+### T21 Result checks and the raw SQL guard
+- Date: 2026-10-08
+- Outcome: done
+- What changed: `core/query/checks.ts` (`checkResult`, C1 to C8);
+  `core/query/guard.ts` (`guardSql`, `withTimeout`); `Compiled.base` added
+  to the compiler's output; `tests/query/checks.test.ts`,
+  `tests/query/guard.test.ts`.
+- Verified: `npm run check`: 328 tests passed. `npx vitest run
+  tests/query`: 93 passed. Guard: 44 hostile statements refused (several
+  statements, COPY, ATTACH, INSTALL, LOAD, PRAGMA, SET, file and network
+  table functions, catalog tables, comment tricks, writes hidden in CTEs);
+  11 legitimate statements pass, are wrapped and run on retail with 1 to
+  1,000 rows. Checks: each outcome produced (C1 pass, top-2-of-8 caution,
+  fail on a doctored result; C2 caution on one day of Headphones; C3
+  "Nrth" fails with "North", "north", "South"; C4 caution on the
+  incomplete last week; C5 fail; C6 caution and fail; C7 caution in the
+  week of 10 June 2024; C8 note on 2024 MRR). Coverage of
+  `src/core/query`: 97.7% statements, 91.8% branches.
+- UI check: not a UI task
+- Decisions: D-036 (answers Q-04)
+- Differs from the spec: C6's under-30 caution only on count
+  denominators; C8 has outcome `note` (D-036).
+- Not done: nothing
+- For the next agent: `withTimeout` stops waiting, but the engine keeps
+  running the query; if T24 or T57 needs real cancellation, the WASM
+  adapter would need `cancelSent`. Column names that are denied keywords
+  (`set`, `load`, `show`) make raw SQL refuse unless quoted.
+- Ved should know: nothing
+- Commits: 50f0902..(this handoff)
 
 ### T20 Query spec, periods and the SQL compiler
 - Date: 2026-10-08

@@ -560,6 +560,32 @@ Format for a new decision:
   callers); a self-join for comparisons (two scans and a join where one
   grouped pass with FILTER does it).
 
+### D-036 Raw SQL guard in TypeScript; result check details (answers Q-04)
+- Date: 2026-10-08, task T21
+- Decision: the guard is a conservative token check written in
+  TypeScript (`core/query/guard.ts`), not DuckDB's parser. It refuses
+  anything but one SELECT or WITH statement, any denied keyword (writes,
+  COPY, ATTACH, INSTALL, LOAD, PRAGMA, SET, EXPORT, CALL, INTO, RETURNING,
+  DESCRIBE, SUMMARIZE and more), any function not on an allow-list of
+  analytic functions, quoted function names, dollar quoting, unclosed
+  strings or comments, and any table after FROM, JOIN or a comma in a FROM
+  list other than the workspace table or a CTE defined in the statement.
+  Dotted names are refused. Passing SQL is wrapped as
+  `SELECT * FROM (...) AS guarded LIMIT 1000`; `withTimeout` gives up
+  after 5 s (the engine call itself is not cancelled). Result checks:
+  C1 runs only for sum and count metrics split by one dimension with no
+  series or comparison; C3 checks values against the whole table and
+  orders suggestions by Levenshtein distance; C6's under-30 caution
+  applies only to count denominators (a revenue denominator of 25 is not
+  "few rows"), while 0 fails for any; C8 has its own outcome, `note`.
+  `Compiled.base` exposes the base CTE and its parameters so C2 and C7
+  count the rows in scope with the answer's own filters.
+- Why: `json_serialize_sql` works in Node, but in the browser it needs the
+  JSON extension, which may be fetched at run time and breaks the offline
+  rule; one implementation in both adapters cannot drift.
+- Considered: `json_serialize_sql` in Node only (two guards to keep in
+  step); a full SQL parser library (a large dependency for one check).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
@@ -568,8 +594,7 @@ Answer these in the task named, then move the answer up into a decision.
 - Q-02 (T53): which Gemini model id is on the free tier now and good enough
   for planning? Check Google AI Studio.
 - Q-03 (T10): answered in D-028, the limits hold.
-- Q-04 (T21): is DuckDB's own SQL parser usable for the guard in both
-  adapters?
+- Q-04 (T21): answered in D-036, a TypeScript guard instead.
 - Q-05 (Ved): final repository name and whether to buy a domain.
 - Q-06 (T13, T45): answered in D-032, new check H12.
 - Q-07 (T13): answered in D-032, information for averaged-only columns.

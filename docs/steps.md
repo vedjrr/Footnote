@@ -44,7 +44,7 @@ Phase 1, understand the data
 
 Phase 2, query core
 - [x] T20 Query spec, periods and the SQL compiler
-- [ ] T21 Result checks and the raw SQL guard
+- [x] T21 Result checks and the raw SQL guard
 - [ ] T22 Chart components
 - [ ] T23 Chart choice and number formatting
 - [ ] T24 Answers, reference marks and the working paper
