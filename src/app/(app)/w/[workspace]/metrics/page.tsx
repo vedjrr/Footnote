@@ -1,11 +1,6 @@
-import { PlannedView } from '@/features/workspace/planned-view';
+import { MetricsView } from '@/features/metrics/metrics-view';
 
 export default async function Page({ params }: PageProps<'/w/[workspace]/metrics'>) {
   const { workspace } = await params;
-  return (
-    <PlannedView workspaceId={workspace} title="Metrics">
-      The metrics and dimensions Footnote reads from this data will be listed here, and you will be
-      able to rename and correct them.
-    </PlannedView>
-  );
+  return <MetricsView workspaceId={workspace} />;
 }
