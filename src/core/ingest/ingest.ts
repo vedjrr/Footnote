@@ -6,6 +6,7 @@ import type { ColumnInfo, QueryEngine } from '@/core/engine/types';
 import {
   IngestError,
   checkSize,
+  countFields,
   detectDelimiter,
   encodingError,
   fileKind,
@@ -58,7 +59,13 @@ export async function ingestFile(
   }
 
   try {
-    if (kind.format === 'csv' && looksHeaderless(columns.map((c) => c.name))) throw noHeaderError();
+    if (kind.format === 'csv') {
+      // Some engine versions guess past rows of the wrong length instead of
+      // refusing them. The header must give exactly the columns that loaded.
+      if (delimiter && countFields(head.split(/\r?\n/)[0], delimiter) !== columns.length)
+        throw raggedError(name, findRaggedLine(head, delimiter));
+      if (looksHeaderless(columns.map((c) => c.name))) throw noHeaderError();
+    }
 
     onStep('counting');
     const countSql = `SELECT CAST(COUNT(*) AS BIGINT) AS row_count FROM "${table}"`;

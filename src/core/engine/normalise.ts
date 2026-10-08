@@ -80,7 +80,11 @@ export function assertTableName(table: string): void {
 
 const literal = (text: string) => `'${text.replaceAll("'", "''")}'`;
 
-/** The statement that loads a file the engine can see at `fileRef`. */
+/**
+ * The statement that loads a file the engine can see at `fileRef`. With a
+ * fixed delimiter the first line is always the header: the browser engine
+ * would otherwise skip lines to find a "better" one.
+ */
 export function loadFileSql(
   table: string,
   fileRef: string,
@@ -89,7 +93,7 @@ export function loadFileSql(
 ): string {
   assertTableName(table);
   const ref = literal(fileRef);
-  const delim = delimiter === undefined ? '' : `, delim = ${literal(delimiter)}`;
+  const delim = delimiter === undefined ? '' : `, delim = ${literal(delimiter)}, skip = 0`;
   const reader =
     format === 'csv'
       ? `read_csv(${ref}, header = true, auto_detect = true${delim})`

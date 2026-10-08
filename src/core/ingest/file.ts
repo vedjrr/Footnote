@@ -119,8 +119,8 @@ export const encodingError = (name: string) =>
 
 const DELIMITERS = [',', ';', '\t', '|'];
 
-/** Splits one line on `delimiter`, keeping quoted parts whole. */
-function countFields(line: string, delimiter: string): number {
+/** The values in one line split on `delimiter`, keeping quoted parts whole. */
+export function countFields(line: string, delimiter: string): number {
   let fields = 1;
   let quoted = false;
   for (const ch of line) {
