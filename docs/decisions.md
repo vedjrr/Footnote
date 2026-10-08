@@ -535,6 +535,31 @@ Format for a new decision:
 - Considered: one mark per profile cell (dozens of marks for one query
   result); running health inside the load step (delays every screen).
 
+### D-035 Compiler: context argument, comparisons and filter semantics
+- Date: 2026-10-08, task T20
+- Decision: `compile(spec, model, context)` takes a third argument,
+  `{ time: TimeFacts | null, expressions? }`: the time column's distinct
+  days (one statement, `timeFactsSql`), needed to resolve relative ranges
+  and comparisons against the data, and optional SQL expressions for
+  columns the profile refined from text. A comparison is between two
+  totals: `compare` with a time grain is refused (`compare_series`), and
+  `compare` needs a range. "Previous period" is the same number of
+  periods before (or the same number of days, for absolute ranges); "same
+  period last year" shifts both ends by twelve months. Ranges or
+  comparisons the data does not reach are refused with a sentence, not
+  answered with zeros. `overTime: last` marks each bucket's last day with
+  a window (per period in a series, per side in a comparison) and filters
+  the aggregate to it. `overTime: avg` divides by the distinct days with
+  data in the group. Filters compare `CAST(column AS VARCHAR)` with
+  string parameters, so `'true'` matches a boolean; `not_in` keeps empty
+  values; `contains` ignores case. The compiler adds helper columns
+  `_day`, `_period`, `_side`, `_last` only.
+- Why: §6.2 says relative periods resolve against the data, never the
+  clock, so the compiler needs the data's days; passing them keeps it pure.
+- Considered: resolving ranges before `compile` (spreads period logic over
+  callers); a self-join for comparisons (two scans and a join where one
+  grouped pass with FILTER does it).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.

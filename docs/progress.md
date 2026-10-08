@@ -10,14 +10,14 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T15 Data health screen (done)
-- Next task: T20 Query spec, periods and the SQL compiler
+- Last finished task: T20 Query spec, periods and the SQL compiler (done)
+- Next task: T21 Result checks and the raw SQL guard
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   (`retail`, `saas`, `support`) and files (`file-1`, ...), `/open`,
   `/accuracy`, `/about`; `/styleguide`, `/dev/engine` outside the shell.
-  `npm run check` (212 tests) and `npm run test:e2e` (29) pass;
+  `npm run check` (253 tests) and `npm run test:e2e` (29) pass;
   `npm run build` last run in T10.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
   `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
@@ -39,6 +39,10 @@ each new session automatically, so it must be enough to start from.
   `core/health/health.ts`, checks H1 to H12 (H12 new, D-032). Each
   problem has statement, count, share, examples, metrics, dimensions, sql.
   `truth.json` `health` lists exactly what each sample must report.
+- Query: `querySpecSchema` in `core/query/spec.ts`; `compile(spec, model,
+  { time: facts })` in `core/query/compile.ts` (D-035); periods in
+  `core/findings/periods.ts` (`timeFactsSql`, `resolveRange`,
+  `currentPeriod`, `comparisonRange`). Nothing in the app calls them yet.
 - UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/`.
 - Evals: not run
 - Blocked on Ved: nothing
@@ -46,7 +50,7 @@ each new session automatically, so it must be enough to start from.
   A dev server left on port 3100 or 3200 is reused by shots or e2e.
   Engine-backed tests of core go in `tests/` and need adding to `include`
   in `vitest.config.mts`. Open questions Q-08 to Q-10.
-- Updated: 2026-10-08, T15
+- Updated: 2026-10-08, T20
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -83,6 +87,41 @@ Template:
 ```
 
 ## Log
+
+### T20 Query spec, periods and the SQL compiler
+- Date: 2026-10-08
+- Outcome: done
+- What changed: `core/query/spec.ts` (Zod QuerySpec), `core/query/compile.ts`
+  (`compile`, `displaySql`, `CompileError`), `core/findings/periods.ts`;
+  unit tests beside them; `tests/query/compile.test.ts` on the samples;
+  inference now uses the periods module's `defaultGrain`;
+  `docs/learn/T20-compiler.md`.
+- Verified: `npm run check`: 253 tests passed. `npx vitest run
+  tests/query`: 18 passed, including: features against hand-written SQL
+  (totals, split/filter/sort/limit, not_in and contains, monthly series of
+  27, avg as sum over count, previous month with R1's -6% to -9%, same
+  quarter last year, last 3 complete months, share, rank, running total);
+  Slotwise 2024 MRR equals December (4,801,625; months summed give
+  52,040,250); MRR by quarter is each quarter's last month; return rate by
+  category equals returned over rows and the monthly-average shortcut
+  differs; S1 Starter churn ratio above 1.7; all nine starters valid and
+  non-empty; property test 120 generated specs run with only dictionary
+  identifiers; displaySql returns identical rows for every spec run.
+  Coverage: `src/core/query` 98.3% statements, 95.2% branches;
+  `src/core/findings` 97.4%. Determinism: byte-identical output tested.
+- UI check: not a UI task
+- Decisions: D-035
+- Differs from the spec: `compile` takes a third `context` argument
+  (architecture §6.3 updated).
+- Not done: nothing
+- For the next agent: callers need the time facts: run
+  `timeFactsSql(table, model.time.column)` once per workspace and pass
+  `readTimeFacts(result)`. H10 in `core/health` still has its own copy of
+  the complete-period rule; moving it onto `isComplete` is a small clean-up
+  for T21 or later. Result checks (T21) should read `Compiled.columns`
+  kinds.
+- Ved should know: nothing
+- Commits: 0b3589a..(this handoff)
 
 ### T15 Data health screen
 - Date: 2026-10-08

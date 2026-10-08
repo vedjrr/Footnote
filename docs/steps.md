@@ -43,7 +43,7 @@ Phase 1, understand the data
 - [x] T15 Data health screen
 
 Phase 2, query core
-- [ ] T20 Query spec, periods and the SQL compiler
+- [x] T20 Query spec, periods and the SQL compiler
 - [ ] T21 Result checks and the raw SQL guard
 - [ ] T22 Chart components
 - [ ] T23 Chart choice and number formatting

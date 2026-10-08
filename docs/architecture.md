@@ -281,7 +281,8 @@ latest date in the time column (`analytics-spec.md` §4).
 
 ### 6.3 Compiler
 
-`compile(spec, model) -> { sql, params, displaySql, columns }`
+`compile(spec, model, context) -> { sql, params, displaySql, columns, range, comparison }`
+(`context` holds the time column's distinct days; D-035)
 
 - Pure function. Same input, same output, byte for byte.
 - Rejects any id not in the model with a typed error. It cannot emit a column
