@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/ui/button';
+import { DropArea } from '@/ui/drop-area';
 import { Icon } from '@/ui/icon';
 import {
   Menu,
@@ -79,6 +80,32 @@ export function PanelDemo() {
       <Sheet open={sheet} onOpenChange={setSheet} title="1  Revenue, March 2025 against February">
         <PaperBody />
       </Sheet>
+    </div>
+  );
+}
+
+export function DropAreaDemo() {
+  const [chosen, setChosen] = useState<string | null>(null);
+  const props = {
+    prompt: 'Drop a file here, or choose one.',
+    chooseLabel: 'Choose a file',
+    hint: chosen ? `Chose ${chosen}. Nothing is read here.` : 'Files up to 300 MB.',
+    onFile: (file: File) => setChosen(file.name),
+  };
+  return (
+    <div className="grid max-w-170 grid-cols-1 gap-8 md:grid-cols-2">
+      <div className="flex flex-col gap-2">
+        <p className="type-caption text-ink-3">Rest</p>
+        <DropArea {...props} />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="type-caption text-ink-3">A file dragged over it</p>
+        <DropArea {...props} dragging />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="type-caption text-ink-3">Reading a file</p>
+        <DropArea {...props} busy />
+      </div>
     </div>
   );
 }

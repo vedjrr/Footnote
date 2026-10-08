@@ -1,12 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useId, useRef, useState, type DragEvent } from 'react';
+import { useState } from 'react';
 import { viewHref } from '@/features/shell/routes';
 import { ACCEPT, IngestError } from '@/core/ingest/file';
 import { openFile, type Workspace } from '@/features/workspace/workspace-store';
 import { Button, buttonClass } from '@/ui/button';
-import { cx } from '@/ui/cx';
+import { DropArea } from '@/ui/drop-area';
 import { Status } from '@/ui/notice';
 
 // "Use your own file" (FR-02): a drop area and a chooser. The file is read by
@@ -20,13 +20,9 @@ type Phase =
 
 export function OpenFile() {
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
-  const [over, setOver] = useState(false);
-  const input = useRef<HTMLInputElement>(null);
-  const hintId = useId();
   const busy = phase.kind === 'reading';
 
-  async function read(file: File | undefined) {
-    if (!file || busy) return;
+  async function read(file: File) {
     setPhase({ kind: 'reading', fileName: file.name, step: `Opening ${file.name}` });
     try {
       const workspace = await openFile(file, (step) =>
@@ -39,18 +35,9 @@ export function OpenFile() {
         message:
           error instanceof IngestError
             ? error.message
-            : `${file.name} could not be read. ${error instanceof Error ? error.message : ''} Try again, or save the file in another format first.`,
+            : `${file.name} could not be read. Try again, or save it as CSV or Parquet and try that.`,
       });
-    } finally {
-      // Choosing the same file again should read it again.
-      if (input.current) input.current.value = '';
     }
-  }
-
-  function onDrop(event: DragEvent) {
-    event.preventDefault();
-    setOver(false);
-    void read(event.dataTransfer.files[0]);
   }
 
   if (phase.kind === 'open')
@@ -66,45 +53,14 @@ export function OpenFile() {
         </p>
       </div>
 
-      <div
-        onDragOver={(event) => {
-          event.preventDefault();
-          if (!busy) setOver(true);
-        }}
-        onDragLeave={() => setOver(false)}
-        onDrop={onDrop}
-        aria-busy={busy}
-        className={cx(
-          'flex flex-col items-start gap-4 rounded-sm border border-dashed px-6 py-8',
-          over ? 'border-mark bg-wash' : 'border-ink-3',
-          busy && 'opacity-60',
-        )}
-      >
-        <p className="type-body text-ink">Drop a file here, or choose one.</p>
-        <label
-          className={buttonClass(
-            'secondary',
-            cx(
-              'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-mark',
-              busy ? 'pointer-events-none' : 'cursor-pointer',
-            ),
-          )}
-        >
-          Choose a file
-          <input
-            ref={input}
-            type="file"
-            accept={ACCEPT}
-            disabled={busy}
-            aria-describedby={hintId}
-            className="sr-only"
-            onChange={(event) => void read(event.target.files?.[0])}
-          />
-        </label>
-        <p id={hintId} className="type-small text-ink-3">
-          Files up to 300 MB. Above 100 MB, reading the file and writing the briefing take longer.
-        </p>
-      </div>
+      <DropArea
+        prompt="Drop a file here, or choose one."
+        chooseLabel="Choose a file"
+        hint="Files up to 300 MB. Above 100 MB, reading the file and writing the briefing take longer."
+        accept={ACCEPT}
+        busy={busy}
+        onFile={(file) => void read(file)}
+      />
 
       {phase.kind === 'reading' && (
         <p role="status" data-loading className="type-small text-ink-2">

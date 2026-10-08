@@ -8,7 +8,7 @@ import { Rule } from '@/ui/rule';
 import { StaticTag, Tag } from '@/ui/tag';
 import { ThemeToggle } from '@/ui/theme-toggle';
 import { CopyButton } from '@/ui/copy-button';
-import { MenuDemo, PanelDemo, TooltipDemo } from './_parts/interactive';
+import { DropAreaDemo, MenuDemo, PanelDemo, TooltipDemo } from './_parts/interactive';
 import { MarkDemo, MarkStates, WorkingPaperSpecimen } from './_parts/mark-demo';
 import { Swatches } from './_parts/swatches';
 
@@ -369,6 +369,10 @@ export default function Styleguide() {
               />
             </State>
           </div>
+        </Section>
+
+        <Section id="drop-area" title="Drop area">
+          <DropAreaDemo />
         </Section>
 
         <Section id="tags" title="Tags and menus">
