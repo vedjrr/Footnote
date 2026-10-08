@@ -78,13 +78,21 @@ export function assertTableName(table: string): void {
   if (!IDENTIFIER.test(table)) throw new Error(`Not a valid table name: ${table}`);
 }
 
+const literal = (text: string) => `'${text.replaceAll("'", "''")}'`;
+
 /** The statement that loads a file the engine can see at `fileRef`. */
-export function loadFileSql(table: string, fileRef: string, format: FileFormat): string {
+export function loadFileSql(
+  table: string,
+  fileRef: string,
+  format: FileFormat,
+  delimiter?: string,
+): string {
   assertTableName(table);
-  const ref = `'${fileRef.replaceAll("'", "''")}'`;
+  const ref = literal(fileRef);
+  const delim = delimiter === undefined ? '' : `, delim = ${literal(delimiter)}`;
   const reader =
     format === 'csv'
-      ? `read_csv(${ref}, header = true, auto_detect = true)`
+      ? `read_csv(${ref}, header = true, auto_detect = true${delim})`
       : format === 'parquet'
         ? `read_parquet(${ref})`
         : `read_json(${ref}, auto_detect = true)`;

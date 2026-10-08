@@ -51,6 +51,8 @@ describe('normalise', () => {
     expect(() => assertTableName('orders_2024')).not.toThrow();
     expect(() => assertTableName('x"; DROP TABLE y; --')).toThrow();
     expect(loadFileSql('t', "it's.csv", 'csv')).toContain("'it''s.csv'");
+    expect(loadFileSql('t', 'a.csv', 'csv', '\t')).toContain("delim = '\t'");
+    expect(loadFileSql('t', 'a.csv', 'csv')).not.toContain('delim');
   });
 });
 

@@ -21,10 +21,11 @@ export interface QueryResult {
 export type FileFormat = 'csv' | 'parquet' | 'json';
 
 // A file to load as a table. Bytes work in every adapter; a path only where
-// the engine can read the file system (Node).
+// the engine can read the file system (Node). `delimiter` fixes the CSV
+// delimiter; without it the engine guesses.
 export type FileSource =
-  | { kind: 'bytes'; name: string; format: FileFormat; bytes: Uint8Array }
-  | { kind: 'path'; path: string; format: FileFormat };
+  | { kind: 'bytes'; name: string; format: FileFormat; bytes: Uint8Array; delimiter?: string }
+  | { kind: 'path'; path: string; format: FileFormat; delimiter?: string };
 
 export interface QueryEngine {
   registerFile(table: string, source: FileSource): Promise<ColumnInfo[]>;

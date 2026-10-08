@@ -41,7 +41,7 @@ export async function createNodeEngine(): Promise<QueryEngine> {
         path = join(tempDir, `${table}.${source.format}`);
         await writeFile(path, source.bytes);
       }
-      await connection.run(loadFileSql(table, path, source.format));
+      await connection.run(loadFileSql(table, path, source.format, source.delimiter));
       return describe(table);
     },
 

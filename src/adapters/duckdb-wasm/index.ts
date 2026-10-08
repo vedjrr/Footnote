@@ -65,7 +65,7 @@ export function createWasmEngine(): QueryEngine {
       const { db } = await start();
       const fileName = `${table}.${source.format}`;
       await db.registerFileBuffer(fileName, source.bytes);
-      await run(loadFileSql(table, fileName, source.format));
+      await run(loadFileSql(table, fileName, source.format, source.delimiter));
       return describe(table);
     },
 
