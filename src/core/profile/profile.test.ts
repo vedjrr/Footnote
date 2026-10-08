@@ -16,7 +16,8 @@ describe('baseSql', () => {
 describe('numberFromText', () => {
   test('strips currency, separators and a trailing percent, and drops non-finite values', () => {
     const sql = numberFromText('"v"');
-    expect(sql).toContain("'[\\s$€£¥₹,]'");
+    expect(sql).toContain("'[$€£¥₹,]'");
+    expect(sql).not.toContain('\\s');
     expect(sql).toContain("'%$'");
     expect(sql).toContain('isfinite');
   });

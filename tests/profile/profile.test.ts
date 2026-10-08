@@ -193,3 +193,19 @@ describe('the three samples', () => {
     }
   });
 });
+
+describe('spaces inside a value', () => {
+  test('phone numbers stay text; a space after a currency symbol is fine', async () => {
+    await engine.query(`
+      CREATE TABLE fx_spaces AS SELECT
+        '+44 20 7946 ' || lpad(i::VARCHAR, 4, '0') AS phone_text,
+        '£ ' || CAST(i AS VARCHAR) || '.50' AS spaced_money
+      FROM range(1, 51) t(i)`);
+    const p = await profileTable(engine, 'fx_spaces');
+    expect(column(p, 'phone_text')).toMatchObject({ type: 'text', refinement: null });
+    expect(column(p, 'spaced_money')).toMatchObject({
+      type: 'decimal',
+      refinement: { parsed: 50, unparsed: 0 },
+    });
+  });
+});

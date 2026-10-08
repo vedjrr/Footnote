@@ -102,16 +102,16 @@ const TOP_VALUES = 10;
 
 const TABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
-function quoteTable(name: string): string {
+export function quoteTable(name: string): string {
   if (!TABLE_NAME.test(name)) throw new Error(`Not a plain table name: ${name}`);
   return `"${name}"`;
 }
 
-function quoteColumn(name: string): string {
+export function quoteColumn(name: string): string {
   return `"${name.replaceAll('"', '""')}"`;
 }
 
-function literal(text: string): string {
+export function literal(text: string): string {
   return `'${text.replaceAll("'", "''")}'`;
 }
 
@@ -119,7 +119,9 @@ const nonEmpty = (c: string) => `trim(${c}) <> ''`;
 
 /** A text value as a finite number after removing currency, separators and `%`. */
 export function numberFromText(c: string): string {
-  const stripped = `regexp_replace(regexp_replace(trim(${c}), '[\\s$€£¥₹,]', '', 'g'), '%$', '')`;
+  // Spaces inside the value are kept, so a phone number such as
+  // "+44 20 7946 0001" stays text; spaces next to a removed symbol are trimmed.
+  const stripped = `regexp_replace(trim(regexp_replace(${c}, '[$€£¥₹,]', '', 'g')), '%$', '')`;
   return `CASE WHEN isfinite(TRY_CAST(${stripped} AS DOUBLE)) THEN TRY_CAST(${stripped} AS DOUBLE) END`;
 }
 
@@ -375,7 +377,14 @@ export function topValuesSql(table: string, columns: ColumnProfile[]): string {
       ` GROUP BY 2 ORDER BY 3 DESC, 2 LIMIT ${TOP_VALUES})`,
     ].join('\n');
   });
-  return [parts.join('\nUNION ALL\n'), 'ORDER BY col, n DESC, value'].join('\n');
+  // The outer SELECT matters: DuckDB fails to parse a lone parenthesised
+  // query followed by ORDER BY, which is what one text column produces.
+  return [
+    'SELECT * FROM (',
+    parts.join('\nUNION ALL\n'),
+    ') top_values',
+    'ORDER BY col, n DESC, value',
+  ].join('\n');
 }
 
 function readTopValues(result: QueryResult, columns: ColumnProfile[]): void {
