@@ -10,32 +10,34 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T06 App shell, routes and workspace switching (done)
-- Next task: T10 Use your own file
+- Last finished task: T10 Use your own file (done)
+- Next task: T11 Column profile
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
-  briefing), `/w/<retail|saas|support>/<briefing|ask|metrics|health|report>`,
-  `/accuracy`, `/about`; `/styleguide`, `/dev/engine` outside the shell.
-  `npm run check` (99 tests), `npm run build` and `npm run test:e2e`
-  (14) pass.
-- Engine: port `src/core/engine/types.ts`; `createNodeEngine()` and
-  `createWasmEngine()`. In the app, `features/workspace/sample-store.ts`
-  holds the page's one engine and loads each sample once (`useSample`).
-- Sample data: `data/demo/<id>/` (committed) copied to `public/demo/<id>/`
-  by `scripts/copy-demo.mjs` (D-026). Registry with time columns in
-  `features/workspace/samples.ts`. No `dictionary.yaml` yet.
-- UI: tokens in `src/ui/tokens.css` (breakpoint `wide` = 1200 px);
-  primitives in `src/ui/`; `WorkspacePage` lays out reading column and
-  working paper at all three widths.
-- Scripts: `dev`, `check`, `build`, `test`, `test:coverage`, `test:e2e`,
-  `shots` (waits for `[data-loading]` to go), `format`, `data:generate`.
+  briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
+  (`retail`, `saas`, `support`) and files (`file-1`, ...), `/open` (Use
+  your own file), `/accuracy`, `/about`; `/styleguide`, `/dev/engine`
+  outside the shell. `npm run check` (121 tests), `npm run build` and
+  `npm run test:e2e` (18) pass.
+- Engine: port `src/core/engine/types.ts` (CSV `delimiter` optional);
+  `createNodeEngine()`, `createWasmEngine()`. In the app,
+  `features/workspace/workspace-store.ts` holds the page's one engine,
+  the samples and the user's files (`useWorkspace(id)`, `openFile`).
+- Ingest: `src/core/ingest/` checks type, size, UTF-8, delimiter, header
+  and row length; failures are `IngestError` with the message to show.
+  Limits in `LIMITS` (D-028). Files are in memory only until T62.
+- Sample data: `data/demo/<id>/` copied to `public/demo/<id>/` (D-026).
+  Time column per sample in `samples.ts`; a file uses its first date or
+  timestamp column. No `dictionary.yaml` yet.
+- UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/` (new:
+  `DropArea`); `WorkspacePage` lays out reading column and working paper.
 - Evals: not run
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
-  A dev server left on port 3100 stops `npm run test:e2e` starting.
-  After a route move, delete `.next/dev/types` if tsc names a missing page.
-  Open questions Q-06 to Q-11 in `decisions.md`.
-- Updated: 2026-10-06, T06
+  A dev server left on port 3100 or 3200 is reused by shots or e2e.
+  Core tests may not import adapters; engine-backed tests of core go in
+  `tests/` (see `tests/ingest/`). Open questions Q-06 to Q-11.
+- Updated: 2026-10-08, T10
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -72,6 +74,42 @@ Template:
 ```
 
 ## Log
+
+### T10 Use your own file
+- Date: 2026-10-08
+- Outcome: done
+- What changed: `core/ingest/` (`file.ts` checks and messages, `ingest.ts`
+  loads through the engine); CSV `delimiter` on `FileSource`, sent with
+  `skip = 0`; `glanceSql` takes no time column and quotes any column name;
+  `sample-store.ts` renamed `workspace-store.ts` and holds files too;
+  `file-id.ts`, `file-not-open.tsx`; `briefing/sample-facts.tsx` renamed
+  `data-facts.tsx`; switcher lists "Your files" and "Use your own file";
+  `/open` screen (`features/open-file/`); `ui/drop-area.tsx` + styleguide.
+- Verified: `npm run check`: 121 tests passed. `npm run test:e2e --
+  upload`: 4 passed (CSV 3 rows with zero requests from choosing the file
+  to "is open", Parquet 1,234 rows, seven failure messages, not-open
+  state). `npm run test:e2e`: 18 passed. Probe: a `fetch` added to
+  `openFile` made the no-network test fail (restored). Coverage
+  `core/ingest` 98.9% lines. Q-03 measured (D-028): 100 MB CSV opens in
+  0.8 s, 294 MB in 1.8 s, +1.0 GB peak.
+- UI check: `npm run shots -- /open /w/file-3/briefing` and scripted
+  states (failure, loading, opened with caution, file briefing,
+  switcher) at 390, 834, 1440, light and dark. Fixed: switcher called a
+  missing file "(sample)", empty working paper on the not-open page, the
+  size warning showed a row count with no working paper. Tab order on
+  `/open`: wordmark, switcher, views, Accuracy, AI assist, theme, Choose
+  a file; focus ring visible on the chooser. Critic pass not required.
+- Decisions: D-028 (answers Q-03), D-029
+- Differs from the spec: after reading, `/open` shows the result and a
+  "Read the briefing" link instead of moving on by itself (D-029).
+- Not done: nothing
+- For the next agent: `useWorkspace(id)` gives `{ workspace, state }` for
+  samples and files; `state.status` can be `missing` for a file id the
+  page does not hold. Workspace `timeColumn` may be null. Large test
+  files were generated in a scratch folder and not committed.
+- Ved should know: measured on your M4 only; T72 should repeat on a slower
+  machine if one is to hand.
+- Commits: 42405d9..(this handoff)
 
 ### T06 App shell, routes and workspace switching
 - Date: 2026-10-06

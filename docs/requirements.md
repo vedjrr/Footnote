@@ -242,7 +242,7 @@ the definition, scope and SQL. The HTML prints cleanly to PDF.
 | NFR-04 Speed | Sample briefing: content visible within 2.0 s on a mid-range laptop on broadband, Lighthouse performance 90 or more on desktop. Query engine ready within 5 s. A typical question on 100,000 rows answers within 1 s with AI assist off |
 | NFR-05 Accessibility | WCAG 2.2 AA. Everything works by keyboard. Lighthouse accessibility 95 or more |
 | NFR-06 Browsers | Current Chrome, Edge, Safari and Firefox on desktop; current Safari and Chrome on phones for reading and asking |
-| NFR-07 Size limits | Warn above 100 MB or 2 million rows. Refuse above 300 MB. Confirm or revise these numbers by measurement in task T10 and record the result |
+| NFR-07 Size limits | Warn above 100 MB or 2 million rows. Refuse above 300 MB. Confirmed by measurement in T10 (`decisions.md` D-028) |
 | NFR-08 Failure behaviour | Every failure has a designed state that says what happened and what to do. If AI assist fails or runs out of quota, the app carries on without it and says so once |
 | NFR-09 Security | No secret in client code. API routes accept only the typed payloads in `architecture.md` §7, with size caps. Text from data files is always treated as untrusted text. Raw model SQL runs only through the guard in `architecture.md` §6.4 |
 | NFR-10 Code quality | `src/core` has no UI, browser-only or Node-only imports and at least 85% line coverage. TypeScript strict. No `any` without a comment saying why |

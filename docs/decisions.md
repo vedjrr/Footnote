@@ -360,6 +360,56 @@ Format for a new decision:
   for per-workspace UI state; nothing per-workspace is kept yet, so it is
   left for the task that needs it).
 
+### D-028 File size limits stay as NFR-07 says (answers Q-03)
+- Date: 2026-10-08, task T10
+- Decision: keep the limits: warn above 100 MB or 2 million rows, refuse
+  above 300 MB (a megabyte is 1,000,000 bytes). They live in `LIMITS` in
+  `src/core/ingest/file.ts`. Type and size are checked before the file is
+  read into memory.
+- Why: measured on Ved's machine (Apple M4, 16 GB, headless Chromium,
+  production build), choosing the file until "is open", with the retail
+  sample already loaded. Memory is the summed RSS of every Chromium
+  process, sampled every 250 ms.
+
+  | File (generated, 6 columns) | Rows | Open | Peak memory | After |
+  |---|---|---|---|---|
+  | none (page loaded) | | | 648 MB | |
+  | 49.9 MB CSV | 1,077,586 | 0.8 s | 861 MB | 827 MB |
+  | 99.8 MB CSV | 2,155,172 | 0.8 s | 1,013 MB | 950 MB |
+  | 294.3 MB CSV | 6,357,759 | 1.8 s | 1,665 MB | 1,418 MB |
+
+  The glance query after it took under 0.1 s each time. A 300 MB file
+  costs about 1 GB on top of the page, which a phone or an 8 GB laptop
+  with other tabs may not have, and DuckDB-WASM cannot use more than 4 GB
+  at all; so the hard limit stays. The warning stays at 100 MB and 2
+  million rows because this machine is fast: Chrome's CPU throttling (4x)
+  did not slow the engine's worker, so slower hardware was not measured.
+- Considered: raising the hard limit to 500 MB (fits here, but not on the
+  machines the warning is for); measuring on a slower machine (none
+  available, so T72 should repeat this if one is).
+
+### D-029 Opening a file: result in place, in-memory ids, fixed CSV dialect
+- Date: 2026-10-08, task T10
+- Decision: `/open` reads the file and then shows "<name> is open" with a
+  "Read the briefing" link, rather than going to the briefing by itself.
+  Files are workspaces `file-1`, `file-2`, ... held in
+  `features/workspace/workspace-store.ts` (the renamed sample store) until
+  the page closes; `/w/file-N/*` for a file not open says so. The
+  delimiter is chosen from the header line, then passed to the engine
+  with `skip = 0`. A first line counts as "no header" only when every
+  name looks like a value (number, date, true or false).
+- Why: a route change in `next dev` fetches the route's code, so staying
+  on `/open` until the file is read is what lets the test assert that
+  choosing a file makes no request at all. Left to guess, DuckDB reads a
+  file with uneven rows as one text column (Node) or takes a later line
+  as the header and drops the lines above it (WASM, 1.33); fixing the
+  dialect makes both refuse it. Requiring every name to look like a value
+  keeps headers such as `region,2023,2024`.
+- Considered: going to the briefing at once and allowing same-origin route
+  requests in the test (weaker than the task asks); DuckDB's `sniff_csv`
+  for the header (the file path differs between adapters); a Zustand
+  store (nothing per workspace yet beyond what the store holds).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
@@ -367,7 +417,7 @@ Answer these in the task named, then move the answer up into a decision.
 - Q-01 (T03): answered in D-020, this site.
 - Q-02 (T53): which Gemini model id is on the free tier now and good enough
   for planning? Check Google AI Studio.
-- Q-03 (T10): do the file size limits in NFR-07 hold up when measured?
+- Q-03 (T10): answered in D-028, the limits hold.
 - Q-04 (T21): is DuckDB's own SQL parser usable for the guard in both
   adapters?
 - Q-05 (Ved): final repository name and whether to buy a domain.
