@@ -14,8 +14,16 @@ describe('glanceSql', () => {
     );
   });
 
-  test('refuses a name that would need escaping', () => {
-    expect(() => glanceSql('orders', 'a"; DROP TABLE x')).toThrow(/plain/);
+  test('without a time column, both days are null', () => {
+    expect(glanceSql('own_file', null)).toContain('CAST(NULL AS DATE) AS first_day');
+  });
+
+  test('refuses a table name that would need escaping', () => {
+    expect(() => glanceSql('a"; DROP TABLE x', 'day')).toThrow(/plain/);
+  });
+
+  test('escapes a column name from a user file', () => {
+    expect(glanceSql('own_file', 'Order "Date"')).toContain('MIN("Order ""Date""")');
   });
 });
 

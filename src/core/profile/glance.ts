@@ -13,20 +13,29 @@ export interface Glance {
 
 const NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
-function quote(name: string): string {
-  if (!NAME.test(name)) throw new Error(`Not a plain column or table name: ${name}`);
+/** Tables are named by the app, so a table name must be plain. */
+function quoteTable(name: string): string {
+  if (!NAME.test(name)) throw new Error(`Not a plain table name: ${name}`);
   return `"${name}"`;
 }
 
-/** Rows and the day range of `timeColumn`. Timestamps are cut to the day. */
-export function glanceSql(table: string, timeColumn: string): string {
-  const t = quote(timeColumn);
+/** Columns come from a user's file and may hold any character. */
+function quoteColumn(name: string): string {
+  return `"${name.replaceAll('"', '""')}"`;
+}
+
+/**
+ * Rows and the day range of `timeColumn`. Timestamps are cut to the day.
+ * Without a time column there is no range, and both days are null.
+ */
+export function glanceSql(table: string, timeColumn: string | null): string {
+  const t = timeColumn === null ? null : quoteColumn(timeColumn);
   return [
     'SELECT',
     '  CAST(COUNT(*) AS BIGINT) AS row_count,',
-    `  CAST(MIN(${t}) AS DATE) AS first_day,`,
-    `  CAST(MAX(${t}) AS DATE) AS last_day`,
-    `FROM ${quote(table)}`,
+    t ? `  CAST(MIN(${t}) AS DATE) AS first_day,` : '  CAST(NULL AS DATE) AS first_day,',
+    t ? `  CAST(MAX(${t}) AS DATE) AS last_day` : '  CAST(NULL AS DATE) AS last_day',
+    `FROM ${quoteTable(table)}`,
   ].join('\n');
 }
 
