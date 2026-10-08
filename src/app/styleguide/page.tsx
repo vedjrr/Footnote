@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Button } from '@/ui/button';
 import { Field } from '@/ui/field';
+import { Select } from '@/ui/select';
 import { Icon, iconNames } from '@/ui/icon';
 import { Notice, Status } from '@/ui/notice';
 import { Rule } from '@/ui/rule';
@@ -365,6 +366,18 @@ export default function Styleguide() {
                 defaultValue="Flash"
                 hint="Unavailable while AI assist is off."
                 disabled
+                className="w-full"
+              />
+            </State>
+            <State label="Select">
+              <Select
+                label="How it adds up"
+                defaultValue="sum"
+                options={[
+                  { value: 'sum', label: 'Sum' },
+                  { value: 'avg', label: 'Average' },
+                  { value: 'median', label: 'Median' },
+                ]}
                 className="w-full"
               />
             </State>
