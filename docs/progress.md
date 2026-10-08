@@ -10,34 +10,36 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T10 Use your own file (done)
-- Next task: T11 Column profile
+- Last finished task: T11 Column profile (done)
+- Next task: T12 Dictionary: types, inference and sample dictionaries
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   (`retail`, `saas`, `support`) and files (`file-1`, ...), `/open` (Use
   your own file), `/accuracy`, `/about`; `/styleguide`, `/dev/engine`
-  outside the shell. `npm run check` (121 tests), `npm run build` and
+  outside the shell. `npm run check` (138 tests), `npm run build` and
   `npm run test:e2e` (18) pass.
 - Engine: port `src/core/engine/types.ts` (CSV `delimiter` optional);
   `createNodeEngine()`, `createWasmEngine()`. In the app,
   `features/workspace/workspace-store.ts` holds the page's one engine,
   the samples and the user's files (`useWorkspace(id)`, `openFile`).
-- Ingest: `src/core/ingest/` checks type, size, UTF-8, delimiter, header
-  and row length; failures are `IngestError` with the message to show.
-  Limits in `LIMITS` (D-028). Files are in memory only until T62.
+- Ingest: `src/core/ingest/` checks and loads files (`IngestError`).
+- Profile: `profileTable(engine, table)` in `core/profile/profile.ts`
+  gives per-column stats, refined `type` and `refinement` (parsed and
+  unparsed counts, date format) in at most five statements (D-030).
+  Not yet used by any screen. Retail profiles in about 112 ms (Node).
 - Sample data: `data/demo/<id>/` copied to `public/demo/<id>/` (D-026).
-  Time column per sample in `samples.ts`; a file uses its first date or
-  timestamp column. No `dictionary.yaml` yet.
-- UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/` (new:
-  `DropArea`); `WorkspacePage` lays out reading column and working paper.
+  Time column per sample in `samples.ts`. No `dictionary.yaml` yet.
+- UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/`;
+  `WorkspacePage` lays out reading column and working paper.
 - Evals: not run
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
   A dev server left on port 3100 or 3200 is reused by shots or e2e.
   Core tests may not import adapters; engine-backed tests of core go in
-  `tests/` (see `tests/ingest/`). Open questions Q-06 to Q-11.
-- Updated: 2026-10-08, T10
+  `tests/` and need adding to `include` in `vitest.config.mts`.
+  Open questions Q-06 to Q-11.
+- Updated: 2026-10-08, T11
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -74,6 +76,33 @@ Template:
 ```
 
 ## Log
+
+### T11 Column profile
+- Date: 2026-10-08
+- Outcome: done
+- What changed: `src/core/profile/profile.ts` (`profileTable`, statement
+  builders, type refinement); `profile.test.ts` (quoting, number parse);
+  `tests/profile/profile.test.ts` with fixtures built in SQL, snapshots of
+  the three samples and a timing test; `tests/profile` added to vitest.
+- Verified: `npm run check`: 138 tests passed. `npx vitest run
+  tests/profile`: 14 passed, retail profile 112 ms on a fresh Node engine
+  (was 1,052 ms before date probes moved behind a shape check). Coverage
+  of `src/core/profile`: 98.7% statements, 99.2% lines, 82.9% branches.
+- UI check: not a UI task
+- Decisions: D-030
+- Differs from the spec: §2.1 says one statement per family; the profile
+  uses up to five (counts and probes, date formats if any column needs
+  them, numbers, dates, text and booleans), fixed whatever the column
+  count.
+- Not done: nothing
+- For the next agent: refined text columns keep `storageType: 'text'`;
+  compile SQL on them with `numberFromText` or the date format in
+  `refinement.format`. `gapDays` is in days even for monthly data (Slotwise
+  `month` shows 677). Samples: no column is refined; retail
+  `customer_segment` has 299 empty, Slotwise `industry` 1,331, Kettle
+  `csat` 23,769. Snapshot numbers are rounded to 9 significant figures.
+- Ved should know: nothing
+- Commits: afd8044..(this handoff)
 
 ### T10 Use your own file
 - Date: 2026-10-08

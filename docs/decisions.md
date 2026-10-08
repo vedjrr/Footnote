@@ -410,6 +410,28 @@ Format for a new decision:
   for the header (the file path differs between adapters); a Zustand
   store (nothing per workspace yet beyond what the store holds).
 
+### D-030 Column profile: what counts as empty, and how text is refined
+- Date: 2026-10-08, task T11
+- Decision: text that is null or blank after trimming counts as empty;
+  distinct counts and top values use the values exactly as stored (so
+  "North" and "north" stay apart for H4). Shares of zeros and negatives
+  are of the non-empty values. Refinement tries boolean, then number, then
+  date. Number parsing strips spaces, `$ € £ ¥ ₹`, commas and a trailing
+  `%`, and drops NaN and infinity. Date formats tried: `%Y-%m-%d`,
+  `%Y/%m/%d`, `%d/%m/%Y`, `%m/%d/%Y`, `%d-%m-%Y`, `%d.%m.%Y`; the format
+  reading the most values wins, earlier formats win ties. Formats are
+  tried only on columns where 98% of values have three groups of digits.
+  A refined column's statistics are computed on its parsed values. Gap
+  days are counted in days whatever the grain, so a monthly snapshot
+  shows large gaps; H8 (T13) judges gaps at the data's grain.
+- Why: `try_strptime` on every text column took about 1 s of the 1.05 s
+  retail profile; behind the digit-shape check the profile takes 112 ms.
+  Trying boolean first keeps a 0/1 text column from becoming a number.
+- Considered: one date probe statement per column (more statements as
+  columns grow); counting refined columns' statistics on raw text (no
+  range for a price column stored as text). Not handled: `1.234,5`
+  (comma decimals) reads as unparsed, and time-of-day text stays text.
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
