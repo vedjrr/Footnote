@@ -86,11 +86,19 @@ export function checkSize(name: string, bytes: number): void {
     );
 }
 
-/** A sentence to show when the file opened but is big enough to be slow. */
+/**
+ * A sentence to show when the file opened but is big enough to be slow. It
+ * names the limit passed, not the file's own count: that number has its
+ * working paper in the briefing.
+ */
 export function sizeWarning(bytes: number, rows: number): string | null {
-  if (bytes <= LIMITS.warnBytes && rows <= LIMITS.warnRows) return null;
-  const what = rows > LIMITS.warnRows ? `${formatInteger(rows)} rows` : `${formatMegabytes(bytes)}`;
-  return `This file is large (${what}), so the briefing and answers will take longer than usual.`;
+  const over =
+    rows > LIMITS.warnRows
+      ? `has more than ${formatInteger(LIMITS.warnRows / 1_000_000)} million rows`
+      : bytes > LIMITS.warnBytes
+        ? `is over ${formatMegabytes(LIMITS.warnBytes)}`
+        : null;
+  return over && `This file ${over}, so the briefing and answers will take longer than usual.`;
 }
 
 /** Bytes looked at for the encoding and delimiter checks. */

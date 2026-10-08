@@ -168,7 +168,8 @@ function WorkspaceSwitcher({
   view: ViewSlug;
 }) {
   const router = useRouter();
-  const kind = current.file ? 'your file' : 'sample data';
+  const isSample = findSample(current.id) !== undefined;
+  const kind = isSample ? 'sample data' : 'your file';
   return (
     <Menu>
       <MenuTrigger
@@ -176,8 +177,7 @@ function WorkspaceSwitcher({
         className={cx(quietControl, '-ml-2 min-w-0 shrink text-ink md:ml-0')}
       >
         <span className="truncate">
-          {current.name}{' '}
-          {!current.file && <span className="hidden text-ink-3 sm:inline">(sample)</span>}
+          {current.name} {isSample && <span className="hidden text-ink-3 sm:inline">(sample)</span>}
         </span>
         <Icon name="chevron-down" className="shrink-0 text-ink-3" />
       </MenuTrigger>

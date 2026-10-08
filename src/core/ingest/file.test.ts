@@ -25,8 +25,10 @@ describe('checks without the engine', () => {
       'a.csv is 300 MB, and files up to 300 MB can be opened in the browser.',
     );
     expect(sizeWarning(LIMITS.warnBytes, LIMITS.warnRows)).toBeNull();
-    expect(sizeWarning(150_000_000, 10)).toMatch(/^This file is large \(150 MB\)/);
-    expect(sizeWarning(10, 2_500_000)).toMatch(/\(2,500,000 rows\)/);
+    expect(sizeWarning(150_000_000, 10)).toBe(
+      'This file is over 100 MB, so the briefing and answers will take longer than usual.',
+    );
+    expect(sizeWarning(10, 2_500_000)).toMatch(/^This file has more than 2 million rows,/);
   });
 
   test('delimiters and ragged lines', () => {

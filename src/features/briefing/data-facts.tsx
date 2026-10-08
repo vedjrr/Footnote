@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { ColumnType } from '@/core/engine/types';
 import { formatDay, formatInteger } from '@/core/narrative/format';
-import { FileNotOpen } from '@/features/workspace/file-not-open';
+import { FileNotOpen, FileNotOpenGlance } from '@/features/workspace/file-not-open';
 import { GlancePaper } from '@/features/workspace/glance-paper';
 import {
   useWorkspace,
@@ -44,7 +44,7 @@ export function DataFacts({ workspaceId }: { workspaceId: string }) {
 
   if (!sample || state.status === 'missing')
     return (
-      <WorkspacePage glance={null} noteTitle={() => ''} paper={() => null}>
+      <WorkspacePage glance={<FileNotOpenGlance />} noteTitle={() => ''} paper={() => null}>
         <FileNotOpen />
       </WorkspacePage>
     );

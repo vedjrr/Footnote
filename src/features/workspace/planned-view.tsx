@@ -1,6 +1,6 @@
 'use client';
 
-import { FileNotOpen } from './file-not-open';
+import { FileNotOpen, FileNotOpenGlance } from './file-not-open';
 import { GlancePaper } from './glance-paper';
 import { useWorkspace } from './workspace-store';
 import { WorkspacePage } from './workspace-page';
@@ -20,12 +20,14 @@ export function PlannedView({
   return (
     <WorkspacePage
       glance={
-        workspace && (
+        workspace && !missing ? (
           <GlancePaper
             workspace={workspace}
             data={state.status === 'ready' ? state.data : null}
             marks={false}
           />
+        ) : (
+          <FileNotOpenGlance />
         )
       }
       noteTitle={() => ''}

@@ -20,3 +20,13 @@ export function FileNotOpen() {
     </div>
   );
 }
+
+/** The working paper beside it. */
+export function FileNotOpenGlance() {
+  return (
+    <div className="flex flex-col gap-4 type-small">
+      <h2 className="type-body font-medium text-ink">The data at a glance</h2>
+      <p className="text-ink-2">Open the file again to see its rows and columns here.</p>
+    </div>
+  );
+}
