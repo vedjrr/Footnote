@@ -1,0 +1,1104 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`the three samples > retail profile 1`] = `
+{
+  "columns": [
+    {
+      "categorical": {
+        "maxLength": 9,
+        "minLength": 9,
+        "top": [
+          {
+            "count": 6,
+            "value": "HP-024706",
+          },
+          {
+            "count": 6,
+            "value": "HP-024724",
+          },
+          {
+            "count": 6,
+            "value": "HP-024725",
+          },
+          {
+            "count": 6,
+            "value": "HP-024733",
+          },
+          {
+            "count": 6,
+            "value": "HP-024779",
+          },
+          {
+            "count": 6,
+            "value": "HP-024780",
+          },
+          {
+            "count": 6,
+            "value": "HP-024788",
+          },
+          {
+            "count": 6,
+            "value": "HP-024794",
+          },
+          {
+            "count": 6,
+            "value": "HP-024808",
+          },
+          {
+            "count": 6,
+            "value": "HP-024825",
+          },
+        ],
+      },
+      "distinct": 39630,
+      "empty": 0,
+      "name": "order_id",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": null,
+      "distinct": 821,
+      "empty": 0,
+      "name": "order_date",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "date",
+      "temporal": {
+        "distinctDays": 821,
+        "gapDays": 0,
+        "max": "2025-03-31",
+        "min": "2023-01-01",
+      },
+      "type": "date",
+    },
+    {
+      "categorical": {
+        "maxLength": 5,
+        "minLength": 4,
+        "top": [
+          {
+            "count": 16213,
+            "value": "West",
+          },
+          {
+            "count": 15390,
+            "value": "East",
+          },
+          {
+            "count": 14958,
+            "value": "North",
+          },
+          {
+            "count": 12846,
+            "value": "South",
+          },
+          {
+            "count": 144,
+            "value": "east",
+          },
+          {
+            "count": 120,
+            "value": "north",
+          },
+          {
+            "count": 114,
+            "value": "west",
+          },
+          {
+            "count": 96,
+            "value": "south",
+          },
+        ],
+      },
+      "distinct": 8,
+      "empty": 0,
+      "name": "region",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 11,
+        "minLength": 5,
+        "top": [
+          {
+            "count": 29472,
+            "value": "Online",
+          },
+          {
+            "count": 21867,
+            "value": "Store",
+          },
+          {
+            "count": 8542,
+            "value": "Marketplace",
+          },
+        ],
+      },
+      "distinct": 3,
+      "empty": 0,
+      "name": "channel",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 11,
+        "minLength": 5,
+        "top": [
+          {
+            "count": 14245,
+            "value": "Decor",
+          },
+          {
+            "count": 13706,
+            "value": "Kitchen",
+          },
+          {
+            "count": 12293,
+            "value": "Electronics",
+          },
+          {
+            "count": 10680,
+            "value": "Outdoor",
+          },
+          {
+            "count": 8957,
+            "value": "Furniture",
+          },
+        ],
+      },
+      "distinct": 5,
+      "empty": 0,
+      "name": "category",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 16,
+        "minLength": 4,
+        "top": [
+          {
+            "count": 5712,
+            "value": "Wall art",
+          },
+          {
+            "count": 5536,
+            "value": "Smart home",
+          },
+          {
+            "count": 4794,
+            "value": "Tableware",
+          },
+          {
+            "count": 4793,
+            "value": "Cookware",
+          },
+          {
+            "count": 4272,
+            "value": "Camping",
+          },
+          {
+            "count": 4269,
+            "value": "Lighting",
+          },
+          {
+            "count": 4264,
+            "value": "Rugs",
+          },
+          {
+            "count": 4119,
+            "value": "Small appliances",
+          },
+          {
+            "count": 3730,
+            "value": "Garden tools",
+          },
+          {
+            "count": 3122,
+            "value": "Chairs",
+          },
+        ],
+      },
+      "distinct": 17,
+      "empty": 0,
+      "name": "sub_category",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 6,
+        "minLength": 6,
+        "top": [
+          {
+            "count": 334,
+            "value": "C00889",
+          },
+          {
+            "count": 251,
+            "value": "C01607",
+          },
+          {
+            "count": 201,
+            "value": "C04569",
+          },
+          {
+            "count": 168,
+            "value": "C02581",
+          },
+          {
+            "count": 167,
+            "value": "C02550",
+          },
+          {
+            "count": 162,
+            "value": "C04055",
+          },
+          {
+            "count": 144,
+            "value": "C02672",
+          },
+          {
+            "count": 133,
+            "value": "C04129",
+          },
+          {
+            "count": 131,
+            "value": "C02394",
+          },
+          {
+            "count": 124,
+            "value": "C03842",
+          },
+        ],
+      },
+      "distinct": 5910,
+      "empty": 0,
+      "name": "customer_id",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 14,
+        "minLength": 8,
+        "top": [
+          {
+            "count": 33932,
+            "value": "Consumer",
+          },
+          {
+            "count": 13426,
+            "value": "Small business",
+          },
+          {
+            "count": 12224,
+            "value": "Corporate",
+          },
+        ],
+      },
+      "distinct": 3,
+      "empty": 299,
+      "name": "customer_segment",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": null,
+      "distinct": 8,
+      "empty": 0,
+      "name": "quantity",
+      "numeric": {
+        "max": 4,
+        "mean": 1.59205758,
+        "median": 1,
+        "min": -4,
+        "negativeShare": 0.000200397455,
+        "p05": 1,
+        "p95": 4,
+        "zeroShare": 0,
+      },
+      "refinement": null,
+      "storageType": "integer",
+      "temporal": null,
+      "type": "integer",
+    },
+    {
+      "categorical": null,
+      "distinct": 26601,
+      "empty": 0,
+      "name": "unit_price",
+      "numeric": {
+        "max": 1362.6,
+        "mean": 180.366777,
+        "median": 108.14,
+        "min": 20.96,
+        "negativeShare": 0,
+        "p05": 35.56,
+        "p95": 702.17,
+        "zeroShare": 0,
+      },
+      "refinement": null,
+      "storageType": "decimal",
+      "temporal": null,
+      "type": "decimal",
+    },
+    {
+      "categorical": null,
+      "distinct": 26,
+      "empty": 0,
+      "name": "discount_pct",
+      "numeric": {
+        "max": 25,
+        "mean": 7.14037842,
+        "median": 7,
+        "min": 0,
+        "negativeShare": 0,
+        "p05": 1,
+        "p95": 13,
+        "zeroShare": 0.0255005761,
+      },
+      "refinement": null,
+      "storageType": "integer",
+      "temporal": null,
+      "type": "integer",
+    },
+    {
+      "categorical": null,
+      "distinct": 31690,
+      "empty": 0,
+      "name": "revenue",
+      "numeric": {
+        "max": 2172.3,
+        "mean": 223.18128,
+        "median": 141.13,
+        "min": -649.64,
+        "negativeShare": 0.000200397455,
+        "p05": 40.78,
+        "p95": 717.39,
+        "zeroShare": 0,
+      },
+      "refinement": null,
+      "storageType": "decimal",
+      "temporal": null,
+      "type": "decimal",
+    },
+    {
+      "categorical": null,
+      "distinct": 26562,
+      "empty": 0,
+      "name": "cost",
+      "numeric": {
+        "max": 1935.43,
+        "mean": 155.440631,
+        "median": 90.93,
+        "min": -464.52,
+        "negativeShare": 0.000200397455,
+        "p05": 21.92,
+        "p95": 560.03,
+        "zeroShare": 0,
+      },
+      "refinement": null,
+      "storageType": "decimal",
+      "temporal": null,
+      "type": "decimal",
+    },
+    {
+      "categorical": {
+        "maxLength": null,
+        "minLength": null,
+        "top": [
+          {
+            "count": 56917,
+            "value": "false",
+          },
+          {
+            "count": 2964,
+            "value": "true",
+          },
+        ],
+      },
+      "distinct": 2,
+      "empty": 0,
+      "name": "returned",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "boolean",
+      "temporal": null,
+      "type": "boolean",
+    },
+  ],
+  "rows": 59881,
+  "table": "orders",
+}
+`;
+
+exports[`the three samples > saas profile 1`] = `
+{
+  "columns": [
+    {
+      "categorical": null,
+      "distinct": 24,
+      "empty": 0,
+      "name": "month",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "date",
+      "temporal": {
+        "distinctDays": 24,
+        "gapDays": 677,
+        "max": "2024-12-01",
+        "min": "2023-01-01",
+      },
+      "type": "date",
+    },
+    {
+      "categorical": {
+        "maxLength": 8,
+        "minLength": 8,
+        "top": [
+          {
+            "count": 24,
+            "value": "SW-00003",
+          },
+          {
+            "count": 24,
+            "value": "SW-00006",
+          },
+          {
+            "count": 24,
+            "value": "SW-00007",
+          },
+          {
+            "count": 24,
+            "value": "SW-00008",
+          },
+          {
+            "count": 24,
+            "value": "SW-00010",
+          },
+          {
+            "count": 24,
+            "value": "SW-00011",
+          },
+          {
+            "count": 24,
+            "value": "SW-00013",
+          },
+          {
+            "count": 24,
+            "value": "SW-00014",
+          },
+          {
+            "count": 24,
+            "value": "SW-00015",
+          },
+          {
+            "count": 24,
+            "value": "SW-00019",
+          },
+        ],
+      },
+      "distinct": 3498,
+      "empty": 0,
+      "name": "account_id",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 10,
+        "minLength": 4,
+        "top": [
+          {
+            "count": 16239,
+            "value": "Team",
+          },
+          {
+            "count": 15453,
+            "value": "Starter",
+          },
+          {
+            "count": 13284,
+            "value": "Business",
+          },
+          {
+            "count": 11376,
+            "value": "Enterprise",
+          },
+        ],
+      },
+      "distinct": 4,
+      "empty": 0,
+      "name": "plan",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 8,
+        "minLength": 4,
+        "top": [
+          {
+            "count": 23009,
+            "value": "Americas",
+          },
+          {
+            "count": 21938,
+            "value": "EMEA",
+          },
+          {
+            "count": 11405,
+            "value": "APAC",
+          },
+        ],
+      },
+      "distinct": 3,
+      "empty": 0,
+      "name": "region",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 18,
+        "minLength": 6,
+        "top": [
+          {
+            "count": 14162,
+            "value": "Software",
+          },
+          {
+            "count": 8718,
+            "value": "Healthcare",
+          },
+          {
+            "count": 8260,
+            "value": "Education",
+          },
+          {
+            "count": 8107,
+            "value": "Retail",
+          },
+          {
+            "count": 8013,
+            "value": "Financial services",
+          },
+          {
+            "count": 7761,
+            "value": "Manufacturing",
+          },
+        ],
+      },
+      "distinct": 6,
+      "empty": 1331,
+      "name": "industry",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 11,
+        "minLength": 7,
+        "top": [
+          {
+            "count": 19400,
+            "value": "Organic",
+          },
+          {
+            "count": 13536,
+            "value": "Paid search",
+          },
+          {
+            "count": 13447,
+            "value": "Outbound",
+          },
+          {
+            "count": 9969,
+            "value": "Partner",
+          },
+        ],
+      },
+      "distinct": 4,
+      "empty": 0,
+      "name": "signup_channel",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": null,
+      "distinct": 344,
+      "empty": 0,
+      "name": "seats",
+      "numeric": {
+        "max": 488,
+        "mean": 35.2238607,
+        "median": 12,
+        "min": 0,
+        "negativeShare": 0,
+        "p05": 2,
+        "p95": 146,
+        "zeroShare": 0.00599801249,
+      },
+      "refinement": null,
+      "storageType": "integer",
+      "temporal": null,
+      "type": "integer",
+    },
+    {
+      "categorical": null,
+      "distinct": 368,
+      "empty": 0,
+      "name": "mrr",
+      "numeric": {
+        "max": 26840,
+        "mean": 1723.60378,
+        "median": 300,
+        "min": 15,
+        "negativeShare": 0,
+        "p05": 30,
+        "p95": 8085,
+        "zeroShare": 0,
+      },
+      "refinement": null,
+      "storageType": "decimal",
+      "temporal": null,
+      "type": "decimal",
+    },
+    {
+      "categorical": {
+        "maxLength": null,
+        "minLength": null,
+        "top": [
+          {
+            "count": 55104,
+            "value": "false",
+          },
+          {
+            "count": 1248,
+            "value": "true",
+          },
+        ],
+      },
+      "distinct": 2,
+      "empty": 0,
+      "name": "is_new",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "boolean",
+      "temporal": null,
+      "type": "boolean",
+    },
+    {
+      "categorical": {
+        "maxLength": null,
+        "minLength": null,
+        "top": [
+          {
+            "count": 55168,
+            "value": "false",
+          },
+          {
+            "count": 1184,
+            "value": "true",
+          },
+        ],
+      },
+      "distinct": 2,
+      "empty": 0,
+      "name": "is_churned",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "boolean",
+      "temporal": null,
+      "type": "boolean",
+    },
+  ],
+  "rows": 56352,
+  "table": "subscriptions",
+}
+`;
+
+exports[`the three samples > support profile 1`] = `
+{
+  "columns": [
+    {
+      "categorical": {
+        "maxLength": 9,
+        "minLength": 9,
+        "top": [
+          {
+            "count": 3,
+            "value": "KH-001169",
+          },
+          {
+            "count": 3,
+            "value": "KH-014227",
+          },
+          {
+            "count": 2,
+            "value": "KH-000400",
+          },
+          {
+            "count": 2,
+            "value": "KH-000445",
+          },
+          {
+            "count": 2,
+            "value": "KH-000575",
+          },
+          {
+            "count": 2,
+            "value": "KH-000897",
+          },
+          {
+            "count": 2,
+            "value": "KH-000901",
+          },
+          {
+            "count": 2,
+            "value": "KH-001013",
+          },
+          {
+            "count": 2,
+            "value": "KH-001115",
+          },
+          {
+            "count": 2,
+            "value": "KH-001164",
+          },
+        ],
+      },
+      "distinct": 39840,
+      "empty": 0,
+      "name": "ticket_id",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": null,
+      "distinct": 39959,
+      "empty": 0,
+      "name": "created_at",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "timestamp",
+      "temporal": {
+        "distinctDays": 366,
+        "gapDays": 0,
+        "max": "2024-12-31T22:57:22",
+        "min": "2024-01-01T00:35:51",
+      },
+      "type": "timestamp",
+    },
+    {
+      "categorical": null,
+      "distinct": 39560,
+      "empty": 413,
+      "name": "resolved_at",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "timestamp",
+      "temporal": {
+        "distinctDays": 375,
+        "gapDays": 2,
+        "max": "2025-01-11T18:08:11",
+        "min": "2024-01-01T07:37:07",
+      },
+      "type": "timestamp",
+    },
+    {
+      "categorical": {
+        "maxLength": 10,
+        "minLength": 7,
+        "top": [
+          {
+            "count": 13869,
+            "value": "Technical",
+          },
+          {
+            "count": 10089,
+            "value": "Accounts",
+          },
+          {
+            "count": 10026,
+            "value": "Billing",
+          },
+          {
+            "count": 6016,
+            "value": "Onboarding",
+          },
+        ],
+      },
+      "distinct": 4,
+      "empty": 0,
+      "name": "team",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 6,
+        "minLength": 3,
+        "top": [
+          {
+            "count": 19891,
+            "value": "Normal",
+          },
+          {
+            "count": 10096,
+            "value": "Low",
+          },
+          {
+            "count": 7174,
+            "value": "High",
+          },
+          {
+            "count": 2839,
+            "value": "Urgent",
+          },
+        ],
+      },
+      "distinct": 4,
+      "empty": 0,
+      "name": "priority",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 15,
+        "minLength": 4,
+        "top": [
+          {
+            "count": 6067,
+            "value": "Account changes",
+          },
+          {
+            "count": 6016,
+            "value": "Setup",
+          },
+          {
+            "count": 6015,
+            "value": "Invoices",
+          },
+          {
+            "count": 5503,
+            "value": "Bugs",
+          },
+          {
+            "count": 4811,
+            "value": "Login issues",
+          },
+          {
+            "count": 4022,
+            "value": "Permissions",
+          },
+          {
+            "count": 4011,
+            "value": "Refunds",
+          },
+          {
+            "count": 3555,
+            "value": "Integrations",
+          },
+        ],
+      },
+      "distinct": 8,
+      "empty": 0,
+      "name": "category",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": {
+        "maxLength": 5,
+        "minLength": 4,
+        "top": [
+          {
+            "count": 20119,
+            "value": "Email",
+          },
+          {
+            "count": 13952,
+            "value": "Chat",
+          },
+          {
+            "count": 5929,
+            "value": "Phone",
+          },
+        ],
+      },
+      "distinct": 3,
+      "empty": 0,
+      "name": "channel",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "text",
+      "temporal": null,
+      "type": "text",
+    },
+    {
+      "categorical": null,
+      "distinct": 2028,
+      "empty": 0,
+      "name": "first_response_minutes",
+      "numeric": {
+        "max": 8144,
+        "mean": 372.9614,
+        "median": 234,
+        "min": 2,
+        "negativeShare": 0,
+        "p05": 16,
+        "p95": 1219,
+        "zeroShare": 0,
+      },
+      "refinement": null,
+      "storageType": "integer",
+      "temporal": null,
+      "type": "integer",
+    },
+    {
+      "categorical": null,
+      "distinct": 7698,
+      "empty": 413,
+      "name": "resolution_hours",
+      "numeric": {
+        "max": 749.08,
+        "mean": 35.3445313,
+        "median": 24.08,
+        "min": -9.98,
+        "negativeShare": 0.0151564908,
+        "p05": 2.83,
+        "p95": 106.1,
+        "zeroShare": 0,
+      },
+      "refinement": null,
+      "storageType": "decimal",
+      "temporal": null,
+      "type": "decimal",
+    },
+    {
+      "categorical": {
+        "maxLength": null,
+        "minLength": null,
+        "top": [
+          {
+            "count": 36880,
+            "value": "false",
+          },
+          {
+            "count": 3120,
+            "value": "true",
+          },
+        ],
+      },
+      "distinct": 2,
+      "empty": 0,
+      "name": "sla_breached",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "boolean",
+      "temporal": null,
+      "type": "boolean",
+    },
+    {
+      "categorical": null,
+      "distinct": 5,
+      "empty": 23769,
+      "name": "csat",
+      "numeric": {
+        "max": 5,
+        "mean": 4.08298934,
+        "median": 4,
+        "min": 1,
+        "negativeShare": 0,
+        "p05": 2,
+        "p95": 5,
+        "zeroShare": 0,
+      },
+      "refinement": null,
+      "storageType": "integer",
+      "temporal": null,
+      "type": "integer",
+    },
+    {
+      "categorical": {
+        "maxLength": null,
+        "minLength": null,
+        "top": [
+          {
+            "count": 38153,
+            "value": "false",
+          },
+          {
+            "count": 1847,
+            "value": "true",
+          },
+        ],
+      },
+      "distinct": 2,
+      "empty": 0,
+      "name": "reopened",
+      "numeric": null,
+      "refinement": null,
+      "storageType": "boolean",
+      "temporal": null,
+      "type": "boolean",
+    },
+  ],
+  "rows": 40000,
+  "table": "tickets",
+}
+`;
