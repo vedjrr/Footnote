@@ -499,6 +499,27 @@ Format for a new decision:
   so `resolution_hours` would also move to the log scale (rejected as
   tuning to the sample; the report is accepted with its reason instead).
 
+### D-033 Metrics screen: edits in memory, hiding, and the "Discount rate" rename
+- Date: 2026-10-08, task T14
+- Decision: the dictionary lives in the workspace store as `model` (with
+  edits) beside `original` (as loaded). Every edit is a pure function in
+  `core/model/edit.ts` that returns a schema-checked model or a sentence
+  saying why not; the store keeps edits until the page is closed (T62
+  persists them). "Hide" applies to columns to split by: the dimension is
+  removed and its column joins `hidden`; "Show" restores the dimension
+  from `original`. Metrics are removed rather than hidden, and not while
+  another metric or a filter uses them. A loaded YAML file must parse,
+  name the same table and only columns the data has; otherwise nothing
+  changes. New ratio metrics get a percentage format when both parts share
+  a format, money when the numerator is money, else a number. The retail
+  sample's average of `discount_pct` is now "Discount rate"
+  (`discount_rate`), so "Average discount" (the T14 example) is free.
+  Selects are native `<select>` elements in `ui/select.tsx`.
+- Why: native controls are keyboard-complete with no extra code; keeping
+  `original` lets a hidden column come back with its labels and synonyms.
+- Considered: hiding measure columns (would orphan metrics and their
+  ratios); a custom listbox (more code, worse keyboard support).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.

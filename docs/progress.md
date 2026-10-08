@@ -10,15 +10,15 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T13 Data health checks (done)
-- Next task: T14 Metrics screen
+- Last finished task: T14 Metrics screen (done)
+- Next task: T15 Data health screen
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   (`retail`, `saas`, `support`) and files (`file-1`, ...), `/open`,
   `/accuracy`, `/about`; `/styleguide`, `/dev/engine` outside the shell.
-  `npm run check` (199 tests), `npm run build` and `npm run test:e2e`
-  (18) pass (build and e2e last run in T10).
+  `npm run check` (218 tests) and `npm run test:e2e` (23) pass;
+  `npm run build` last run in T10.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
   `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
   page's one engine, the samples and the user's files.
@@ -29,7 +29,10 @@ each new session automatically, so it must be enough to start from.
   numbers, `modelToYaml`), inference (`inferModel(profile, facts)`,
   `inferDictionary(engine, profile)` runs the snapshot probe) and
   `compareRoles`. Hand-written `data/demo/<id>/dictionary.yaml` for each
-  sample. Not yet loaded by the app or copied to `public/`.
+  sample, copied to `public/demo/<id>/`. The store holds `data.model`
+  (edited) and `data.original`; `setModel(id, model)` replaces it. Files
+  get an inferred dictionary on open. `core/model/edit.ts` and
+  `describe.ts` drive the metrics screen (`features/metrics/`).
 - Health: `checkHealth(engine, profile, model, { latestPlausible })` in
   `core/health/health.ts`, checks H1 to H12 (H12 new, D-032). Each
   problem has statement, count, share, examples, metrics, dimensions, sql.
@@ -41,7 +44,7 @@ each new session automatically, so it must be enough to start from.
   A dev server left on port 3100 or 3200 is reused by shots or e2e.
   Engine-backed tests of core go in `tests/` and need adding to `include`
   in `vitest.config.mts`. Open questions Q-08 to Q-10.
-- Updated: 2026-10-08, T13
+- Updated: 2026-10-08, T14
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -78,6 +81,42 @@ Template:
 ```
 
 ## Log
+
+### T14 Metrics screen
+- Date: 2026-10-08
+- Outcome: done
+- What changed: `/w/[workspace]/metrics` now renders
+  `features/metrics/metrics-view.tsx` (definitions, add a ratio, columns
+  to split by, hidden columns, time) and `yaml-actions.tsx` (download,
+  load with line errors); `core/model/describe.ts`, `core/model/edit.ts`
+  with tests; `ui/select.tsx` added to the styleguide; the store loads
+  `dictionary.yaml` for samples and infers one for files;
+  `copy-demo.mjs` copies `.yaml`; retail metric renamed "Discount rate".
+- Verified: `npm run check`: 218 tests passed. `npx playwright test
+  metrics`: 5 passed (definitions listed; "Average discount" added by
+  keyboard, still there after Briefing and back; edit by keyboard with
+  Escape returning focus; hide and show; broken YAML names line 9 and
+  changes nothing, a valid file replaces the dictionary).
+  `npx playwright test`: 23 passed.
+- UI check: `npm run shots -- /w/retail/metrics` at 390, 834, 1440, light
+  and dark, plus scripted edit-with-error and YAML-error states at 390
+  dark and 1440 light. Fixed: duplicate "Metrics" heading (section is now
+  "Metric definitions"), YAML message repeating the line position, the
+  form's Remove button drifting to the far edge. Tab order reaches every
+  control (e2e `tabTo`). Loading and error states reuse the briefing's
+  pattern; empty states have sentences. Critic pass not required.
+  `frontend-design` skill not loaded; ui-ux-rules followed directly.
+- Decisions: D-033
+- Differs from the spec: "hide a column" applies to columns to split by;
+  metrics are removed instead (D-033).
+- Not done: nothing
+- For the next agent: edits are in memory only. Nothing reads
+  `data.model` yet except this screen; T20 onward should take the
+  dictionary from the store, never from the YAML file. The working paper
+  on this screen is the glance; there are no numbers on the screen
+  besides it.
+- Ved should know: nothing
+- Commits: 68a277d..(this handoff)
 
 ### T13 Data health checks
 - Date: 2026-10-08
