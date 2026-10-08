@@ -11,6 +11,7 @@ export default defineConfig({
       'data/**/*.test.ts',
       'scripts/**/*.test.ts',
       'tests/parity/**/*.test.ts',
+      'tests/ingest/**/*.test.ts',
     ],
     passWithNoTests: false,
     coverage: {

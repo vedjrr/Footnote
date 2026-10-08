@@ -19,3 +19,11 @@ export function formatDay(iso: string): string {
   const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
   return day.format(new Date(Date.UTC(y, m - 1, d)));
 }
+
+const megabytes = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
+
+/** A file size in megabytes of 1,000,000 bytes, as the operating system shows it. */
+export function formatMegabytes(bytes: number): string {
+  const mb = bytes / 1_000_000;
+  return mb < 1 ? 'under 1 MB' : `${megabytes.format(mb)} MB`;
+}
