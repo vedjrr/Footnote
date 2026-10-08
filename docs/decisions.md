@@ -520,6 +520,21 @@ Format for a new decision:
 - Considered: hiding measure columns (would orphan metrics and their
   ratios); a custom listbox (more code, worse keyboard support).
 
+### D-034 Data health screen: when checks run and where marks go
+- Date: 2026-10-08, task T15
+- Decision: the store runs the profile and `checkHealth` once a workspace
+  is ready (`useHealth`), separately from loading, so no screen waits for
+  it; an edit to the dictionary drops the result and checks again. The
+  latest plausible date for H9 is today's date in the browser. Each
+  problem's mark sits on its count ("719 rows (1.2%)"), and the column
+  profile table has one mark on the number of statements behind it.
+  Problems are grouped "Fix before you rely on the numbers" (serious),
+  "Worth a look" (minor), "Good to know" (information).
+- Why: health takes a few hundred milliseconds in WASM; the glance on
+  every screen needs it, the first paint does not.
+- Considered: one mark per profile cell (dozens of marks for one query
+  result); running health inside the load step (delays every screen).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.

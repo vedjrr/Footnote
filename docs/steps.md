@@ -40,7 +40,7 @@ Phase 1, understand the data
 - [x] T12 Dictionary: types, inference and sample dictionaries
 - [x] T13 Data health checks
 - [x] T14 Metrics screen
-- [ ] T15 Data health screen
+- [x] T15 Data health screen
 
 Phase 2, query core
 - [ ] T20 Query spec, periods and the SQL compiler

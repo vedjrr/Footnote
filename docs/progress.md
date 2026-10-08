@@ -10,14 +10,14 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T14 Metrics screen (done)
-- Next task: T15 Data health screen
+- Last finished task: T15 Data health screen (done)
+- Next task: T20 Query spec, periods and the SQL compiler
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   (`retail`, `saas`, `support`) and files (`file-1`, ...), `/open`,
   `/accuracy`, `/about`; `/styleguide`, `/dev/engine` outside the shell.
-  `npm run check` (218 tests) and `npm run test:e2e` (23) pass;
+  `npm run check` (212 tests) and `npm run test:e2e` (29) pass;
   `npm run build` last run in T10.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
   `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
@@ -33,6 +33,8 @@ each new session automatically, so it must be enough to start from.
   (edited) and `data.original`; `setModel(id, model)` replaces it. Files
   get an inferred dictionary on open. `core/model/edit.ts` and
   `describe.ts` drive the metrics screen (`features/metrics/`).
+  `useHealth(id)` runs profile and health checks after load; the health
+  screen is `features/health/health-view.tsx`; the glance shows a summary.
 - Health: `checkHealth(engine, profile, model, { latestPlausible })` in
   `core/health/health.ts`, checks H1 to H12 (H12 new, D-032). Each
   problem has statement, count, share, examples, metrics, dimensions, sql.
@@ -44,7 +46,7 @@ each new session automatically, so it must be enough to start from.
   A dev server left on port 3100 or 3200 is reused by shots or e2e.
   Engine-backed tests of core go in `tests/` and need adding to `include`
   in `vitest.config.mts`. Open questions Q-08 to Q-10.
-- Updated: 2026-10-08, T14
+- Updated: 2026-10-08, T15
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -81,6 +83,41 @@ Template:
 ```
 
 ## Log
+
+### T15 Data health screen
+- Date: 2026-10-08
+- Outcome: done
+- What changed: `/w/[workspace]/health` renders
+  `features/health/health-view.tsx` (problems by severity with a mark on
+  each count, a working paper with rule, result, example rows and SQL,
+  then the column profile table with its own paper); the store gains
+  `useHealth` (D-034); the glance shows "Data health" with a link and
+  reads the time column from the dictionary; `tests/e2e/health.spec.ts`.
+- Verified: `npm run check`: 212 tests passed (the T14 entry said 218;
+  that was wrong, it was 212 then too). `npx playwright test health`: 6
+  passed (retail H1 first with 719 rows (1.2%), H4, H3; mark opens rows
+  and SQL; support csat under "Good to know" with the averaged-only
+  sentence; saas H12; a clean 91-day CSV shows the nothing-found
+  sentence; the glance on the saas briefing reads "1 serious, 1 minor
+  problems"). `npx playwright test`: first full run 27 failed in 3.2 min
+  on a cold dev server, second run 29 passed in 15 s; each file also
+  passes alone.
+- UI check: `npm run shots -- /w/retail/health /w/support/health` at 390,
+  834, 1440, light and dark. Fixed: the mark landed on "0" in "seats is
+  0" (now on the row count), mark description grammar. Phone tables
+  scroll inside their container. Loading ("Checking the ...") and error
+  states exist; the clean state was triggered in e2e. Critic pass not
+  required.
+- Decisions: D-034
+- Differs from the spec: nothing
+- Not done: nothing
+- For the next agent: if the full e2e run fails on a cold start, run it
+  again before debugging; it may be the dev server compiling routes
+  under parallel workers. Statements use column names (lower case at the
+  start of a sentence); swapping in labels is a later polish.
+- Ved should know: the first full e2e run after this change failed and
+  the second passed; I committed before the rerun. Watch for flakiness.
+- Commits: 675e168..(this handoff)
 
 ### T14 Metrics screen
 - Date: 2026-10-08
