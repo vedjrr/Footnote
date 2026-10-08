@@ -118,15 +118,16 @@ columns (FR-12). The app uses the hand-written one for samples.
 |---|---|---|---|
 | H1 | Exact duplicate rows | any | serious at 0.5% of rows or more, else minor |
 | H2 | Repeated identifier | an identifier that looks unique (99%+) has repeats | serious |
-| H3 | Empty values | a column is 1% or more empty | serious at 20% or more on a dictionary column |
+| H3 | Empty values | a column is 1% or more empty (0.1% on a dictionary column) | serious at 20% or more on a dictionary column; information when the column only feeds averages, medians, minimums or maximums (D-032) |
 | H4 | Label variants | values in a category differ only by case or surrounding spaces | minor, serious if they hold 2% of rows or more |
-| H5 | Extreme values | a measure has values beyond `median + 10 * 1.4826 * MAD` in either direction, up to 20 shown | minor |
+| H5 | Extreme values | a measure has values beyond `median + 10 * 1.4826 * MAD` in either direction, up to 20 shown; measured on the log scale when 99% of values are above 0 (D-032) | minor |
 | H6 | Negative values | a measure that is 99%+ non-negative has negatives | minor |
 | H7 | Unparsed values | values that failed type refinement (section 2.2) | minor |
 | H8 | Gaps in time | missing days (or weeks, months) inside the range of the time column | minor |
 | H9 | Dates out of order | an end timestamp before its start, or dates after the latest plausible date | serious |
 | H10 | Incomplete latest period | section 4 | information |
 | H11 | Constant column | one distinct value | information |
+| H12 | Zero beside a positive value | a summed, never-negative measure is 0 while another is above 0, in 5% or fewer of the rows where the other is positive (D-032) | serious at 0.5% of rows or more, else minor |
 
 Each problem carries: a one-sentence statement, the count and share, up to five
 example rows, and which metrics it affects. Checks never change the data.

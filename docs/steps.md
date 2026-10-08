@@ -38,7 +38,7 @@ Phase 1, understand the data
 - [x] T10 Use your own file
 - [x] T11 Column profile
 - [x] T12 Dictionary: types, inference and sample dictionaries
-- [ ] T13 Data health checks
+- [x] T13 Data health checks
 - [ ] T14 Metrics screen
 - [ ] T15 Data health screen
 

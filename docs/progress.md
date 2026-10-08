@@ -10,14 +10,14 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T12 Dictionary (done)
-- Next task: T13 Data health checks
+- Last finished task: T13 Data health checks (done)
+- Next task: T14 Metrics screen
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   (`retail`, `saas`, `support`) and files (`file-1`, ...), `/open`,
   `/accuracy`, `/about`; `/styleguide`, `/dev/engine` outside the shell.
-  `npm run check` (181 tests), `npm run build` and `npm run test:e2e`
+  `npm run check` (199 tests), `npm run build` and `npm run test:e2e`
   (18) pass (build and e2e last run in T10).
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
   `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
@@ -30,15 +30,18 @@ each new session automatically, so it must be enough to start from.
   `inferDictionary(engine, profile)` runs the snapshot probe) and
   `compareRoles`. Hand-written `data/demo/<id>/dictionary.yaml` for each
   sample. Not yet loaded by the app or copied to `public/`.
+- Health: `checkHealth(engine, profile, model, { latestPlausible })` in
+  `core/health/health.ts`, checks H1 to H12 (H12 new, D-032). Each
+  problem has statement, count, share, examples, metrics, dimensions, sql.
+  `truth.json` `health` lists exactly what each sample must report.
 - UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/`.
 - Evals: not run
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
   A dev server left on port 3100 or 3200 is reused by shots or e2e.
   Engine-backed tests of core go in `tests/` and need adding to `include`
-  in `vitest.config.mts`. Open questions Q-06 to Q-11 (Q-06, Q-07, Q-11
-  are for T13).
-- Updated: 2026-10-08, T12
+  in `vitest.config.mts`. Open questions Q-08 to Q-10.
+- Updated: 2026-10-08, T13
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -75,6 +78,39 @@ Template:
 ```
 
 ## Log
+
+### T13 Data health checks
+- Date: 2026-10-08
+- Outcome: done
+- What changed: `src/core/health/` (`health.ts` checks H1 to H12,
+  `thresholds.ts`); `core/model/usage.ts` (`metricsUsing`);
+  `formatShare`, `formatMonth` in `core/narrative/format.ts`;
+  `valueExpr` exported from the profile; `tests/health/health.test.ts`;
+  generators write a `health` list into each `truth.json` (Parquet
+  unchanged, content hashes identical).
+- Verified: `npm run check`: 199 tests passed. `npx vitest run
+  tests/health`: 16 passed. Reports per sample equal truth.json exactly:
+  retail H1 serious 1.2%, H4 region 0.8%, H3 segment 0.5%, H6 quantity
+  12 rows (+ accepted H6 revenue, cost); saas H12 serious 0.6%, H3
+  industry 2.4%; support H9 serious 1.5%, H2 0.4%, H3 csat information
+  59.4% (+ accepted H3 resolved_at, H3 resolution_hours information, H5
+  resolution_hours). Shares match `realised` in truth to 3 decimals.
+  Health runs in 28 to 51 ms per sample (Node). `data:generate` re-run:
+  same hashes.
+- UI check: not a UI task
+- Decisions: D-032 (answers Q-06, Q-07, Q-11)
+- Differs from the spec: H12 added; H3 floor and information rule; H5
+  log scale (analytics-spec §3 updated).
+- Not done: nothing
+- For the next agent: the extras accepted into truth.json are reviewed,
+  not ignored: change a check and the exact-match test will tell you.
+  H10 holds a copy of the §4 complete-period rule; T20 should move it to
+  `core/findings` and reuse it. Statements use column names, not labels;
+  T15 can swap in dimension labels via `problem.dimensions`.
+  Callers pass `latestPlausible` (today in the app) or the future-date
+  part of H9 is skipped.
+- Ved should know: nothing
+- Commits: aa465fe..(this handoff)
 
 ### T12 Dictionary: types, inference and sample dictionaries
 - Date: 2026-10-08

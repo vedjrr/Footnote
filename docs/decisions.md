@@ -463,6 +463,42 @@ Format for a new decision:
   only next to a removed currency symbol, so "+44 20 7946 0001" stays text
   (found while testing private columns).
 
+### D-032 Health checks: H12, empty averages, the H3 floor and H5 on skewed data
+- Date: 2026-10-08, task T13
+- Decision: (answers Q-06) a new check H12, "zero beside a positive
+  value": one summed, never-negative measure is 0 while another is above
+  0, reported only when that happens in 5% or fewer of the rows where the
+  other is positive; serious from 0.5% of rows, as for duplicates. S6
+  (seats 0 with mrr above 0, 0.6%) is found by it and can reach the
+  briefing. (Answers Q-07) H3 on a column whose only metrics skip empty
+  values (avg, median, min, max) and that is not a dimension is
+  information, and the sentence says the metric uses only the rows with a
+  value: empty `csat` and empty `resolution_hours` read that way. (Answers
+  Q-11) H3 reports from 0.1% of rows on columns the dictionary uses, 1%
+  on others, so R7's 0.5% empty segment shows. H5 measures a measure on
+  the log scale when 99% or more of its values are above 0. H9 treats any
+  other date column as an end date when it is on or after the time column
+  in 90% or more of rows; future dates are checked against a
+  `latestPlausible` date the caller passes. H8 judges gaps at the time
+  column's recorded grain (month when every value is the 1st, week when
+  all share a weekday, else day). H10 implements analytics-spec §4 inside
+  the health module; T20 should move the period logic to `core/findings`
+  and have H10 call it. `truth.json` gains a `health` list, written by the
+  generator from `HealthExpectation` constants, naming every problem the
+  checks must report: planted ones with their effect id, accepted extras
+  with a reason (negative revenue and cost on R7's negative-quantity
+  rows, open tickets' empty `resolved_at`, the far tail of
+  `resolution_hours`).
+- Why: on the linear scale H5 called 16.7% of MRR extreme (a few large
+  accounts), which is the shape of the data, not a problem. A rare zero
+  next to a positive value is a contradiction in the row; a common one
+  (discount 0) is normal.
+- Considered: dropping `briefing: true` from S6 (loses a planted problem
+  from the briefing); a dictionary flag `optional: true` for `csat` (works
+  only on hand-written dictionaries); raising the log-scale share to 95%
+  so `resolution_hours` would also move to the log scale (rejected as
+  tuning to the sample; the report is accepted with its reason instead).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
@@ -474,18 +510,8 @@ Answer these in the task named, then move the answer up into a decision.
 - Q-04 (T21): is DuckDB's own SQL parser usable for the guard in both
   adapters?
 - Q-05 (Ved): final repository name and whether to buy a domain.
-- Q-06 (T13, T45): S6 is marked `briefing: true` (analytics-spec §10.3), but
-  the briefing's caveats list only serious health problems (§7 step 3).
-  `industry` empty in 2% is minor under H3 (serious only at 20%), and no check
-  in §3 detects `seats` 0 with `mrr` above 0. As written, S6 cannot appear in
-  the briefing. Either add a check (for example "measure is zero while a
-  related measure is positive") or drop `briefing: true` from S6.
-- Q-07 (T13): `csat` is empty for about 60% of tickets, which H3 calls
-  serious (20% or more on a dictionary column). T5 says empty `csat` must be
-  described as "rated tickets only", not as a problem. The rule that exempts
-  it is not written. Options: a dictionary flag such as `optional: true` on
-  the hand-written dictionary, or treat rating-like `avg` measures as
-  optional.
+- Q-06 (T13, T45): answered in D-032, new check H12.
+- Q-07 (T13): answered in D-032, information for averaged-only columns.
 - Q-08 (T30, T42): for a change question already filtered to a segment
   ("Where did the March drop in electronics revenue come from?"), does the
   `truth.json` path for R1 include the filter value (Electronics, Online,
@@ -503,13 +529,7 @@ Answer these in the task named, then move the answer up into a decision.
   first commit to the `vedjrr` account, so authorship is fine. Only `gh`
   commands that need write access to `vedjrr/Footnote` (issues, releases)
   may fail until `gh` is switched to `vedjrr`.
-- Q-11 (T13): R7 plants `customer_segment` empty in 0.5% of retail rows,
-  but H3 reports empty values only at 1% or more. As written, the health
-  screen will not show this planted problem. The other R7 problems are
-  caught: duplicates at 1.2% are serious under H1, lower-case regions at
-  0.8% are minor under H4, and negative quantities are minor under H6.
-  Either lower the H3 floor for dictionary columns, or accept that the
-  0.5% only shows in profile null counts.
+- Q-11 (T13): answered in D-032, H3 floor 0.1% on dictionary columns.
 
 ## Later
 
