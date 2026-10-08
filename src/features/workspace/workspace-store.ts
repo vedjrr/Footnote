@@ -10,12 +10,13 @@ import { describeSql } from '@/core/engine/normalise';
 import type { ColumnInfo, QueryEngine } from '@/core/engine/types';
 import { checkSize, fileKind, sizeWarning } from '@/core/ingest/file';
 import { ingestFile } from '@/core/ingest/ingest';
+import { type HealthReport, checkHealth } from '@/core/health/health';
 import { inferDictionary } from '@/core/model/infer';
 import type { SemanticModel } from '@/core/model/types';
 import { parseModelYaml } from '@/core/model/yaml';
 import { formatMegabytes } from '@/core/narrative/format';
 import { glanceSql, readGlance, type Glance } from '@/core/profile/glance';
-import { profileTable } from '@/core/profile/profile';
+import { type Profile, profileTable } from '@/core/profile/profile';
 import { fileId } from './file-id';
 import { SAMPLES, dictionaryUrl, findSample, sampleUrl, type Sample } from './samples';
 
@@ -149,7 +150,68 @@ async function glance(
 export function setModel(id: string, model: SemanticModel): void {
   const state = states.get(id);
   if (state?.status !== 'ready') return;
+  // Health names affected metrics and treats dictionary columns differently,
+  // so it is checked again against the new dictionary.
+  healthStates.delete(id);
   set(id, { status: 'ready', data: { ...state.data, model } });
+}
+
+export type HealthState =
+  | { status: 'checking' }
+  | { status: 'ready'; report: HealthReport; profile: Profile }
+  | { status: 'error'; message: string };
+
+const CHECKING: HealthState = { status: 'checking' };
+const healthStates = new Map<string, HealthState>();
+
+/** Today as an ISO date: no row should be dated after it (H9). */
+const today = () => new Date().toISOString().slice(0, 10);
+
+function ensureHealth(id: string): void {
+  const state = states.get(id);
+  if (state?.status !== 'ready' || healthStates.has(id)) return;
+  healthStates.set(id, CHECKING);
+  const workspace = findWorkspace(id);
+  if (!workspace) return;
+  const model = state.data.model;
+  void (async () => {
+    const engine = getEngine();
+    const profile = await profileTable(engine, workspace.table);
+    const report = await checkHealth(engine, profile, model, { latestPlausible: today() });
+    return { profile, report };
+  })().then(
+    ({ profile, report }) => {
+      // An edit made while checking starts a new check; drop this one.
+      const now = states.get(id);
+      if (now?.status !== 'ready' || now.data.model !== model) return;
+      healthStates.set(id, { status: 'ready', report, profile });
+      notify();
+    },
+    (error: unknown) => {
+      healthStates.set(id, {
+        status: 'error',
+        message: error instanceof Error ? error.message : String(error),
+      });
+      notify();
+    },
+  );
+}
+
+/** The data health of a loaded workspace, checked once the data is ready. */
+export function useHealth(id: string): HealthState | null {
+  const { state } = useWorkspace(id);
+  const ready = state.status === 'ready';
+  const model = ready ? state.data.model : null;
+  useEffect(() => {
+    if (ready) ensureHealth(id);
+  }, [id, ready, model]);
+  const health = useSyncExternalStore(
+    subscribe,
+    () => healthStates.get(id) ?? null,
+    () => null,
+  );
+  if (!ready) return null;
+  return health ?? CHECKING;
 }
 
 let opened = 0;

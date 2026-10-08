@@ -1,6 +1,10 @@
+'use client';
+
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { formatDay, formatInteger } from '@/core/narrative/format';
-import type { LoadedSample, Workspace } from './workspace-store';
+import { viewHref } from '@/features/shell/routes';
+import { useHealth, type HealthState, type LoadedSample, type Workspace } from './workspace-store';
 
 // The working paper with no mark selected: the data at a glance (§5).
 
@@ -19,12 +23,14 @@ export function GlancePaper({
   /** Whether the page has marks to select. */
   marks?: boolean;
 }) {
+  const health = useHealth(workspace.id);
   const rows: [string, ReactNode][] = data
     ? [
         ['Rows', formatInteger(data.glance.rows)],
         ['Days covered', dayRange(data)],
         ['Columns', formatInteger(data.glance.columns)],
-        ['Dated by', workspace.timeColumn ?? 'No date column'],
+        ['Dated by', data.model.time?.column ?? 'No date column'],
+        ['Data health', <HealthSummary key="health" workspace={workspace} health={health} />],
       ]
     : [];
   return (
@@ -45,12 +51,35 @@ export function GlancePaper({
       ) : (
         <p className="text-ink-2">Waiting for the data to load.</p>
       )}
-      <p className="text-ink-2">
-        The period being reported and a summary of data health will be added here.
-      </p>
+      <p className="text-ink-2">The period being reported will be added here.</p>
       {marks && data && (
         <p className="text-ink-2">Select a numbered mark to see how that number was worked out.</p>
       )}
     </div>
+  );
+}
+
+function HealthSummary({
+  workspace,
+  health,
+}: {
+  workspace: Workspace;
+  health: HealthState | null;
+}) {
+  if (!health || health.status === 'checking') return <>Checking</>;
+  if (health.status === 'error') return <>Not checked</>;
+  const problems = health.report.problems;
+  const serious = problems.filter((p) => p.severity === 'serious').length;
+  const minor = problems.filter((p) => p.severity === 'minor').length;
+  const parts = [...(serious ? [`${serious} serious`] : []), ...(minor ? [`${minor} minor`] : [])];
+  return (
+    <Link
+      href={viewHref(workspace.id, 'health')}
+      className="text-mark underline-offset-3 hover:underline"
+    >
+      {parts.length
+        ? `${parts.join(', ')} ${serious + minor === 1 ? 'problem' : 'problems'}`
+        : 'Nothing to fix'}
+    </Link>
   );
 }
