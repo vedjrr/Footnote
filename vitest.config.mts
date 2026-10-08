@@ -13,6 +13,7 @@ export default defineConfig({
       'tests/parity/**/*.test.ts',
       'tests/ingest/**/*.test.ts',
       'tests/profile/**/*.test.ts',
+      'tests/model/**/*.test.ts',
     ],
     passWithNoTests: false,
     coverage: {

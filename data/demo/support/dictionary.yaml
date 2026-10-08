@@ -1,0 +1,164 @@
+# Hand-written dictionary for the support sample, "Kettle Helpdesk"
+# (analytics-spec §2.8, §10.3). One row is one ticket. CSAT is asked of
+# rated tickets only, so its average is over rated tickets.
+table: tickets
+version: 1
+time:
+  id: created_at
+  label: Created
+  column: created_at
+  min: 2024-01-01T00:35:51
+  max: 2024-12-31T22:57:22
+  defaultGrain: month
+metrics:
+  - kind: simple
+    id: tickets
+    label: Tickets
+    column: null
+    agg: count
+    overTime: sum
+    format: { style: number, decimals: 0 }
+    direction: neutral
+    importance: 0.7
+    synonyms: [volume, ticket volume, cases, requests, contacts]
+  - kind: simple
+    id: breached_tickets
+    label: Breached tickets
+    column: null
+    agg: count
+    overTime: sum
+    where:
+      - { dimension: sla_breached, op: in, values: ['true'] }
+    format: { style: number, decimals: 0 }
+    direction: lower_better
+    importance: 0.4
+    synonyms: [sla breaches, breaches, missed sla]
+  - kind: ratio
+    id: sla_breach_rate
+    label: SLA breach rate
+    numerator: breached_tickets
+    denominator: tickets
+    format: { style: percent, decimals: 1 }
+    direction: lower_better
+    importance: 0.6
+    synonyms: [breach rate, sla misses, share breached, sla failure rate]
+    description: Share of tickets that missed their service level.
+  - kind: simple
+    id: average_first_response
+    label: Average first response time
+    column: first_response_minutes
+    agg: avg
+    overTime: sum
+    format: { style: duration, unit: minutes }
+    direction: lower_better
+    importance: 0.4
+    synonyms: [first response, response time, time to first response, frt]
+  - kind: simple
+    id: average_resolution
+    label: Average resolution time
+    column: resolution_hours
+    agg: avg
+    overTime: sum
+    format: { style: duration, unit: hours }
+    direction: lower_better
+    importance: 0.4
+    synonyms: [resolution time, time to resolve, handling time, ttr]
+    description: Resolved tickets only; open tickets have no resolution time.
+  - kind: simple
+    id: average_csat
+    label: Average CSAT
+    column: csat
+    agg: avg
+    overTime: sum
+    format: { style: number, decimals: 2 }
+    direction: higher_better
+    importance: 0.4
+    synonyms: [csat, satisfaction, customer satisfaction, rating, score]
+    description: Average rating from 1 to 5, over rated tickets only.
+  - kind: simple
+    id: reopened_tickets
+    label: Reopened tickets
+    column: null
+    agg: count
+    overTime: sum
+    where:
+      - { dimension: reopened, op: in, values: ['true'] }
+    format: { style: number, decimals: 0 }
+    direction: lower_better
+    importance: 0.4
+    synonyms: [reopens, reopened]
+  - kind: ratio
+    id: reopen_rate
+    label: Reopen rate
+    numerator: reopened_tickets
+    denominator: tickets
+    format: { style: percent, decimals: 1 }
+    direction: lower_better
+    importance: 0.6
+    synonyms: [reopened rate, share reopened]
+dimensions:
+  - id: team
+    label: Team
+    column: team
+    role: category
+    distinct: 4
+    synonyms: [queue, group, department]
+    private: false
+  - id: priority
+    label: Priority
+    column: priority
+    role: category
+    distinct: 4
+    synonyms: [urgency, severity]
+    private: false
+  - id: category
+    label: Category
+    column: category
+    role: category
+    distinct: 8
+    synonyms: [topic, issue type, reason, contact reason]
+    private: false
+  - id: channel
+    label: Channel
+    column: channel
+    role: category
+    distinct: 3
+    synonyms: [contact channel, source, medium]
+    private: false
+  - id: sla_breached
+    label: SLA breached
+    column: sla_breached
+    role: category
+    distinct: 2
+    synonyms: [breached]
+    private: false
+  - id: reopened
+    label: Reopened
+    column: reopened
+    role: category
+    distinct: 2
+    synonyms: [was reopened]
+    private: false
+hidden: [ticket_id, resolved_at]
+starters:
+  - label: Tickets by week
+    spec:
+      metrics: [tickets]
+      by: []
+      time: { grain: week, range: { kind: all } }
+      filters: []
+  - label: SLA breach rate by team last month
+    spec:
+      metrics: [sla_breach_rate]
+      by: [team]
+      time: { range: { kind: period, grain: month, offset: 0 } }
+      filters: []
+      compare: previous_period
+      sort: { by: sla_breach_rate, dir: desc }
+  - label: Average CSAT by category over the last three months
+    spec:
+      metrics: [average_csat]
+      by: [category]
+      time: { range: { kind: last_n, n: 3, grain: month, complete: true } }
+      filters: []
+      sort: { by: average_csat, dir: asc }

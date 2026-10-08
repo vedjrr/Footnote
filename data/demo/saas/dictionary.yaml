@@ -1,0 +1,182 @@
+# Hand-written dictionary for the subscriptions sample, "Slotwise"
+# (analytics-spec §2.8, §10.2). One row is one account in one month: a
+# snapshot table, so MRR, seats and account-months roll up over time as the
+# last month in range, never as a sum of months.
+table: subscriptions
+version: 1
+time:
+  id: month
+  label: Month
+  column: month
+  min: 2023-01-01
+  max: 2024-12-01
+  defaultGrain: month
+metrics:
+  - kind: simple
+    id: mrr
+    label: MRR
+    column: mrr
+    agg: sum
+    overTime: last
+    format: { style: currency, unit: USD }
+    direction: higher_better
+    importance: 1
+    synonyms: [monthly recurring revenue, recurring revenue, revenue, subscription revenue]
+    description: Monthly recurring revenue. Over several months, the figure is the last month's.
+  - kind: simple
+    id: seats
+    label: Seats
+    column: seats
+    agg: sum
+    overTime: last
+    format: { style: number, decimals: 0 }
+    direction: higher_better
+    importance: 0.4
+    synonyms: [licences, licenses, users, paid seats]
+    description: Paid seats. Over several months, the figure is the last month's.
+  - kind: simple
+    id: active_accounts
+    label: Active accounts
+    column: null
+    agg: count
+    overTime: last
+    format: { style: number, decimals: 0 }
+    direction: higher_better
+    importance: 0.7
+    synonyms: [accounts, customers, subscribers, paying accounts]
+    description: Accounts with a row in the month. Over several months, the last month's count.
+  - kind: simple
+    id: accounts
+    label: Accounts ever active
+    column: account_id
+    agg: count_distinct
+    overTime: sum
+    format: { style: number, decimals: 0 }
+    direction: higher_better
+    importance: 0.4
+    synonyms: [distinct accounts, unique accounts]
+  - kind: ratio
+    id: mrr_per_account
+    label: MRR per account
+    numerator: mrr
+    denominator: active_accounts
+    format: { style: currency, unit: USD }
+    direction: higher_better
+    importance: 0.4
+    synonyms: [arpa, average revenue per account, arpu]
+  - kind: simple
+    id: new_accounts
+    label: New accounts
+    column: null
+    agg: count
+    overTime: sum
+    where:
+      - { dimension: is_new, op: in, values: ['true'] }
+    format: { style: number, decimals: 0 }
+    direction: higher_better
+    importance: 0.4
+    synonyms: [signups, sign-ups, new customers, acquisitions]
+  - kind: ratio
+    id: new_account_rate
+    label: New account share
+    numerator: new_accounts
+    denominator: active_accounts
+    format: { style: percent, decimals: 1 }
+    direction: neutral
+    importance: 0.4
+    synonyms: [share new]
+  - kind: simple
+    id: churned_accounts
+    label: Churned accounts
+    column: null
+    agg: count
+    overTime: sum
+    where:
+      - { dimension: is_churned, op: in, values: ['true'] }
+    format: { style: number, decimals: 0 }
+    direction: lower_better
+    importance: 0.4
+    synonyms: [churn, cancellations, lost accounts, cancelled]
+  - kind: ratio
+    id: churn_rate
+    label: Churn rate
+    numerator: churned_accounts
+    denominator: active_accounts
+    format: { style: percent, decimals: 1 }
+    direction: lower_better
+    importance: 0.6
+    synonyms: [churn, cancellation rate, attrition, logo churn]
+    description: Share of active accounts in their final month.
+dimensions:
+  - id: plan
+    label: Plan
+    column: plan
+    role: category
+    distinct: 4
+    synonyms: [tier, pricing plan, package]
+    private: false
+  - id: region
+    label: Region
+    column: region
+    role: category
+    distinct: 3
+    synonyms: [geography, market]
+    private: false
+  - id: industry
+    label: Industry
+    column: industry
+    role: category
+    distinct: 6
+    synonyms: [sector, vertical]
+    private: false
+  - id: signup_channel
+    label: Signup channel
+    column: signup_channel
+    role: category
+    distinct: 4
+    synonyms: [acquisition channel, source, channel, lead source]
+    private: false
+  - id: is_new
+    label: New account
+    column: is_new
+    role: category
+    distinct: 2
+    synonyms: [new]
+    private: false
+  - id: is_churned
+    label: Churned
+    column: is_churned
+    role: category
+    distinct: 2
+    synonyms: [cancelled, lost]
+    private: false
+  - id: account
+    label: Account
+    column: account_id
+    role: entity
+    distinct: 3498
+    synonyms: [customer, subscriber]
+    private: true
+hidden: []
+starters:
+  - label: MRR by month
+    spec:
+      metrics: [mrr]
+      by: []
+      time: { grain: month, range: { kind: all } }
+      filters: []
+  - label: Churn rate by plan last month
+    spec:
+      metrics: [churn_rate]
+      by: [plan]
+      time: { range: { kind: period, grain: month, offset: 0 } }
+      filters: []
+      compare: previous_period
+      sort: { by: churn_rate, dir: desc }
+  - label: New accounts by signup channel in 2024
+    spec:
+      metrics: [new_accounts]
+      by: [signup_channel]
+      time: { range: { kind: absolute, from: '2024-01-01', to: '2024-12-31' } }
+      filters: []
+      sort: { by: new_accounts, dir: desc }

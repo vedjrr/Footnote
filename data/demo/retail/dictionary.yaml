@@ -1,0 +1,238 @@
+# Hand-written dictionary for the retail sample, "Harbour & Pine"
+# (analytics-spec §2.8, §10.1). One row is one order line, so orders are
+# counted as distinct order ids, not as rows.
+table: orders
+version: 1
+time:
+  id: order_date
+  label: Order date
+  column: order_date
+  min: 2023-01-01
+  max: 2025-03-31
+  defaultGrain: month
+metrics:
+  - kind: simple
+    id: revenue
+    label: Revenue
+    column: revenue
+    agg: sum
+    overTime: sum
+    format: { style: currency, unit: GBP }
+    direction: higher_better
+    importance: 1
+    synonyms: [sales, turnover, takings, income]
+    description: Money taken on order lines, after discount.
+  - kind: simple
+    id: cost
+    label: Cost
+    column: cost
+    agg: sum
+    overTime: sum
+    format: { style: currency, unit: GBP }
+    direction: lower_better
+    importance: 0.8
+    synonyms: [cost of goods, cogs, spend]
+    description: What the goods on each order line cost to buy in.
+  - kind: difference
+    id: gross_profit
+    label: Gross profit
+    minuend: revenue
+    subtrahend: cost
+    format: { style: currency, unit: GBP }
+    direction: higher_better
+    importance: 0.8
+    synonyms: [profit, gross margin amount]
+    description: Revenue minus cost.
+  - kind: ratio
+    id: margin
+    label: Margin
+    numerator: gross_profit
+    denominator: revenue
+    format: { style: percent, decimals: 1 }
+    direction: higher_better
+    importance: 0.8
+    synonyms: [gross margin, margin rate, profit margin]
+    description: Gross profit as a share of revenue.
+  - kind: simple
+    id: order_lines
+    label: Order lines
+    column: null
+    agg: count
+    overTime: sum
+    format: { style: number, decimals: 0 }
+    direction: higher_better
+    importance: 0.7
+    synonyms: [lines, line items, rows]
+  - kind: simple
+    id: orders
+    label: Orders
+    column: order_id
+    agg: count_distinct
+    overTime: sum
+    format: { style: number, decimals: 0 }
+    direction: higher_better
+    importance: 0.4
+    synonyms: [number of orders, order count, transactions]
+  - kind: simple
+    id: customers
+    label: Customers
+    column: customer_id
+    agg: count_distinct
+    overTime: sum
+    format: { style: number, decimals: 0 }
+    direction: higher_better
+    importance: 0.4
+    synonyms: [buyers, shoppers, unique customers]
+  - kind: ratio
+    id: average_order_value
+    label: Average order value
+    numerator: revenue
+    denominator: orders
+    format: { style: currency, unit: GBP }
+    direction: higher_better
+    importance: 0.4
+    synonyms: [aov, basket size, average basket, revenue per order]
+    description: Revenue over distinct orders.
+  - kind: simple
+    id: units
+    label: Units sold
+    column: quantity
+    agg: sum
+    overTime: sum
+    format: { style: number, decimals: 0 }
+    direction: higher_better
+    importance: 0.4
+    synonyms: [quantity, units, items sold, volume]
+  - kind: ratio
+    id: average_selling_price
+    label: Average selling price
+    numerator: revenue
+    denominator: units
+    format: { style: currency, unit: GBP }
+    direction: higher_better
+    importance: 0.4
+    synonyms: [asp, average price, price per unit]
+  - kind: simple
+    id: average_unit_price
+    label: Average list price
+    column: unit_price
+    agg: avg
+    overTime: sum
+    format: { style: currency, unit: GBP }
+    direction: neutral
+    importance: 0.4
+    synonyms: [unit price, list price]
+    description: The price before discount, averaged over order lines.
+  - kind: simple
+    id: average_discount
+    label: Average discount
+    column: discount_pct
+    agg: avg
+    overTime: sum
+    format: { style: number, unit: '%', decimals: 1 }
+    direction: lower_better
+    importance: 0.4
+    synonyms: [discount, discount rate, markdown, promotion depth]
+    description: Discount in percent of list price, averaged over order lines.
+  - kind: simple
+    id: returned_lines
+    label: Returned lines
+    column: null
+    agg: count
+    overTime: sum
+    where:
+      - { dimension: returned, op: in, values: ['true'] }
+    format: { style: number, decimals: 0 }
+    direction: lower_better
+    importance: 0.4
+    synonyms: [returns, returned items]
+  - kind: ratio
+    id: return_rate
+    label: Return rate
+    numerator: returned_lines
+    denominator: order_lines
+    format: { style: percent, decimals: 1 }
+    direction: lower_better
+    importance: 0.6
+    synonyms: [returns rate, share returned, refund rate]
+    description: Share of order lines that came back.
+dimensions:
+  - id: region
+    label: Region
+    column: region
+    role: category
+    distinct: 8
+    synonyms: [area, territory]
+    private: false
+  - id: channel
+    label: Channel
+    column: channel
+    role: category
+    distinct: 3
+    synonyms: [sales channel, store or online]
+    private: false
+  - id: category
+    label: Category
+    column: category
+    role: category
+    distinct: 5
+    synonyms: [product category, department]
+    private: false
+  - id: sub_category
+    label: Sub-category
+    column: sub_category
+    role: category
+    distinct: 17
+    synonyms: [subcategory, product line, product type]
+    private: false
+  - id: customer_segment
+    label: Customer segment
+    column: customer_segment
+    role: category
+    distinct: 3
+    synonyms: [segment, customer type]
+    private: false
+  - id: returned
+    label: Returned
+    column: returned
+    role: category
+    distinct: 2
+    synonyms: [was returned]
+    private: false
+  - id: customer
+    label: Customer
+    column: customer_id
+    role: entity
+    distinct: 5910
+    synonyms: [buyer, shopper, account]
+    private: true
+  - id: order
+    label: Order
+    column: order_id
+    role: entity
+    distinct: 39630
+    synonyms: [order number, basket]
+    private: true
+hidden: []
+starters:
+  - label: Revenue by month
+    spec:
+      metrics: [revenue]
+      by: []
+      time: { grain: month, range: { kind: all } }
+      filters: []
+  - label: Which categories moved revenue last month?
+    spec:
+      metrics: [revenue]
+      by: [category]
+      time: { range: { kind: period, grain: month, offset: 0 } }
+      filters: []
+      compare: previous_period
+      sort: { by: revenue, dir: desc }
+  - label: Return rate by category over the last six months
+    spec:
+      metrics: [return_rate]
+      by: [category]
+      time: { range: { kind: last_n, n: 6, grain: month, complete: true } }
+      filters: []
+      sort: { by: return_rate, dir: desc }
