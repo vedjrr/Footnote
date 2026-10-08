@@ -51,10 +51,10 @@ Apply in order. First match wins.
 
 | Role | Rule |
 |---|---|
-| Time | date or timestamp column with 14 or more distinct days. If several, prefer names containing `date`, `created`, `month`, `day`, `time`, then the one with most distinct days |
+| Time | date or timestamp column with 14 or more distinct days. If several, prefer names with a word starting `date`, `created`, `month`, `day`, `time` (in that order), then the one with most distinct days |
 | Identifier | distinct count is 90% or more of rows, and either the name ends in `id`, `_key`, `code`, `number` or `no`, or the column is text; also any integer column that is unique in every row |
 | Entity | not an identifier; name ends in `id`, `_key`, `code`, `number` or `no`; 50 or more distinct values (for example `customer_id` on an orders table). Usable for counting distinct and for concentration, not for charts by value |
-| Measure | numeric, not an identifier or entity, not named like `year`, `zip`, `postal`, `phone`, `lat`, `lon` |
+| Measure | numeric, not an identifier or entity, not named like `year`, `zip`, `postal`, `phone`, `lat`, `lon`, and not ending in an id word (D-031) |
 | Category | text, boolean or integer with 50 or fewer distinct values, or at most 1,000 distinct and under 5% of rows |
 | Free text | remaining text columns. Hidden from the dictionary |
 
@@ -80,7 +80,7 @@ Derived ratios, added when both parts exist:
 
 | Needs | Adds |
 |---|---|
-| revenue-like and cost-like | Margin = (revenue - cost) / revenue |
+| revenue-like and cost-like | Gross profit = revenue - cost (a difference metric), and Margin = gross profit / revenue |
 | profit-like and revenue-like | Profit margin = profit / revenue |
 | revenue-like and count of rows | Average value per row. Named after the identifier only when it is unique per row ("Average order value"); on a table of order lines the hand-written dictionary defines it as revenue over distinct orders |
 | revenue-like and quantity-like | Average price = revenue / quantity |

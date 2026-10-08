@@ -208,7 +208,13 @@ interface RatioMetric {
   numerator: string;          // metric id
   denominator: string;        // metric id
 }
-type Metric = (SimpleMetric | RatioMetric) & {
+interface DifferenceMetric {   // D-031: gross profit = revenue - cost
+  kind: 'difference';
+  id: string; label: string;
+  minuend: string;            // metric id
+  subtrahend: string;         // metric id
+}
+type Metric = (SimpleMetric | RatioMetric | DifferenceMetric) & {
   format: { style: 'number' | 'currency' | 'percent' | 'duration';
             unit?: string; decimals?: number };
   direction: 'higher_better' | 'lower_better' | 'neutral';
@@ -228,9 +234,12 @@ interface Dimension {
 interface TimeColumn { id: string; label: string; column: string;
                        min: string; max: string; defaultGrain: Grain }
 
+interface Starter { label: string; spec: QuerySpec }   // D-031
+
 interface SemanticModel { table: string; metrics: Metric[];
                           dimensions: Dimension[]; time: TimeColumn | null;
-                          hidden: string[]; version: number }
+                          hidden: string[]; version: number;
+                          starters: Starter[] }
 ```
 
 `overTime` matters. Revenue adds up across months (`sum`). Monthly recurring

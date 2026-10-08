@@ -10,36 +10,35 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T11 Column profile (done)
-- Next task: T12 Dictionary: types, inference and sample dictionaries
+- Last finished task: T12 Dictionary (done)
+- Next task: T13 Data health checks
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
-  (`retail`, `saas`, `support`) and files (`file-1`, ...), `/open` (Use
-  your own file), `/accuracy`, `/about`; `/styleguide`, `/dev/engine`
-  outside the shell. `npm run check` (138 tests), `npm run build` and
-  `npm run test:e2e` (18) pass.
-- Engine: port `src/core/engine/types.ts` (CSV `delimiter` optional);
-  `createNodeEngine()`, `createWasmEngine()`. In the app,
-  `features/workspace/workspace-store.ts` holds the page's one engine,
-  the samples and the user's files (`useWorkspace(id)`, `openFile`).
-- Ingest: `src/core/ingest/` checks and loads files (`IngestError`).
-- Profile: `profileTable(engine, table)` in `core/profile/profile.ts`
-  gives per-column stats, refined `type` and `refinement` (parsed and
-  unparsed counts, date format) in at most five statements (D-030).
-  Not yet used by any screen. Retail profiles in about 112 ms (Node).
-- Sample data: `data/demo/<id>/` copied to `public/demo/<id>/` (D-026).
-  Time column per sample in `samples.ts`. No `dictionary.yaml` yet.
-- UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/`;
-  `WorkspacePage` lays out reading column and working paper.
+  (`retail`, `saas`, `support`) and files (`file-1`, ...), `/open`,
+  `/accuracy`, `/about`; `/styleguide`, `/dev/engine` outside the shell.
+  `npm run check` (181 tests), `npm run build` and `npm run test:e2e`
+  (18) pass (build and e2e last run in T10).
+- Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
+  `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
+  page's one engine, the samples and the user's files.
+- Ingest: `src/core/ingest/`. Profile: `profileTable(engine, table)` in
+  `core/profile/profile.ts` (D-030, amended in D-031).
+- Dictionary: `core/model/` has Zod schemas (`types.ts`, incl. the
+  `difference` kind and `starters`), YAML (`parseModelYaml` with line
+  numbers, `modelToYaml`), inference (`inferModel(profile, facts)`,
+  `inferDictionary(engine, profile)` runs the snapshot probe) and
+  `compareRoles`. Hand-written `data/demo/<id>/dictionary.yaml` for each
+  sample. Not yet loaded by the app or copied to `public/`.
+- UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/`.
 - Evals: not run
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
   A dev server left on port 3100 or 3200 is reused by shots or e2e.
-  Core tests may not import adapters; engine-backed tests of core go in
-  `tests/` and need adding to `include` in `vitest.config.mts`.
-  Open questions Q-06 to Q-11.
-- Updated: 2026-10-08, T11
+  Engine-backed tests of core go in `tests/` and need adding to `include`
+  in `vitest.config.mts`. Open questions Q-06 to Q-11 (Q-06, Q-07, Q-11
+  are for T13).
+- Updated: 2026-10-08, T12
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -76,6 +75,37 @@ Template:
 ```
 
 ## Log
+
+### T12 Dictionary: types, inference and sample dictionaries
+- Date: 2026-10-08
+- Outcome: done
+- What changed: `src/core/model/` (`types.ts` Zod schemas with reference
+  checks, `yaml.ts`, `words.ts`, `infer.ts`, `roles.ts`, unit tests);
+  `data/demo/<id>/dictionary.yaml` for retail, saas and support with
+  synonyms and three starter specs each; `tests/model/model.test.ts`;
+  `zod` 4.6.5 and `yaml` 2.9.1 installed. Profile fixes: inner spaces no
+  longer stripped before the number parse; a table with one text column
+  no longer fails the top-values statement (DuckDB parser error).
+- Verified: `npm run check`: 181 tests passed. `npx vitest run
+  tests/model`: 17 passed; role agreement retail 14/14, saas 10/10,
+  support 12/12, no disagreements; saas MRR, seats and row count infer
+  `overTime: last`; retail and support stay `sum`. Private fixture
+  (names, emails, phones, entity, free text) passes.
+- UI check: not a UI task
+- Decisions: D-031
+- Differs from the spec: added the `difference` metric kind and
+  `starters` to architecture §6.1; small rule wording changes in
+  analytics-spec §2.3 and §2.5 (D-031).
+- Not done: nothing
+- For the next agent: I wrote the hand-written dictionaries after seeing
+  the inferred roles, so 100% agreement is not independent evidence; the
+  fixture tests in `src/core/model/infer.test.ts` pin the harder rules.
+  Dimension ids in the hand-written files differ from column names for
+  entities (`customer`, `order`, `account`). Starter specs are plain data
+  until T20 validates them. `copy-demo.mjs` copies only `.parquet`; T14
+  needs the YAML in `public/` or imported.
+- Ved should know: nothing
+- Commits: bfb016d..(this handoff)
 
 ### T11 Column profile
 - Date: 2026-10-08

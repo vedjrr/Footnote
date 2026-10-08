@@ -432,6 +432,37 @@ Format for a new decision:
   range for a price column stored as text). Not handled: `1.234,5`
   (comma decimals) reads as unparsed, and time-of-day text stays text.
 
+### D-031 Dictionary: difference metrics, snapshot probe and inference details
+- Date: 2026-10-08, task T12
+- Decision: a third metric kind, `difference` (minuend minus subtrahend,
+  both metric ids), so margin is `gross_profit / revenue` with gross profit
+  an additive metric; the ratio kind stays two metric ids. The dictionary
+  also holds `starters` (label plus a query spec kept as plain data until
+  T20 validates it). Boolean rates are a `count` with
+  `where: [{ dimension, op: in, values: ['true'] }]` over the row count;
+  `'true'` means logical true and the compiler (T20) maps it to the
+  column's stored form. Inference details: a name ending in an id word
+  (`store_code` with 12 values) is never a measure; the time-name hints
+  match the start of a word, so `updated` does not count as `date`; the
+  email and phone share for private columns is measured on the profile's
+  ten most common values, weighted by count; the snapshot test is one
+  extra statement (`snapshotSql`) run by `inferDictionary`, with the
+  native period taken as the time value cast to a date. Metric labels use
+  "Average x" for `avg` and humanised column names; acronyms such as MRR
+  and CSAT stay in capitals.
+- Why: `(revenue - cost) / revenue` cannot be written as a ratio of two
+  plain metrics, and a difference keeps margin decomposable like any
+  other ratio (analytics-spec §6.2). The profile alone cannot say whether
+  (entity, period) pairs are unique, so a pure `inferModel(profile)` takes
+  that one fact as an argument.
+- Considered: a free SQL expression on simple metrics (breaks the
+  compiler's guarantee that only known columns are emitted); `1 -
+  cost/revenue` (not a ratio of additive metrics either); counting email
+  matches over every value (another full scan per text column).
+- Amends D-030: number parsing no longer strips spaces inside a value,
+  only next to a removed currency symbol, so "+44 20 7946 0001" stays text
+  (found while testing private columns).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
