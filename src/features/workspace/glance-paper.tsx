@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { formatDay, formatInteger } from '@/core/narrative/format';
-import type { LoadedSample } from './sample-store';
-import type { Sample } from './samples';
+import type { LoadedSample, Workspace } from './workspace-store';
 
 // The working paper with no mark selected: the data at a glance (§5).
 
@@ -11,11 +10,11 @@ export function dayRange(data: LoadedSample): string {
 }
 
 export function GlancePaper({
-  sample,
+  workspace,
   data,
   marks = true,
 }: {
-  sample: Sample;
+  workspace: Workspace;
   data: LoadedSample | null;
   /** Whether the page has marks to select. */
   marks?: boolean;
@@ -25,7 +24,7 @@ export function GlancePaper({
         ['Rows', formatInteger(data.glance.rows)],
         ['Days covered', dayRange(data)],
         ['Columns', formatInteger(data.glance.columns)],
-        ['Dated by', sample.timeColumn],
+        ['Dated by', workspace.timeColumn ?? 'No date column'],
       ]
     : [];
   return (

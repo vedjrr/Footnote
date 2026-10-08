@@ -3,9 +3,13 @@
 import { useState } from 'react';
 import type { ColumnType } from '@/core/engine/types';
 import { formatDay, formatInteger } from '@/core/narrative/format';
-import { useSample, type LoadedSample } from '@/features/workspace/sample-store';
-import { findSample, type Sample } from '@/features/workspace/samples';
+import { FileNotOpen } from '@/features/workspace/file-not-open';
 import { GlancePaper } from '@/features/workspace/glance-paper';
+import {
+  useWorkspace,
+  type LoadedSample,
+  type Workspace,
+} from '@/features/workspace/workspace-store';
 import { WorkspacePage } from '@/features/workspace/workspace-page';
 import { Button } from '@/ui/button';
 import { CopyButton } from '@/ui/copy-button';
@@ -14,8 +18,9 @@ import { Highlight, Mark } from '@/ui/mark';
 import { Status } from '@/ui/notice';
 import { Rule } from '@/ui/rule';
 
-// Until the briefing exists (T45), a sample's briefing route states what the
-// data holds, read from the data by a query, with a working paper per number.
+// Until the briefing exists (T45), a workspace's briefing route states what
+// the data holds, read from the data by a query, with a working paper per
+// number. The same page serves the samples and the user's own files.
 
 const TYPE_WORDS: Record<ColumnType, string> = {
   integer: 'Whole number',
@@ -33,14 +38,20 @@ const TITLES: Record<number, string> = {
   4: 'Columns in the file',
 };
 
-export function SampleFacts({ sampleId }: { sampleId: string }) {
-  const sample = findSample(sampleId)!;
-  const state = useSample(sample);
+export function DataFacts({ workspaceId }: { workspaceId: string }) {
+  const { workspace: sample, state } = useWorkspace(workspaceId);
   const data = state.status === 'ready' ? state.data : null;
+
+  if (!sample || state.status === 'missing')
+    return (
+      <WorkspacePage glance={null} noteTitle={() => ''} paper={() => null}>
+        <FileNotOpen />
+      </WorkspacePage>
+    );
 
   return (
     <WorkspacePage
-      glance={<GlancePaper sample={sample} data={data} />}
+      glance={<GlancePaper workspace={sample} data={data} />}
       noteTitle={(n) => TITLES[n]}
       paper={(n) => (data ? <Paper note={n} sample={sample} data={data} /> : null)}
     >
@@ -60,6 +71,7 @@ export function SampleFacts({ sampleId }: { sampleId: string }) {
             <Button onClick={() => window.location.reload()}>Reload</Button>
           </div>
         )}
+        {sample.file?.warning && data && <Status tone="caution">{sample.file.warning}</Status>}
         {data && <Facts sample={sample} data={data} />}
       </article>
       <section className="mt-12 flex flex-col gap-4" aria-labelledby="briefing-next">
@@ -76,29 +88,40 @@ export function SampleFacts({ sampleId }: { sampleId: string }) {
   );
 }
 
-function Facts({ sample, data }: { sample: Sample; data: LoadedSample }) {
+function Facts({ sample, data }: { sample: Workspace; data: LoadedSample }) {
   const { rows, columns, firstDay, lastDay } = data.glance;
   if (rows === 0)
     return (
       <p className="type-prose text-ink">
-        This sample has no rows, so there is nothing to brief on yet.
+        This data has no rows, so there is nothing to brief on yet.
       </p>
     );
   return (
     <p className="type-prose text-ink" data-testid="sample-facts">
-      {sample.name} is a made-up business and this is synthetic sample data. It holds{' '}
+      {sample.file
+        ? 'This file holds'
+        : `${sample.name} is a made-up business and this is synthetic sample data. It holds`}{' '}
       <Mark note={1} description={`how ${formatInteger(rows)} rows were counted`}>
         <span data-testid="row-count">{formatInteger(rows)}</span>
       </Mark>{' '}
-      {sample.rowNoun} dated{' '}
-      <Mark note={2} description="where the first day comes from">
-        {firstDay ? formatDay(firstDay) : 'no day'}
-      </Mark>{' '}
-      to{' '}
-      <Mark note={3} description="where the last day comes from">
-        {lastDay ? formatDay(lastDay) : 'no day'}
-      </Mark>
-      , in{' '}
+      {sample.rowNoun}
+      {firstDay && lastDay ? (
+        <>
+          {' '}
+          dated{' '}
+          <Mark note={2} description="where the first day comes from">
+            {formatDay(firstDay)}
+          </Mark>{' '}
+          to{' '}
+          <Mark note={3} description="where the last day comes from">
+            {formatDay(lastDay)}
+          </Mark>
+          ,
+        </>
+      ) : (
+        ','
+      )}{' '}
+      in{' '}
       <Mark note={4} description="which columns were found">
         {formatInteger(columns)}
       </Mark>{' '}
@@ -107,7 +130,7 @@ function Facts({ sample, data }: { sample: Sample; data: LoadedSample }) {
   );
 }
 
-function Paper({ note, sample, data }: { note: number; sample: Sample; data: LoadedSample }) {
+function Paper({ note, sample, data }: { note: number; sample: Workspace; data: LoadedSample }) {
   const isColumns = note === 4;
   const sql = isColumns ? data.describeSql : data.glanceSql;
   return (

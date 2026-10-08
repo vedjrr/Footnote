@@ -1,6 +1,6 @@
-import { SampleFacts } from '@/features/briefing/sample-facts';
+import { DataFacts } from '@/features/briefing/data-facts';
 
 export default async function BriefingPage({ params }: PageProps<'/w/[workspace]/briefing'>) {
   const { workspace } = await params;
-  return <SampleFacts sampleId={workspace} />;
+  return <DataFacts workspaceId={workspace} />;
 }

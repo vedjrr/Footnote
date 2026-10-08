@@ -1,14 +1,32 @@
 'use client';
 
-// Loads each sample into the page's one engine (D-022), once, and keeps
-// what the shell and views need: the progress step, then the glance.
+// The page's one engine (D-022) and the workspaces loaded into it: the
+// samples, each loaded once, and the user's own files (FR-02), held in
+// memory until the page is closed (T62 makes them persist).
 
 import { useEffect, useSyncExternalStore } from 'react';
 import { createWasmEngine } from '@/adapters/duckdb-wasm';
 import { describeSql } from '@/core/engine/normalise';
 import type { ColumnInfo, QueryEngine } from '@/core/engine/types';
+import { checkSize, fileKind, sizeWarning } from '@/core/ingest/file';
+import { ingestFile } from '@/core/ingest/ingest';
+import { formatMegabytes } from '@/core/narrative/format';
 import { glanceSql, readGlance, type Glance } from '@/core/profile/glance';
-import { sampleUrl, type Sample } from './samples';
+import { fileId } from './file-id';
+import { SAMPLES, findSample, sampleUrl, type Sample } from './samples';
+
+/** A sample or one of the user's files: what the views need to name it. */
+export interface Workspace {
+  id: string;
+  name: string;
+  /** What one row is, plural, for sentences: "59,881 orders". */
+  rowNoun: string;
+  table: string;
+  /** Until the dictionary exists (T12), the column that dates each row. */
+  timeColumn: string | null;
+  /** Present for the user's own files. */
+  file?: { name: string; bytes: number; warning: string | null };
+}
 
 export interface LoadedSample {
   columns: ColumnInfo[];
@@ -21,18 +39,26 @@ export interface LoadedSample {
 export type SampleState =
   | { status: 'loading'; step: string }
   | { status: 'ready'; data: LoadedSample }
-  | { status: 'error'; message: string };
+  | { status: 'error'; message: string }
+  /** A file workspace that is not open in this page, such as after a reload. */
+  | { status: 'missing' };
 
 let pageEngine: QueryEngine | null = null;
 const getEngine = () => (pageEngine ??= createWasmEngine());
 
 const STARTING: SampleState = { status: 'loading', step: 'Starting the query engine' };
+const MISSING: SampleState = { status: 'missing' };
 const states = new Map<string, SampleState>();
+let files: Workspace[] = [];
 const listeners = new Set<() => void>();
+
+function notify() {
+  for (const listener of listeners) listener();
+}
 
 function set(id: string, state: SampleState) {
   states.set(id, state);
-  for (const listener of listeners) listener();
+  notify();
 }
 
 function subscribe(listener: () => void) {
@@ -73,17 +99,107 @@ async function load(sample: Sample): Promise<LoadedSample> {
   });
 
   set(sample.id, { status: 'loading', step: `Counting the ${sample.rowNoun}` });
-  const sql = glanceSql(sample.table, sample.timeColumn);
-  const glance = readGlance(await engine.query(sql), columns);
-  return { columns, glance, glanceSql: sql, describeSql: describeSql(sample.table) };
+  return glance(engine, sample, columns);
 }
 
-/** The state of `sample`, loading it after first paint if needed. */
-export function useSample(sample: Sample): SampleState {
-  useEffect(() => ensureSample(sample), [sample]);
+async function glance(
+  engine: QueryEngine,
+  workspace: Workspace,
+  columns: ColumnInfo[],
+): Promise<LoadedSample> {
+  const sql = glanceSql(workspace.table, workspace.timeColumn);
+  return {
+    columns,
+    glance: readGlance(await engine.query(sql), columns),
+    glanceSql: sql,
+    describeSql: describeSql(workspace.table),
+  };
+}
+
+let opened = 0;
+
+/** A table name from the file name, unique in the page's engine. */
+function tableFor(fileName: string): string {
+  const stem = fileName
+    .replace(/\.[^.]*$/, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9_]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 40);
+  const base = /^[a-z_]/.test(stem) ? stem : `file_${stem}`;
+  const taken = new Set([...SAMPLES.map((s) => s.table), ...files.map((f) => f.table)]);
+  let table = base || 'file';
+  for (let n = 2; taken.has(table); n++) table = `${base}_${n}`;
+  return table;
+}
+
+/**
+ * Reads `file` into the engine as a new workspace. `onStep` gets the step in
+ * words for the progress line. Throws an `IngestError` with the message to
+ * show when the file cannot be used.
+ */
+export async function openFile(file: File, onStep: (step: string) => void): Promise<Workspace> {
+  // Refuse the wrong type or size before reading anything into memory.
+  fileKind(file.name);
+  checkSize(file.name, file.size);
+  const engine = getEngine();
+  onStep(`Opening ${file.name} (${formatMegabytes(file.size)})`);
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  onStep('Starting the query engine');
+  await engine.engineVersion();
+
+  const table = tableFor(file.name);
+  const ingested = await ingestFile(engine, { name: file.name, bytes }, table, (step) =>
+    onStep(step === 'reading' ? `Reading the rows of ${file.name}` : 'Counting the rows'),
+  );
+  const timeColumn =
+    ingested.columns.find((c) => c.type === 'date' || c.type === 'timestamp')?.name ?? null;
+  const workspace: Workspace = {
+    id: fileId(++opened),
+    name: file.name,
+    rowNoun: 'rows',
+    table,
+    timeColumn,
+    file: { name: file.name, bytes: file.size, warning: sizeWarning(file.size, ingested.rows) },
+  };
+  if (timeColumn) onStep(`Finding the first and last ${timeColumn}`);
+  const data = await glance(engine, workspace, ingested.columns);
+  files = [...files, workspace];
+  set(workspace.id, { status: 'ready', data });
+  return workspace;
+}
+
+const noFiles: Workspace[] = [];
+
+/** The user's files open in this page, oldest first. */
+export function useFiles(): Workspace[] {
   return useSyncExternalStore(
     subscribe,
-    () => states.get(sample.id) ?? STARTING,
-    () => STARTING,
+    () => files,
+    () => noFiles,
   );
+}
+
+/** A sample or open file by id, or null. */
+export function findWorkspace(id: string): Workspace | null {
+  return findSample(id) ?? files.find((f) => f.id === id) ?? null;
+}
+
+/** The workspace `id` names and its state, loading a sample after first paint if needed. */
+export function useWorkspace(id: string): { workspace: Workspace | null; state: SampleState } {
+  const sample = findSample(id);
+  useEffect(() => {
+    if (sample) ensureSample(sample);
+  }, [sample]);
+  const state = useSyncExternalStore(
+    subscribe,
+    () => states.get(id) ?? (sample ? STARTING : MISSING),
+    () => (sample ? STARTING : MISSING),
+  );
+  const workspace = useSyncExternalStore(
+    subscribe,
+    () => findWorkspace(id),
+    () => sample ?? null,
+  );
+  return { workspace, state };
 }

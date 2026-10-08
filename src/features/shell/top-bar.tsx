@@ -4,21 +4,29 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { product } from '@/config/product';
-import { ensureSample } from '@/features/workspace/sample-store';
+import { isFileId } from '@/features/workspace/file-id';
 import { DEFAULT_SAMPLE, SAMPLES, findSample } from '@/features/workspace/samples';
+import {
+  ensureSample,
+  findWorkspace,
+  useFiles,
+  type Workspace,
+} from '@/features/workspace/workspace-store';
 import { cx } from '@/ui/cx';
 import { Icon } from '@/ui/icon';
 import {
   Menu,
   MenuContent,
+  MenuItem,
   MenuLabel,
   MenuRadioGroup,
   MenuRadioItem,
+  MenuSeparator,
   MenuTrigger,
 } from '@/ui/menu';
 import { Sheet } from '@/ui/panel';
 import { ThemeToggle } from '@/ui/theme-toggle';
-import { VIEWS, locate, viewHref, type ViewSlug } from './routes';
+import { OPEN_FILE_HREF, VIEWS, locate, viewHref, type ViewSlug } from './routes';
 
 const quietControl =
   'flex h-8 items-center gap-1 rounded-sm px-2 hover:bg-wash data-[state=open]:bg-wash';
@@ -36,8 +44,13 @@ export function TopBar() {
   // Accuracy and About sit outside a workspace; the switcher and links keep
   // pointing at the workspace the reader came from.
   const [last, setLast] = useState<string>(here?.workspace ?? DEFAULT_SAMPLE);
-  const workspace = here?.workspace ?? last;
-  const sample = findSample(workspace) ?? findSample(DEFAULT_SAMPLE)!;
+  const files = useFiles();
+  const id = here?.workspace ?? last;
+  // A file id this page does not hold still names its own links, so the
+  // views say the file is not open rather than switching to a sample.
+  const workspace: Pick<Workspace, 'id' | 'name' | 'file'> =
+    findWorkspace(id) ??
+    (isFileId(id) ? { id, name: 'File not open' } : findSample(DEFAULT_SAMPLE)!);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -46,12 +59,15 @@ export function TopBar() {
   }, [here]);
 
   // The engine starts after first paint, on whichever page comes first.
-  useEffect(() => ensureSample(sample), [sample]);
+  useEffect(() => {
+    const sample = findSample(workspace.id);
+    if (sample) ensureSample(sample);
+  }, [workspace.id]);
 
   const view = here?.view;
   const links = VIEWS.map((v) => ({
     ...v,
-    href: viewHref(sample.id, v.slug),
+    href: viewHref(workspace.id, v.slug),
     current: view === v.slug,
   }));
 
@@ -67,7 +83,7 @@ export function TopBar() {
         </sup>
       </Link>
 
-      <WorkspaceSwitcher current={sample.id} view={view ?? 'briefing'} />
+      <WorkspaceSwitcher current={workspace} files={files} view={view ?? 'briefing'} />
 
       <nav aria-label="Views" className="hidden min-w-0 items-center gap-5 lg:flex">
         {links.map((l) => (
@@ -92,7 +108,7 @@ export function TopBar() {
         </Link>
         <AiAssist className="hidden md:flex" />
         <Link
-          href={viewHref(sample.id, 'ask')}
+          href={viewHref(workspace.id, 'ask')}
           aria-current={view === 'ask' ? 'page' : undefined}
           className={cx('px-2 md:hidden', navClass(view === 'ask'))}
         >
@@ -142,30 +158,57 @@ export function TopBar() {
   );
 }
 
-function WorkspaceSwitcher({ current, view }: { current: string; view: ViewSlug }) {
+function WorkspaceSwitcher({
+  current,
+  files,
+  view,
+}: {
+  current: Pick<Workspace, 'id' | 'name' | 'file'>;
+  files: Workspace[];
+  view: ViewSlug;
+}) {
   const router = useRouter();
-  const sample = findSample(current)!;
+  const kind = current.file ? 'your file' : 'sample data';
   return (
     <Menu>
       <MenuTrigger
-        aria-label={`Workspace: ${sample.name}, sample data`}
+        aria-label={`Workspace: ${current.name}, ${kind}`}
         className={cx(quietControl, '-ml-2 min-w-0 shrink text-ink md:ml-0')}
       >
         <span className="truncate">
-          {sample.name} <span className="hidden text-ink-3 sm:inline">(sample)</span>
+          {current.name}{' '}
+          {!current.file && <span className="hidden text-ink-3 sm:inline">(sample)</span>}
         </span>
         <Icon name="chevron-down" className="shrink-0 text-ink-3" />
       </MenuTrigger>
       <MenuContent>
-        <MenuLabel>Sample data</MenuLabel>
-        <MenuRadioGroup value={current} onValueChange={(id) => router.push(viewHref(id, view))}>
+        <MenuRadioGroup value={current.id} onValueChange={(id) => router.push(viewHref(id, view))}>
+          <MenuLabel>Sample data</MenuLabel>
           {SAMPLES.map((s) => (
             <MenuRadioItem key={s.id} value={s.id}>
               <span className="flex-1">{s.name}</span>
               <span className="pl-4 text-ink-3">{s.rowNoun}</span>
             </MenuRadioItem>
           ))}
+          {files.length > 0 && (
+            <>
+              <MenuSeparator />
+              <MenuLabel>Your files</MenuLabel>
+              {files.map((f) => (
+                <MenuRadioItem key={f.id} value={f.id}>
+                  <span className="max-w-64 flex-1 truncate">{f.name}</span>
+                </MenuRadioItem>
+              ))}
+            </>
+          )}
         </MenuRadioGroup>
+        <MenuSeparator />
+        <MenuItem className="relative pl-8" onSelect={() => router.push(OPEN_FILE_HREF)}>
+          <span className="absolute left-2 flex h-4 w-4 items-center justify-center text-ink-3">
+            <Icon name="plus" />
+          </span>
+          Use your own file
+        </MenuItem>
       </MenuContent>
     </Menu>
   );

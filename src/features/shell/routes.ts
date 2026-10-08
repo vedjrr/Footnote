@@ -11,6 +11,9 @@ export const VIEWS = [
   { slug: 'report', label: 'Report' },
 ] as const;
 
+/** The "Use your own file" screen. */
+export const OPEN_FILE_HREF = '/open';
+
 export type ViewSlug = (typeof VIEWS)[number]['slug'];
 
 export function isView(slug: string): slug is ViewSlug {
