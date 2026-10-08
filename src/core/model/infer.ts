@@ -5,6 +5,7 @@
 // which `snapshotSql` asks and `inferDictionary` runs.
 
 import type { Cell, QueryEngine, QueryResult } from '@/core/engine/types';
+import { defaultGrain } from '@/core/findings/periods';
 import {
   type ColumnProfile,
   type Profile,
@@ -15,7 +16,6 @@ import {
 import {
   type Dimension,
   type Direction,
-  type Grain,
   type Metric,
   type MetricFormat,
   type SemanticModel,
@@ -144,10 +144,6 @@ const IMPORTANT_WORDS = ['profit', 'margin', 'cost'];
 // §2.7
 const SNAPSHOT_UNIQUE_SHARE = 0.99;
 const SNAPSHOT_MIN_PERIODS = 3;
-
-// §4
-const MONTH_GRAIN_DAYS = 90;
-const WEEK_GRAIN_DAYS = 21;
 
 const isNumber = (c: ColumnProfile) => c.type === 'integer' || c.type === 'decimal';
 const isTemporal = (c: ColumnProfile) => c.type === 'date' || c.type === 'timestamp';
@@ -525,14 +521,6 @@ export function inferModel(
   });
 }
 
-/** Month for 90 days or more, week for 21 to 89, else day (analytics-spec §4). */
-export function defaultGrain(min: string, max: string): Grain {
-  const days = (Date.parse(max.slice(0, 10)) - Date.parse(min.slice(0, 10))) / 86_400_000 + 1;
-  if (days >= MONTH_GRAIN_DAYS) return 'month';
-  if (days >= WEEK_GRAIN_DAYS) return 'week';
-  return 'day';
-}
-
 /** Profile, snapshot probe and inference in one call. */
 export async function inferDictionary(
   engine: QueryEngine,
@@ -551,3 +539,5 @@ function profileColumn(profile: Profile, name: string): ColumnProfile | undefine
 function fixAcronyms(label: string): string {
   return label.replace(/\b(mrr|arr|csat|nps|sla|gmv|aov)\b/g, (a) => a.toUpperCase());
 }
+
+export { defaultGrain };
