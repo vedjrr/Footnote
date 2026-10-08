@@ -2,7 +2,7 @@
 // one's range, read from the spec's wording, and the query that measures it.
 // The ranges were set before the generator was tuned (decisions.md D-023).
 
-import { mixRate, type Check, type Effect, type Segment } from '../truth';
+import { mixRate, type Check, type Effect, type HealthExpectation, type Segment } from '../truth';
 import * as P from './params';
 
 const pct = (x: number): number => x * 100;
@@ -245,4 +245,15 @@ export const SAAS_EFFECTS: Effect[] = [
       };
     },
   },
+];
+
+/** What the health checks report on this sample (T13): planted, or accepted with a reason. */
+export const SAAS_HEALTH: HealthExpectation[] = [
+  {
+    check: 'H12',
+    columns: ['seats', 'mrr'],
+    effect: 'S6',
+    reason: 'Planted: 0.6% of rows have seats 0 with mrr above 0.',
+  },
+  { check: 'H3', columns: ['industry'], effect: 'S6', reason: 'Planted: industry empty in 2%.' },
 ];

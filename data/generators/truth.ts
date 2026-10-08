@@ -22,6 +22,18 @@ export interface Effect {
   measure(q: Query): Promise<Record<string, number>>;
 }
 
+/**
+ * A problem the data health checks (analytics-spec §3) are expected to
+ * report on this sample: a planted one, with its effect id, or one accepted
+ * after review, with the reason it is right to report.
+ */
+export interface HealthExpectation {
+  check: string;
+  columns: string[];
+  effect?: string;
+  reason: string;
+}
+
 export type Query = (sql: string) => Promise<Record<string, number>[]>;
 
 export interface TruthEffect {

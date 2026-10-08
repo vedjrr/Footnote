@@ -215,5 +215,24 @@
         "empty_industry_pct": 2.3619
       }
     }
+  ],
+  "health": [
+    {
+      "check": "H12",
+      "columns": [
+        "seats",
+        "mrr"
+      ],
+      "effect": "S6",
+      "reason": "Planted: 0.6% of rows have seats 0 with mrr above 0."
+    },
+    {
+      "check": "H3",
+      "columns": [
+        "industry"
+      ],
+      "effect": "S6",
+      "reason": "Planted: industry empty in 2%."
+    }
   ]
 }

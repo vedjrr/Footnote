@@ -2,7 +2,7 @@
 // range, read from the spec's wording, and the query that measures it. The
 // ranges were set before the generator was tuned (decisions.md D-023).
 
-import { mixRate, type Check, type Effect, type Segment } from '../truth';
+import { mixRate, type Check, type Effect, type HealthExpectation, type Segment } from '../truth';
 import * as P from './params';
 
 const pct = (x: number): number => x * 100;
@@ -190,5 +190,44 @@ export const SUPPORT_EFFECTS: Effect[] = [
         csat_empty_pct: pct(r.unrated / r.rows),
       };
     },
+  },
+];
+
+/** What the health checks report on this sample (T13): planted, or accepted with a reason. */
+export const SUPPORT_HEALTH: HealthExpectation[] = [
+  {
+    check: 'H9',
+    columns: ['created_at', 'resolved_at'],
+    effect: 'T5',
+    reason: 'Planted: 1.5% of tickets resolved before they were created.',
+  },
+  {
+    check: 'H2',
+    columns: ['ticket_id'],
+    effect: 'T5',
+    reason: 'Planted: 0.4% repeated ticket_id.',
+  },
+  {
+    check: 'H3',
+    columns: ['csat'],
+    effect: 'T5',
+    reason: 'Planted: csat empty for about 60%, reported as information (rated tickets only).',
+  },
+  {
+    check: 'H3',
+    columns: ['resolved_at'],
+    reason: 'Accepted: open tickets have no resolved_at; 1.0% of tickets are open.',
+  },
+  {
+    check: 'H3',
+    columns: ['resolution_hours'],
+    reason: 'Accepted: open tickets have no resolution time; reported as information.',
+  },
+  {
+    check: 'H5',
+    columns: ['resolution_hours'],
+    reason:
+      'Accepted: the T5 rows give 1.5% negative resolution times, so the long right tail is ' +
+      'judged on the linear scale and its far end is reported as extreme.',
   },
 ];

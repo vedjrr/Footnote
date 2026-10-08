@@ -2,7 +2,7 @@
 // range, read from the spec's wording, and the query that measures it. The
 // ranges were set before the generator was tuned (decisions.md D-023).
 
-import { mixRate, type Effect, type Segment } from '../truth';
+import { mixRate, type Effect, type HealthExpectation, type Segment } from '../truth';
 import * as P from './params';
 
 const pct = (x: number): number => x * 100;
@@ -305,5 +305,38 @@ export const RETAIL_EFFECTS: Effect[] = [
         negative_quantity_rows: r.negative,
       };
     },
+  },
+];
+
+/** What the health checks report on this sample (T13): planted, or accepted with a reason. */
+export const RETAIL_HEALTH: HealthExpectation[] = [
+  { check: 'H1', columns: [], effect: 'R7', reason: 'Planted: 1.2% exact duplicate rows.' },
+  {
+    check: 'H4',
+    columns: ['region'],
+    effect: 'R7',
+    reason: 'Planted: 0.8% of regions in lower case.',
+  },
+  {
+    check: 'H3',
+    columns: ['customer_segment'],
+    effect: 'R7',
+    reason: 'Planted: 0.5% of segments empty.',
+  },
+  {
+    check: 'H6',
+    columns: ['quantity'],
+    effect: 'R7',
+    reason: 'Planted: 12 rows with negative quantity.',
+  },
+  {
+    check: 'H6',
+    columns: ['revenue'],
+    reason: 'Accepted: the 12 negative-quantity rows of R7 also have negative revenue.',
+  },
+  {
+    check: 'H6',
+    columns: ['cost'],
+    reason: 'Accepted: the 12 negative-quantity rows of R7 also have negative cost.',
   },
 ];

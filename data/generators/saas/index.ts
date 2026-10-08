@@ -3,7 +3,7 @@
 import type { DemoSpec } from '../demo';
 import { generateSubscriptions } from './generate';
 import * as P from './params';
-import { SAAS_EFFECTS, SUMMARY_CHECKS, summarySql } from './truth';
+import { SAAS_EFFECTS, SUMMARY_CHECKS, summarySql, SAAS_HEALTH } from './truth';
 
 export const SAAS: DemoSpec = {
   id: 'saas',
@@ -25,5 +25,6 @@ export const SAAS: DemoSpec = {
   rows: () => generateSubscriptions(P.SEED) as unknown as Record<string, unknown>[],
   summarySql,
   summaryChecks: SUMMARY_CHECKS,
+  health: SAAS_HEALTH,
   effects: SAAS_EFFECTS,
 };

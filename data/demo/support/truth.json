@@ -183,5 +183,53 @@
         "csat_empty_pct": 59.4225
       }
     }
+  ],
+  "health": [
+    {
+      "check": "H9",
+      "columns": [
+        "created_at",
+        "resolved_at"
+      ],
+      "effect": "T5",
+      "reason": "Planted: 1.5% of tickets resolved before they were created."
+    },
+    {
+      "check": "H2",
+      "columns": [
+        "ticket_id"
+      ],
+      "effect": "T5",
+      "reason": "Planted: 0.4% repeated ticket_id."
+    },
+    {
+      "check": "H3",
+      "columns": [
+        "csat"
+      ],
+      "effect": "T5",
+      "reason": "Planted: csat empty for about 60%, reported as information (rated tickets only)."
+    },
+    {
+      "check": "H3",
+      "columns": [
+        "resolved_at"
+      ],
+      "reason": "Accepted: open tickets have no resolved_at; 1.0% of tickets are open."
+    },
+    {
+      "check": "H3",
+      "columns": [
+        "resolution_hours"
+      ],
+      "reason": "Accepted: open tickets have no resolution time; reported as information."
+    },
+    {
+      "check": "H5",
+      "columns": [
+        "resolution_hours"
+      ],
+      "reason": "Accepted: the T5 rows give 1.5% negative resolution times, so the long right tail is judged on the linear scale and its far end is reported as extreme."
+    }
   ]
 }

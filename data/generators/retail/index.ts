@@ -3,7 +3,7 @@
 import type { DemoSpec } from '../demo';
 import { generateRetail } from './generate';
 import * as P from './params';
-import { RETAIL_EFFECTS, SUMMARY_CHECKS, summarySql } from './truth';
+import { RETAIL_EFFECTS, SUMMARY_CHECKS, summarySql, RETAIL_HEALTH } from './truth';
 
 export const RETAIL: DemoSpec = {
   id: 'retail',
@@ -29,5 +29,6 @@ export const RETAIL: DemoSpec = {
   rows: () => generateRetail(P.SEED) as unknown as Record<string, unknown>[],
   summarySql,
   summaryChecks: SUMMARY_CHECKS,
+  health: RETAIL_HEALTH,
   effects: RETAIL_EFFECTS,
 };

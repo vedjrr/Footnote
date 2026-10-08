@@ -258,5 +258,51 @@
         "negative_quantity_rows": 12
       }
     }
+  ],
+  "health": [
+    {
+      "check": "H1",
+      "columns": [],
+      "effect": "R7",
+      "reason": "Planted: 1.2% exact duplicate rows."
+    },
+    {
+      "check": "H4",
+      "columns": [
+        "region"
+      ],
+      "effect": "R7",
+      "reason": "Planted: 0.8% of regions in lower case."
+    },
+    {
+      "check": "H3",
+      "columns": [
+        "customer_segment"
+      ],
+      "effect": "R7",
+      "reason": "Planted: 0.5% of segments empty."
+    },
+    {
+      "check": "H6",
+      "columns": [
+        "quantity"
+      ],
+      "effect": "R7",
+      "reason": "Planted: 12 rows with negative quantity."
+    },
+    {
+      "check": "H6",
+      "columns": [
+        "revenue"
+      ],
+      "reason": "Accepted: the 12 negative-quantity rows of R7 also have negative revenue."
+    },
+    {
+      "check": "H6",
+      "columns": [
+        "cost"
+      ],
+      "reason": "Accepted: the 12 negative-quantity rows of R7 also have negative cost."
+    }
   ]
 }

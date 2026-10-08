@@ -3,7 +3,7 @@
 import type { DemoSpec } from '../demo';
 import { generateTickets } from './generate';
 import * as P from './params';
-import { SUMMARY_CHECKS, SUPPORT_EFFECTS, summarySql } from './truth';
+import { SUMMARY_CHECKS, SUPPORT_EFFECTS, summarySql, SUPPORT_HEALTH } from './truth';
 
 export const SUPPORT: DemoSpec = {
   id: 'support',
@@ -27,5 +27,6 @@ export const SUPPORT: DemoSpec = {
   rows: () => generateTickets(P.SEED) as unknown as Record<string, unknown>[],
   summarySql,
   summaryChecks: SUMMARY_CHECKS,
+  health: SUPPORT_HEALTH,
   effects: SUPPORT_EFFECTS,
 };

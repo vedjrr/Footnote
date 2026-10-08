@@ -12,6 +12,7 @@ import {
   summaryFailures,
   type Check,
   type Effect,
+  type HealthExpectation,
 } from './truth';
 import { contentHash, writeParquet, type ColumnSpec } from './write';
 
@@ -26,6 +27,8 @@ export interface DemoSpec {
   summarySql: string;
   summaryChecks: Check[];
   effects: Effect[];
+  /** What the health checks must report, and nothing else (T13). */
+  health: HealthExpectation[];
 }
 
 /** Measures the planted effects in `spec.table`, already loaded in `engine`. */
@@ -40,6 +43,7 @@ export async function demoTruth(engine: QueryEngine, spec: DemoSpec) {
     contentHash: await contentHash(engine, spec.table),
     summary: await measureSummary(q, spec.summarySql, spec.summaryChecks),
     effects: await measureAll(spec.effects, q),
+    health: spec.health,
   };
 }
 

@@ -244,7 +244,7 @@ export function readBase(result: QueryResult, columns: ColumnInfo[]): Base {
 }
 
 /** The SQL expression a column's statistics are computed on. */
-function valueExpr(col: ColumnProfile): string {
+export function valueExpr(col: ColumnProfile): string {
   const c = quoteColumn(col.name);
   if (col.storageType !== 'text' || col.refinement === null) return c;
   if (col.type === 'decimal') return numberFromText(c);

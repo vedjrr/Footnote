@@ -14,6 +14,7 @@ export default defineConfig({
       'tests/ingest/**/*.test.ts',
       'tests/profile/**/*.test.ts',
       'tests/model/**/*.test.ts',
+      'tests/health/**/*.test.ts',
     ],
     passWithNoTests: false,
     coverage: {
