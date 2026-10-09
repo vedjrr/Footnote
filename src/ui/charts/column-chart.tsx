@@ -10,7 +10,7 @@ import { scaleBand, scaleLinear } from 'd3-scale';
 import { AxisText, CategoryLabels, ValueGridY, tickLabelWidth } from './axes';
 import { ChartFrame, Plot } from './frame';
 import type { PlotLayout, Rect } from './frame';
-import { formatCompact, formatValue } from './format';
+import { formatChange, formatCompact, formatValue, onMarks } from './format';
 import type { ValueFormat } from './format';
 import { layoutHBars } from './hbars';
 import {
@@ -144,7 +144,9 @@ export function layoutColumns(
         from: 0,
         to: s.values[i] ?? 0,
         color: colorOf(k, i),
-        text: formatValue(s.values[i] ?? null, format),
+        text: props.change
+          ? formatChange(s.values[i] ?? 0, onMarks(format))
+          : formatValue(s.values[i] ?? null, onMarks(format)),
         strong: n === 1 && i === categoryEmphasis,
         tight: k > 0,
       })),

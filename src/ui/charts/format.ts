@@ -66,3 +66,12 @@ export function formatCompact(value: number, format: ValueFormat = {}): string {
   }).format(value);
   return realMinus(text);
 }
+
+/**
+ * The format for labels on the marks: the unit is dropped, because the
+ * title, the tooltip and the table carry it and repeating it on every bar
+ * is noise.
+ */
+export function onMarks(format: ValueFormat): ValueFormat {
+  return format.style === 'unit' ? { ...format, style: 'number' } : format;
+}

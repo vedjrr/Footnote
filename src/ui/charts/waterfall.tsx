@@ -12,7 +12,7 @@
  * chart says the axis does not start at zero (D-037).
  */
 import { ChartFrame, Plot } from './frame';
-import { formatChange, formatValue } from './format';
+import { formatChange, formatValue, onMarks } from './format';
 import type { ValueFormat } from './format';
 import { layoutHBars } from './hbars';
 import type { HRow } from './hbars';
@@ -64,7 +64,7 @@ export function Waterfall(props: WaterfallProps) {
     from: zoom ? start.value : 0,
     to: start.value,
     color: zoom ? null : TOTAL,
-    text: formatValue(start.value, format),
+    text: formatValue(start.value, onMarks(format)),
   });
   let walk = start.value;
   for (const s of steps) {
@@ -73,7 +73,7 @@ export function Waterfall(props: WaterfallProps) {
       from: walk,
       to: walk + s.value,
       color: s.value >= 0 ? RISE : FALL,
-      text: formatChange(s.value, format),
+      text: formatChange(s.value, onMarks(format)),
       strong: s.label === emphasis,
     });
     walk += s.value;
@@ -83,7 +83,7 @@ export function Waterfall(props: WaterfallProps) {
     from: zoom ? end.value : 0,
     to: end.value,
     color: zoom ? null : TOTAL,
-    text: formatValue(end.value, format),
+    text: formatValue(end.value, onMarks(format)),
   });
   const emphasisIndex = steps.findIndex((s) => s.label === emphasis);
   return (
@@ -98,7 +98,7 @@ export function Waterfall(props: WaterfallProps) {
         columns: [props.categoryName ?? 'Step', 'Change', 'Running total'],
         rows: rows.map((r, i) => [
           r.label,
-          i === 0 || i === rows.length - 1 ? '' : r.text,
+          i === 0 || i === rows.length - 1 ? '' : formatChange(r.to - r.from, format),
           formatValue(r.to, format),
         ]),
       }}
@@ -120,9 +120,9 @@ export function Waterfall(props: WaterfallProps) {
               return {
                 title: r.label,
                 rows: total
-                  ? [{ value: r.text }]
+                  ? [{ value: formatValue(r.to, format) }]
                   : [
-                      { value: r.text },
+                      { value: formatChange(r.to - r.from, format) },
                       { name: 'running total', value: formatValue(r.to, format) },
                     ],
               };

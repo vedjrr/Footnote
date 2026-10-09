@@ -156,7 +156,8 @@ export function layoutHBars(
                 y1={b.barY}
                 y2={b.barY + thick}
                 stroke={STRONG_TEXT}
-                strokeWidth={2}
+                strokeWidth={4}
+                strokeLinecap="round"
               />
             ) : (
               <path

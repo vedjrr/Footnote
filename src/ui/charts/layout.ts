@@ -27,7 +27,7 @@ export const HIT_MIN = 24;
  */
 export function valueTicks(
   values: number[],
-  { zero, count = 5 }: { zero: boolean; count?: number },
+  { zero, count = 4 }: { zero: boolean; count?: number },
 ): { domain: [number, number]; ticks: number[] } {
   const finite = values.filter((v) => Number.isFinite(v));
   let lo = finite.length ? Math.min(...finite) : 0;

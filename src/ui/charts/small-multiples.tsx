@@ -12,7 +12,7 @@ import type { ReactNode } from 'react';
 import { AxisText, ValueGridY, tickLabelWidth } from './axes';
 import { ChartFrame, Plot } from './frame';
 import type { PlotLayout, Rect } from './frame';
-import { formatCompact, formatValue } from './format';
+import { formatCompact, formatValue, onMarks } from './format';
 import type { ValueFormat } from './format';
 import { layoutHBars } from './hbars';
 import { AXIS_SIZE, LABEL_SIZE, LINE_HEIGHT, crisp, valueTicks } from './layout';
@@ -203,7 +203,7 @@ export function layoutMultiples(
           from: 0,
           to: p.values[i] ?? 0,
           color: colorOf(k),
-          text: formatValue(p.values[i] ?? null, format),
+          text: formatValue(p.values[i] ?? null, onMarks(format)),
         })),
         panelW,
         { domain, isActive: (i) => i === active },

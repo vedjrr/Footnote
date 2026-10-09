@@ -32,6 +32,9 @@ import {
 } from './palette';
 import { textWidth } from './text';
 
+/** Room from a line end to its label: the dot, its ring and a leader. */
+const END_GAP = 18;
+
 export type Series = { name: string; values: Array<number | null> };
 
 export type LineChartProps = {
@@ -116,18 +119,23 @@ export function layoutLine(
   const { domain, ticks } = valueTicks(all, { zero: props.zero ?? false });
   const tick = (v: number) => formatCompact(v, format);
 
-  // End labels: the last value of each series, beside its line end.
-  const ends = series.map((s) => {
+  // End labels: the last value of each series, beside its line end, with
+  // the series name when there are several and the names fit.
+  const endValues = series.map((s) => {
     const i = lastIndex(s.values);
-    return { i, text: i >= 0 ? formatCompact(s.values[i] as number, format) : '' };
+    return { i, value: i >= 0 ? formatCompact(s.values[i] as number, format) : '' };
   });
-  const endWidth = Math.max(0, ...ends.map((e) => textWidth(e.text, LABEL_SIZE)));
-  const showEnds = endWidth + 12 < width * 0.3;
+  const widest = (texts: string[]) => Math.max(0, ...texts.map((t) => textWidth(t, LABEL_SIZE)));
+  const named = series.map((s, k) => `${s.name} ${endValues[k].value}`);
+  const withNames = series.length > 1 && widest(named) + END_GAP < width * 0.3;
+  const ends = endValues.map((e, k) => ({ i: e.i, text: withNames ? named[k] : e.value }));
+  const endWidth = widest(ends.map((e) => e.text));
+  const showEnds = endWidth + END_GAP < width * 0.3;
 
   const top = 12;
   const bottom = height - 24;
   const left = tickLabelWidth(ticks, tick) + 8;
-  const right = width - (showEnds ? endWidth + 12 : DOT_R + RING);
+  const right = width - (showEnds ? endWidth + END_GAP : DOT_R + RING);
 
   const x = scalePoint<number>()
     .domain(categories.map((_, i) => i))
@@ -163,7 +171,7 @@ export function layoutLine(
           ? []
           : [
               {
-                x: px(e.i) + DOT_R + RING + 4,
+                x: px(e.i) + END_GAP,
                 y: endYs[k] - 8,
                 w: textWidth(e.text, LABEL_SIZE),
                 h: 16,
@@ -239,11 +247,28 @@ export function layoutLine(
           );
         })}
       {endYs &&
+        ends.map((e, k) => {
+          if (e.i < 0) return null;
+          const dotY = y(series[k].values[e.i] as number);
+          // A leader from the dot when the label had to move off its line.
+          return Math.abs(endYs[k] - dotY) > 3 ? (
+            <line
+              key={`leader${k}`}
+              x1={px(e.i) + DOT_R + RING}
+              y1={dotY}
+              x2={px(e.i) + END_GAP - 2}
+              y2={endYs[k]}
+              stroke={AXIS_TEXT}
+              strokeWidth={1}
+            />
+          ) : null;
+        })}
+      {endYs &&
         ends.map((e, k) =>
           e.i < 0 ? null : (
             <text
               key={k}
-              x={px(e.i) + DOT_R + RING + 4}
+              x={px(e.i) + END_GAP}
               y={endYs[k] + 4}
               fill={k === emphasisIndex ? STRONG_TEXT : LABEL_TEXT}
               fontWeight={k === emphasisIndex ? 600 : 400}

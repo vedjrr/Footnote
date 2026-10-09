@@ -5,7 +5,7 @@
  * largest first. ui-ux-rules §7.
  */
 import { ChartFrame, Plot } from './frame';
-import { formatChange, formatValue } from './format';
+import { formatChange, formatValue, onMarks } from './format';
 import type { ValueFormat } from './format';
 import { layoutHBars } from './hbars';
 import type { HRow } from './hbars';
@@ -41,8 +41,8 @@ export function RankedBars(props: RankedBarsProps) {
   const items = props.ordered ? props.items : [...props.items].sort((a, b) => b.value - a.value);
   const emphasisIndex =
     emphasis === undefined ? undefined : items.findIndex((it) => it.label === emphasis);
-  const text = (it: BarItem) =>
-    props.change ? formatChange(it.value, format) : formatValue(it.value, format);
+  const text = (it: BarItem, f: ValueFormat = format) =>
+    props.change ? formatChange(it.value, f) : formatValue(it.value, f);
   const color = (it: BarItem, i: number) => {
     if (props.change) return it.value >= 0 ? RISE : FALL;
     return emphasisIndex === undefined ? seriesColor(0) : seriesColor(i, emphasisIndex);
@@ -52,7 +52,7 @@ export function RankedBars(props: RankedBarsProps) {
     from: 0,
     to: it.value,
     color: color(it, i),
-    text: text(it),
+    text: text(it, onMarks(format)),
     detail: it.detail,
     strong: i === emphasisIndex,
   }));
