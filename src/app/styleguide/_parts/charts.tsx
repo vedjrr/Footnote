@@ -48,7 +48,7 @@ export function ChartsSection() {
       <Group title="Line">
         <Case label="One series, with the point the sentence is about">
           <LineChart
-            title="Revenue by month"
+            title="Revenue by month (GBP)"
             summary="Revenue by month from January 2023 to March 2025. March 2025 is 438,441 GBP, down from 476,320 GBP in February."
             categories={monthly.categories}
             series={[{ name: 'Revenue', values: monthly.values }]}
@@ -58,7 +58,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Four series, West emphasised">
           <LineChart
-            title="Revenue by region"
+            title="Revenue by region (GBP)"
             summary="Revenue by region from April 2024 to March 2025. West falls to 101,378 GBP in March 2025 from 139,179 in February; the other regions hold level."
             categories={byRegion.categories}
             series={byRegion.series}
@@ -68,7 +68,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Four series">
           <LineChart
-            title="Revenue by region"
+            title="Revenue by region (GBP)"
             summary="Revenue by region from April 2024 to March 2025; each peaks in November or December."
             categories={byRegion.categories}
             series={byRegion.series}
@@ -77,7 +77,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Negative values">
           <LineChart
-            title="Change in revenue on the month before"
+            title="Change in revenue on the month before (GBP)"
             summary="Change in revenue on the month before, February 2023 to March 2025. March 2025 is 37,879 GBP lower than February."
             categories={monthlyChange.categories}
             series={[{ name: 'Change', values: monthlyChange.values }]}
@@ -87,7 +87,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Empty">
           <LineChart
-            title="Revenue by month"
+            title="Revenue by month (GBP)"
             summary="Revenue by month."
             categories={[]}
             series={[{ name: 'Revenue', values: [] }]}
@@ -99,7 +99,7 @@ export function ChartsSection() {
       <Group title="Columns">
         <Case label="One series, Electronics emphasised">
           <ColumnChart
-            title="Revenue by category, March 2025"
+            title="Revenue by category, March 2025 (GBP)"
             summary="Revenue by category in March 2025. Electronics took 98,982 GBP, second to Furniture."
             categories={byCategory.categories}
             series={[{ name: 'March 2025', values: byCategory.march }]}
@@ -110,7 +110,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Two series">
           <ColumnChart
-            title="Revenue by category"
+            title="Revenue by category (GBP)"
             summary="Revenue by category in February and March 2025. Electronics fell from 139,833 to 98,982 GBP; the rest held level."
             categories={byCategory.categories}
             series={[
@@ -123,7 +123,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Ordered categories: months, labels thin out">
           <ColumnChart
-            title="Revenue by month, 2024"
+            title="Revenue by month, 2024 (GBP)"
             summary="Revenue by month in 2024, highest in November and December."
             categories={monthly.categories.slice(12, 24)}
             series={[{ name: 'Revenue', values: monthly.values.slice(12, 24) }]}
@@ -134,7 +134,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Negative values">
           <ColumnChart
-            title="Change in revenue, March on February 2025"
+            title="Change in revenue, March on February 2025 (GBP)"
             summary="Change in revenue by category, March on February 2025. Electronics fell 40,851 GBP."
             categories={categoryChange.map((c) => c.label)}
             series={[{ name: 'Change', values: categoryChange.map((c) => c.value) }]}
@@ -145,7 +145,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Long labels: drawn as bars when the names do not fit">
           <ColumnChart
-            title="Electronics revenue, March 2025"
+            title="Electronics revenue, March 2025 (GBP)"
             summary="Electronics revenue in March 2025 by channel and region."
             categories={electronicsMarch.slice(4, 8).map((e) => e.label)}
             series={[
@@ -157,7 +157,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Empty">
           <ColumnChart
-            title="Revenue by category"
+            title="Revenue by category (GBP)"
             summary="Revenue by category."
             categories={[]}
             series={[{ name: 'Revenue', values: [] }]}
@@ -169,7 +169,7 @@ export function ChartsSection() {
       <Group title="Ranked bars">
         <Case label="Long labels, one emphasised">
           <RankedBars
-            title="Electronics revenue by channel and region, March 2025"
+            title="Electronics revenue by channel and region, March 2025 (GBP)"
             summary="Electronics revenue in March 2025 by channel and region. Online orders in the West took 13,480 GBP, a quarter of February's."
             items={electronicsMarch}
             categoryName="Channel and region"
@@ -178,9 +178,9 @@ export function ChartsSection() {
             emphasis="Online orders in the West"
           />
         </Case>
-        <Case label="With the change labelled">
+        <Case label="With the change labelled, Electronics emphasised">
           <RankedBars
-            title="Revenue by category, March 2025"
+            title="Revenue by category, March 2025 (GBP)"
             summary="Revenue by category in March 2025, with the change on February."
             items={byCategory.categories.map((label, i) => {
               const change =
@@ -194,11 +194,12 @@ export function ChartsSection() {
             categoryName="Category"
             valueName="Revenue"
             format={gbp}
+            emphasis="Electronics"
           />
         </Case>
         <Case label="Negative values">
           <RankedBars
-            title="Change in revenue, March on February 2025"
+            title="Change in revenue, March on February 2025 (GBP)"
             summary="Change in revenue by category, March on February 2025. Electronics fell 40,851 GBP; Furniture rose 3,624 GBP."
             items={categoryChange}
             categoryName="Category"
@@ -209,7 +210,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Empty">
           <RankedBars
-            title="Revenue by category"
+            title="Revenue by category (GBP)"
             summary="Revenue by category."
             items={[]}
             empty="No rows match these filters. Remove one to see values."
@@ -220,7 +221,7 @@ export function ChartsSection() {
       <Group title="Waterfall">
         <Case label="Axis from zero">
           <Waterfall
-            title="Electronics revenue online, February to March 2025"
+            title="Electronics revenue online, February to March 2025 (GBP)"
             summary="Electronics revenue online fell from 93,738 to 49,484 GBP between February and March 2025; the West accounts for 43,362 GBP of the fall."
             start={electronicsOnline.start}
             steps={electronicsOnline.steps}
@@ -232,7 +233,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Small steps next to the totals: the axis zooms">
           <Waterfall
-            title="Revenue, February to March 2025"
+            title="Revenue, February to March 2025 (GBP)"
             summary="Revenue fell from 476,320 to 438,441 GBP between February and March 2025; Electronics accounts for 40,851 GBP of the fall."
             start={revenueWalk.start}
             steps={revenueWalk.steps}
@@ -244,7 +245,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Empty">
           <Waterfall
-            title="Revenue, February to March 2025"
+            title="Revenue, February to March 2025 (GBP)"
             summary="Revenue between February and March 2025."
             start={revenueWalk.start}
             steps={[]}
@@ -258,7 +259,7 @@ export function ChartsSection() {
         <h3 className="type-small font-medium text-ink-2">Small multiples</h3>
         <Case label="Lines, one panel per region, West emphasised">
           <SmallMultiples
-            title="Revenue by region"
+            title="Revenue by region (GBP)"
             summary="Revenue by region from April 2024 to March 2025, on one scale. Only the West falls in March 2025."
             kind="line"
             categories={byRegion.categories}
@@ -269,7 +270,7 @@ export function ChartsSection() {
         </Case>
         <Case label="Bars, one panel per region">
           <SmallMultiples
-            title="Electronics revenue by channel, March 2025"
+            title="Electronics revenue by channel, March 2025 (GBP)"
             summary="Electronics revenue in March 2025 by channel, one panel per region. Online is the largest channel in every region."
             kind="bars"
             categories={electronicsPanels.categories}

@@ -586,6 +586,50 @@ Format for a new decision:
 - Considered: `json_serialize_sql` in Node only (two guards to keep in
   step); a full SQL parser library (a large dependency for one check).
 
+### D-037 Chart layout, the zoomed waterfall, and where the palette lives
+- Date: 2026-10-09, task T22
+- Decision:
+  - Charts are client components that render on the server at a layout
+    width of 640 px (`SERVER_WIDTH`) with a `viewBox`, so the static HTML
+    already has the chart. In the browser a `ResizeObserver` measures the
+    container and the chart is laid out again at its real width, so text
+    is drawn at its true size. Text widths are estimated
+    (`charts/text.ts`), a little wide for IBM Plex Sans, so nothing placed
+    by the estimate clips.
+  - Each chart is one tab stop (`role="group"`,
+    `aria-roledescription="chart"`, the summary sentence as its name).
+    Arrow keys move between points, Home and End jump, Esc hides the
+    reading; the reading goes to a polite live region.
+  - Columns with unordered names that need more than two lines, or would
+    break a word, are drawn as horizontal rows (grouped when there are
+    several series). Ordered categories (periods) thin their labels.
+  - The waterfall is horizontal. When the walk between the totals is
+    under 25% of the larger total and does not cross zero, the axis zooms
+    to the walk, the totals are drawn as ink ticks instead of bars, and a
+    caption says the axis does not start at zero.
+  - With emphasis, the grey series share one legend entry ("East, North,
+    South"), since one grey cannot tell them apart.
+  - Value labels: columns label the emphasised column, every column of up
+    to eight unordered categories when each value fits, or only the last
+    column of a period series; lines label the ends and the marked point,
+    placed clear of every line or dropped to the tooltip and table.
+  - The sparkline is a `Plot` without a `ChartFrame`: it has no title or
+    "Show as table" switch, because it sits beside a figure whose working
+    paper holds the values. It is still a tab stop with a readout.
+  - Colour values stay in `tokens.css` (D-018). `charts/palette.ts` holds
+    only the roles (series order, emphasis, context, rise, fall, chrome)
+    as `var(--...)` references, so a chart never picks a colour itself.
+  - `charts/format.ts` formats chart values from a serialisable
+    `ValueFormat` (charts are client components fed by server pages, so a
+    function cannot be passed). T23 points it at the one formatter.
+- Why: §7 and §11 ask for no clipping, no rotated or broken labels,
+  keyboard reading and static HTML; a 4% step drawn from zero is a
+  sliver nobody can read, and a bar cut off at a non-zero axis would lie
+  about its length.
+- Considered: an SVG scaled to fit with no re-layout (text shrinks to
+  7 px on phones); rotated x labels; one tab stop per bar (dozens of tab
+  stops per chart); a broken-axis symbol on the waterfall totals.
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
