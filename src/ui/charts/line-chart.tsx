@@ -1,0 +1,265 @@
+'use client';
+
+/**
+ * Line: a measure over time, up to four series. ui-ux-rules §7.
+ */
+import { line as d3line } from 'd3-shape';
+import { scaleLinear, scalePoint } from 'd3-scale';
+import { CategoryLabels, ValueGridY, tickLabelWidth } from './axes';
+import { ChartFrame, Plot } from './frame';
+import type { LegendItem, PlotLayout } from './frame';
+import { formatCompact, formatValue } from './format';
+import type { ValueFormat } from './format';
+import { DOT_R, LABEL_SIZE, RING, crisp, spreadLabels, thinLabels, valueTicks } from './layout';
+import { AXIS_TEXT, LABEL_TEXT, MAX_SERIES, SURFACE, seriesColor } from './palette';
+import { textWidth } from './text';
+
+export type Series = { name: string; values: Array<number | null> };
+
+export type LineChartProps = {
+  title?: string;
+  summary: string;
+  /** Period labels, in order. One per value in each series. */
+  categories: string[];
+  series: Series[];
+  /** What the categories are, for the table header. Default "Period". */
+  categoryName?: string;
+  format?: ValueFormat;
+  /** Name of the series the sentence is about; the others turn grey. */
+  emphasis?: string;
+  /** Index of the point the sentence is about; it gets a dot and a label. */
+  mark?: number;
+  /** Start the value axis at zero. Default false for lines. */
+  zero?: boolean;
+  height?: number;
+  empty?: string;
+};
+
+export function LineChart(props: LineChartProps) {
+  const { categories, series, format = {}, emphasis, categoryName = 'Period' } = props;
+  if (series.length > MAX_SERIES) {
+    throw new Error(
+      `LineChart shows at most ${MAX_SERIES} series; show the top three and "Other", or small multiples`,
+    );
+  }
+  const emphasisIndex =
+    emphasis === undefined ? undefined : series.findIndex((s) => s.name === emphasis);
+  const colors = series.map((_, i) => seriesColor(i, emphasisIndex));
+  const hasValues = series.some((s) => s.values.some((v) => v !== null));
+  const legend: LegendItem[] = series.map((s, i) => ({
+    name: s.name,
+    color: colors[i],
+    key: 'line',
+  }));
+  return (
+    <ChartFrame
+      title={props.title}
+      summary={props.summary}
+      legend={legend}
+      empty={
+        hasValues && categories.length > 0
+          ? undefined
+          : (props.empty ?? 'There are no values to draw.')
+      }
+      table={{
+        caption: props.title ?? props.summary,
+        columns: [categoryName, ...series.map((s) => s.name)],
+        rows: categories.map((c, i) => [
+          c,
+          ...series.map((s) => formatValue(s.values[i] ?? null, format)),
+        ]),
+      }}
+    >
+      <Plot
+        label={props.summary}
+        defaultIndex={props.mark}
+        layout={(width, active) => layoutLine(props, colors, emphasisIndex, width, active)}
+      />
+    </ChartFrame>
+  );
+}
+
+function lastIndex(values: Array<number | null>): number {
+  for (let i = values.length - 1; i >= 0; i--) if (values[i] !== null) return i;
+  return -1;
+}
+
+export function layoutLine(
+  props: LineChartProps,
+  colors: string[],
+  emphasisIndex: number | undefined,
+  width: number,
+  active: number | null,
+): PlotLayout {
+  const { categories, series, format = {}, mark } = props;
+  const height = props.height ?? 240;
+  const all = series.flatMap((s) => s.values.filter((v): v is number => v !== null));
+  const { domain, ticks } = valueTicks(all, { zero: props.zero ?? false });
+  const tick = (v: number) => formatCompact(v, format);
+
+  // End labels: the last value of each series, beside its line end.
+  const ends = series.map((s) => {
+    const i = lastIndex(s.values);
+    return { i, text: i >= 0 ? formatCompact(s.values[i] as number, format) : '' };
+  });
+  const endWidth = Math.max(0, ...ends.map((e) => textWidth(e.text, LABEL_SIZE)));
+  const showEnds = endWidth + 12 < width * 0.3;
+
+  const top = 12;
+  const bottom = height - 24;
+  const left = tickLabelWidth(ticks, tick) + 8;
+  const right = width - (showEnds ? endWidth + 12 : DOT_R + RING);
+
+  const x = scalePoint<number>()
+    .domain(categories.map((_, i) => i))
+    .range([left + DOT_R + RING, right])
+    .padding(categories.length === 1 ? 0.5 : 0);
+  const y = scaleLinear().domain(domain).range([bottom, top]);
+  const px = (i: number) => x(i) ?? left;
+
+  const path = d3line<number | null>()
+    .defined((v) => v !== null)
+    .x((_, i) => px(i))
+    .y((v) => y(v as number));
+
+  const step = categories.length > 1 ? px(1) - px(0) : width;
+  const shown = thinLabels(categories, step);
+
+  const endYs = showEnds
+    ? spreadLabels(
+        ends.map((e, k) => (e.i >= 0 ? y(series[k].values[e.i] as number) : top)),
+        { top: 0, bottom: height - 20 },
+      )
+    : null;
+
+  // Draw context series first so the emphasised one sits on top.
+  const order = series
+    .map((_, i) => i)
+    .sort((a, b) => Number(a === emphasisIndex) - Number(b === emphasisIndex));
+  const focusSeries = emphasisIndex !== undefined && emphasisIndex >= 0 ? emphasisIndex : 0;
+
+  const markLabel = (() => {
+    if (mark === undefined || mark < 0 || mark >= categories.length) return null;
+    // The line end already carries its value.
+    if (showEnds && mark === ends[focusSeries]?.i) return null;
+    const v = series[focusSeries]?.values[mark];
+    if (v === null || v === undefined) return null;
+    const text = formatValue(v, format);
+    const w = textWidth(text, LABEL_SIZE);
+    const cx = Math.max(w / 2, Math.min(width - w / 2, px(mark)));
+    const cy = y(v);
+    const above = cy - 12 > top;
+    return { x: cx, y: above ? cy - 10 : cy + 18, text };
+  })();
+
+  const svg = (
+    <>
+      <ValueGridY ticks={ticks} y={y} left={left} right={right} labelX={left - 8} format={tick} />
+      <CategoryLabels labels={categories} shown={shown} x={px} y={height - 6} width={width} />
+      {active !== null && (
+        <line
+          x1={crisp(px(active))}
+          x2={crisp(px(active))}
+          y1={top}
+          y2={bottom}
+          stroke={AXIS_TEXT}
+          strokeWidth={1}
+        />
+      )}
+      {order.map((k) => (
+        <path
+          key={series[k].name}
+          d={path(series[k].values) ?? ''}
+          fill="none"
+          stroke={colors[k]}
+          strokeWidth={2}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+      ))}
+      {order.map((k) => {
+        const e = ends[k];
+        if (e.i < 0) return null;
+        return <Dot key={k} x={px(e.i)} y={y(series[k].values[e.i] as number)} color={colors[k]} />;
+      })}
+      {mark !== undefined && series[focusSeries]?.values[mark] != null && (
+        <Dot
+          x={px(mark)}
+          y={y(series[focusSeries].values[mark] as number)}
+          color={colors[focusSeries]}
+        />
+      )}
+      {active !== null &&
+        order.map((k) => {
+          const v = series[k].values[active];
+          return v === null || v === undefined ? null : (
+            <Dot key={`a${k}`} x={px(active)} y={y(v)} color={colors[k]} />
+          );
+        })}
+      {endYs &&
+        ends.map((e, k) =>
+          e.i < 0 ? null : (
+            <text
+              key={k}
+              x={px(e.i) + DOT_R + RING + 4}
+              y={endYs[k] + 4}
+              fill={LABEL_TEXT}
+              fontSize={LABEL_SIZE}
+              style={{ fontVariantNumeric: 'tabular-nums' }}
+            >
+              {e.text}
+            </text>
+          ),
+        )}
+      {markLabel && (
+        <text
+          x={markLabel.x}
+          y={markLabel.y}
+          textAnchor="middle"
+          fill={LABEL_TEXT}
+          fontSize={LABEL_SIZE}
+          fontWeight={600}
+          style={{ fontVariantNumeric: 'tabular-nums' }}
+        >
+          {markLabel.text}
+        </text>
+      )}
+    </>
+  );
+
+  const half = step / 2;
+  return {
+    height,
+    svg,
+    targets: categories.map((_, i) => ({
+      x: Math.max(0, px(i) - half),
+      y: 0,
+      w: Math.min(width, px(i) + half) - Math.max(0, px(i) - half),
+      h: height,
+    })),
+    anchor: (i) => {
+      const vals = series
+        .map((s) => s.values[i])
+        .filter((v): v is number => v !== null && v !== undefined);
+      return { x: px(i), y: vals.length ? y(Math.max(...vals)) : top };
+    },
+    tip: (i) => ({
+      title: categories[i],
+      rows: series.map((s, k) => ({
+        name: series.length > 1 ? s.name : undefined,
+        value: formatValue(s.values[i] ?? null, format),
+        color: series.length > 1 ? colors[k] : undefined,
+        key: 'line' as const,
+      })),
+    }),
+  };
+}
+
+export function Dot({ x, y, color }: { x: number; y: number; color: string }) {
+  return (
+    <g>
+      <circle cx={x} cy={y} r={DOT_R + RING} fill={SURFACE} />
+      <circle cx={x} cy={y} r={DOT_R} fill={color} />
+    </g>
+  );
+}
