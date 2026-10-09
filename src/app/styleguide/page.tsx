@@ -12,6 +12,7 @@ import { CopyButton } from '@/ui/copy-button';
 import { DropAreaDemo, MenuDemo, PanelDemo, TooltipDemo } from './_parts/interactive';
 import { MarkDemo, MarkStates, WorkingPaperSpecimen } from './_parts/mark-demo';
 import { Swatches } from './_parts/swatches';
+import { ChartsSection } from './_parts/charts';
 
 export const metadata: Metadata = { title: 'Styleguide' };
 
@@ -512,6 +513,14 @@ export default function Styleguide() {
               </table>
             </div>
           </Sub>
+        </Section>
+
+        <Section id="charts" title="Charts">
+          <p className="type-body max-w-170 text-ink-2">
+            Each chart is one tab stop; the arrow keys read its values and Esc hides the reading.
+            Every chart can be shown as a table. Figures come from the retail sample.
+          </p>
+          <ChartsSection />
         </Section>
 
         <Section id="overlays" title="Panel and sheet">
