@@ -613,6 +613,9 @@ Format for a new decision:
     to eight unordered categories when each value fits, or only the last
     column of a period series; lines label the ends and the marked point,
     placed clear of every line or dropped to the tooltip and table.
+    Line ends carry the series name when there are several and it fits,
+    with a leader when the label had to move. Labels on bars drop the
+    unit (`onMarks`); the title, tooltip and table carry it.
   - The sparkline is a `Plot` without a `ChartFrame`: it has no title or
     "Show as table" switch, because it sits beside a figure whose working
     paper holds the values. It is still a tab stop with a readout.

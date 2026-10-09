@@ -10,49 +10,38 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T21 Result checks and the raw SQL guard (done)
-- Next task: T22 Chart components
+- Last finished task: T22 Chart components (done)
+- Next task: T23 Chart choice and number formatting
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   (`retail`, `saas`, `support`) and files (`file-1`, ...), `/open`,
   `/accuracy`, `/about`; `/styleguide`, `/dev/engine` outside the shell.
-  `npm run check` (328 tests) and `npm run test:e2e` (29) pass;
+  `npm run check` (357 tests) and `npm run test:e2e` (37) pass;
   `npm run build` last run in T10.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
   `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
   page's one engine, the samples and the user's files.
-- Ingest: `src/core/ingest/`. Profile: `profileTable(engine, table)` in
-  `core/profile/profile.ts` (D-030, amended in D-031).
-- Dictionary: `core/model/` has Zod schemas (`types.ts`, incl. the
-  `difference` kind and `starters`), YAML (`parseModelYaml` with line
-  numbers, `modelToYaml`), inference (`inferModel(profile, facts)`,
-  `inferDictionary(engine, profile)` runs the snapshot probe) and
-  `compareRoles`. Hand-written `data/demo/<id>/dictionary.yaml` for each
-  sample, copied to `public/demo/<id>/`. The store holds `data.model`
-  (edited) and `data.original`; `setModel(id, model)` replaces it. Files
-  get an inferred dictionary on open. `core/model/edit.ts` and
-  `describe.ts` drive the metrics screen (`features/metrics/`).
-  `useHealth(id)` runs profile and health checks after load; the health
-  screen is `features/health/health-view.tsx`; the glance shows a summary.
-- Health: `checkHealth(engine, profile, model, { latestPlausible })` in
-  `core/health/health.ts`, checks H1 to H12 (H12 new, D-032). Each
-  problem has statement, count, share, examples, metrics, dimensions, sql.
-  `truth.json` `health` lists exactly what each sample must report.
-- Query: `querySpecSchema` in `core/query/spec.ts`; `compile(spec, model,
-  { time: facts })` in `core/query/compile.ts` (D-035); periods in
-  `core/findings/periods.ts` (`timeFactsSql`, `resolveRange`,
-  `currentPeriod`, `comparisonRange`). `checkResult` (C1 to C8) in
-  `core/query/checks.ts`; `guardSql` and `withTimeout` in
-  `core/query/guard.ts` (D-036). Nothing in the app calls them yet.
-- UI: tokens in `src/ui/tokens.css`; primitives in `src/ui/`.
+- Ingest, profile, dictionary, health: `src/core/{ingest,profile,model,
+  health}` (D-030 to D-034); screens in `features/{metrics,health}`.
+- Query: `querySpecSchema` (`core/query/spec.ts`), `compile(spec, model,
+  { time: facts })` (D-035), periods in `core/findings/periods.ts`,
+  `checkResult` C1 to C8 and `guardSql`/`withTimeout` (D-036). Nothing in
+  the app calls them yet.
+- Charts: `src/ui/charts` (`index.ts`): LineChart, ColumnChart,
+  RankedBars, Waterfall, SmallMultiples, Sparkline, ChartTable; all on
+  `/styleguide#charts` with retail fixtures (D-037). Values are formatted
+  by `charts/format.ts` from a serialisable `ValueFormat` until T23.
+- UI: tokens in `src/ui/tokens.css`; chart colour roles in
+  `src/ui/charts/palette.ts`; primitives in `src/ui/`.
 - Evals: not run
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
-  A dev server left on port 3100 or 3200 is reused by shots or e2e.
-  Engine-backed tests of core go in `tests/` and need adding to `include`
-  in `vitest.config.mts`. Open questions Q-02, Q-05, Q-08 to Q-10.
-- Updated: 2026-10-08, T21
+  A dev server left on port 3000, 3100 or 3200 is reused by shots or
+  e2e (Next refuses a second `next dev` in the same folder). Engine-backed
+  tests of core go in `tests/` and need adding to `include` in
+  `vitest.config.mts`. Open questions Q-02, Q-05, Q-08 to Q-10.
+- Updated: 2026-10-09, T22
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -89,6 +78,50 @@ Template:
 ```
 
 ## Log
+
+### T22 Chart components
+- Date: 2026-10-09
+- Outcome: done
+- What changed: `src/ui/charts/` (frame with legend, table view, empty
+  case and keyboard plot; line, columns, ranked bars, waterfall, small
+  multiples, sparkline; `hbars.tsx` shared row layout; pure `layout.ts`,
+  `text.ts`, `format.ts`, `palette.ts` with `charts.test.ts`); styleguide
+  Charts section with retail fixtures; `tests/e2e/charts.spec.ts`;
+  `d3-scale`, `d3-shape`, `d3-array` and types added.
+- Verified: `npm run check`: 357 passed. `npx playwright test`: 37
+  passed (charts: no text outside its chart or over other text and no
+  sideways scroll at 390, 834, 1440; Tab reaches all 17 charts; arrow
+  keys, Home, Esc read the points; hover lists every series; 16 charts
+  switch to a table; empty sentences). `npm run shots -- /styleguide`:
+  six images written and looked at. Palette validator (dataviz skill),
+  light on #FFFFFF: lightness, chroma, CVD (worst 9.1 protan), normal
+  floor (22.9) PASS; contrast WARN #1baf7a 2.82, #eda100 2.17 (relief:
+  direct labels and table view). Dark on #101823: all five PASS (worst
+  CVD 8.4). Emphasis pair blue with context grey "fails" the chroma floor
+  in both modes by design: grey must read as grey.
+- UI check: 390, 834, 1440, light and dark, each chart case shot and read.
+  Fixed: "Electronics" broken mid-word under a column (now rows), marked
+  point label over the line (now placed clear), unsigned rises, labels on
+  every month column, 1 px overflow of the last cap label. Critic pass
+  (fresh agent, screenshots and rules only): fixed bare end values
+  (names and leaders added), unsigned change labels, unit repeated on
+  every bar, dense gridlines, thin total marks. Kept: tooltips may float
+  over neighbouring panels (they are overlays, every value is also in the
+  table); the cut focus ring and tooltip it saw were the screenshot crop,
+  not the page; single-series charts with no named point stay series
+  blue per the dataviz skill, emphasis is opt-in. Its point that charts
+  do not yet carry the reference mark and yellow highlight is T24's job.
+- Decisions: D-037
+- Differs from the spec: the sparkline has no "Show as table" switch; it
+  sits beside a figure whose working paper holds the values (D-037).
+- Not done: nothing
+- For the next agent: T23 should replace the body of
+  `charts/format.ts` with calls to `core/narrative/format.ts` (it uses
+  `Intl.NumberFormat`, which T23's lint rule will flag). Charts take a
+  one-sentence `summary` as their accessible name: pass the finding's
+  sentence. `emphasis` props take a series or category name.
+- Ved should know: nothing
+- Commits: 53b9ccc..(this handoff)
 
 ### T21 Result checks and the raw SQL guard
 - Date: 2026-10-08
