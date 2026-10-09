@@ -168,21 +168,25 @@ export function layoutColumns(
   const values = series.flatMap((s) => s.values.filter((v): v is number => v !== null));
   const hasNegative = values.some((v) => v < 0);
 
-  // Values on the caps: the emphasised column, or every column of a single
-  // series when each value fits its column.
+  // Values on the caps: the emphasised column, or as below.
   const capText = (k: number, i: number) => {
     const v = series[k].values[i] as number;
     return (props.change && v > 0 ? '+' : '') + formatCompact(v, format);
   };
+  // Periods: only the latest column, like a line end. A few unordered
+  // categories: every column, when each value fits over its column.
+  const lastOnly = ordered && n === 1 && categoryEmphasis < 0;
   const labelAll =
+    !ordered &&
     n === 1 &&
     categoryEmphasis < 0 &&
-    categories.length <= 12 &&
+    categories.length <= 8 &&
     categories.every(
       (_, i) => series[0].values[i] === null || textWidth(capText(0, i), LABEL_SIZE) <= step - 2,
     );
   const labelled = (k: number, i: number) =>
-    series[k].values[i] !== null && (labelAll || (categoryEmphasis === i && n === 1));
+    series[k].values[i] !== null &&
+    (labelAll || (categoryEmphasis === i && n === 1) || (lastOnly && i === categories.length - 1));
 
   const top = 20;
   const labelBand = labelLines * LINE_HEIGHT + 8;
@@ -227,7 +231,10 @@ export function layoutColumns(
         series.map((s, k) => {
           if (!labelled(k, i)) return null;
           const v = s.values[i] as number;
-          const x = groupX(i) + k * (barW + GAP) + barW / 2;
+          const text = capText(k, i);
+          // Centred over the column, but kept inside the chart at the edges.
+          const half = textWidth(text, LABEL_SIZE) / 2;
+          const x = Math.max(half, Math.min(width - half, groupX(i) + k * (barW + GAP) + barW / 2));
           return (
             <text
               key={`l${i}-${k}`}
@@ -239,7 +246,7 @@ export function layoutColumns(
               fontSize={LABEL_SIZE}
               style={{ fontVariantNumeric: 'tabular-nums' }}
             >
-              {capText(k, i)}
+              {text}
             </text>
           );
         }),
