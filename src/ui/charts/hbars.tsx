@@ -8,8 +8,8 @@
 import { scaleLinear } from 'd3-scale';
 import type { ReactNode } from 'react';
 import type { Rect } from './frame';
-import { BAR_MAX, LABEL_SIZE, LINE_HEIGHT, barPath, crisp, valueTicks } from './layout';
-import { GRID, HOVER, LABEL_TEXT, STRONG_TEXT } from './palette';
+import { BAR_MAX, GAP, LABEL_SIZE, LINE_HEIGHT, barPath, crisp, valueTicks } from './layout';
+import { AXIS_TEXT, GRID, HOVER, LABEL_TEXT, STRONG_TEXT } from './palette';
 import { textWidth, wrapText } from './text';
 
 export type HRow = {
@@ -20,8 +20,12 @@ export type HRow = {
   color: string | null;
   /** Value label beside the bar end. */
   text: string;
+  /** Written after the value in a quieter ink, e.g. a change: "+3.8%". */
+  detail?: string;
   /** Draw the value label in ink and semibold: the bar the sentence is about. */
   strong?: boolean;
+  /** Sits 2 px under the row before, as the next bar of the same group. */
+  tight?: boolean;
 };
 
 export type HBarsLayout = {
@@ -42,12 +46,12 @@ export function layoutHBars(
     domain: fixedDomain,
     zero = true,
     connectors = false,
-    activeIndex = null,
+    isActive = () => false,
   }: {
     domain?: [number, number];
     zero?: boolean;
     connectors?: boolean;
-    activeIndex?: number | null;
+    isActive?: (row: number) => boolean;
   } = {},
 ): HBarsLayout {
   const thick = Math.min(BAR, BAR_MAX);
@@ -57,7 +61,10 @@ export function layoutHBars(
   );
   const sideLines = rows.map((r) => wrapText(r.label, Math.max(labelCol, 1), LABEL_SIZE));
   const stacked = sideLines.some((l) => l.length > 2);
-  const lines = stacked ? rows.map((r) => wrapText(r.label, width, LABEL_SIZE)) : sideLines;
+  const lines = (stacked ? rows.map((r) => wrapText(r.label, width, LABEL_SIZE)) : sideLines).map(
+    (l) => (l.length === 1 && l[0] === '' ? [] : l),
+  );
+  const valueText = (r: HRow) => (r.detail ? `${r.text}  ${r.detail}` : r.text);
   const plotLeft = stacked ? 0 : labelCol + 12;
 
   const domain =
@@ -78,7 +85,7 @@ export function layoutHBars(
     let needL = 0;
     let needR = 0;
     for (const r of rows) {
-      const w = textWidth(r.text, LABEL_SIZE) + VALUE_PAD;
+      const w = textWidth(valueText(r), LABEL_SIZE) + VALUE_PAD;
       if (r.to >= r.from) needR = Math.max(needR, x(Math.max(r.from, r.to)) + w - width);
       else needL = Math.max(needL, plotLeft - (x(Math.min(r.from, r.to)) - w));
     }
@@ -87,16 +94,25 @@ export function layoutHBars(
     padR += Math.max(0, needR);
   }
 
+  const gapBefore = (i: number) => (i === 0 ? 0 : rows[i].tight ? GAP : ROW_GAP);
+  const gapAfter = (i: number) => (i === rows.length - 1 ? 0 : gapBefore(i + 1));
   let y = 0;
   const bands = rows.map((_, i) => {
+    y += gapBefore(i);
     const labelH = lines[i].length * LINE_HEIGHT;
     const top = y;
-    const barY = stacked ? top + labelH + 4 : top + Math.max(0, (labelH - thick) / 2);
-    const rowH = stacked ? labelH + 4 + thick : Math.max(thick, labelH);
-    y += rowH + ROW_GAP;
+    const barY = stacked
+      ? top + (labelH ? labelH + 4 : 0)
+      : top + Math.max(0, (Math.min(labelH, 2 * LINE_HEIGHT) - thick) / 2);
+    const rowH = stacked ? (labelH ? labelH + 4 : 0) + thick : Math.max(thick, labelH);
+    y += rowH;
     return { top, barY, rowH, labelH };
   });
-  const height = Math.max(y - ROW_GAP, 1) + 2;
+  const height = Math.max(y, 1) + 2;
+  const band = (i: number) => ({
+    y: bands[i].top - gapBefore(i) / 2,
+    h: bands[i].rowH + gapBefore(i) / 2 + gapAfter(i) / 2,
+  });
 
   const zeroX = domain[0] <= 0 && domain[1] >= 0 ? x(0) : null;
 
@@ -123,14 +139,8 @@ export function layoutHBars(
         const labelTop = stacked ? b.top : b.top + Math.max(0, (thick - b.labelH) / 2);
         return (
           <g key={i}>
-            {activeIndex === i && (
-              <rect
-                x={0}
-                y={b.top - ROW_GAP / 2}
-                width={width}
-                height={b.rowH + ROW_GAP}
-                fill={HOVER}
-              />
+            {isActive(i) && (
+              <rect x={0} y={band(i).y} width={width} height={band(i).h} fill={HOVER} />
             )}
             <text fill={LABEL_TEXT} fontSize={LABEL_SIZE}>
               {lines[i].map((line, k) => (
@@ -164,6 +174,11 @@ export function layoutHBars(
               style={{ fontVariantNumeric: 'tabular-nums' }}
             >
               {r.text}
+              {r.detail && (
+                <tspan dx={6} fill={AXIS_TEXT} fontWeight={400}>
+                  {r.detail}
+                </tspan>
+              )}
             </text>
           </g>
         );
@@ -190,7 +205,7 @@ export function layoutHBars(
   return {
     height,
     svg,
-    targets: bands.map((b) => ({ x: 0, y: b.top - ROW_GAP / 2, w: width, h: b.rowH + ROW_GAP })),
+    targets: bands.map((_, i) => ({ x: 0, ...band(i), w: width })),
     anchor: (i) => {
       const r = rows[i];
       return { x: x(Math.max(r.from, r.to)), y: bands[i].barY };

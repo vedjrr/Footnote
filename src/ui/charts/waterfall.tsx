@@ -110,7 +110,7 @@ export function Waterfall(props: WaterfallProps) {
           const l = layoutHBars(rows, width, {
             zero: !zoom,
             connectors: true,
-            activeIndex: active,
+            isActive: (i) => i === active,
           });
           return {
             ...l,

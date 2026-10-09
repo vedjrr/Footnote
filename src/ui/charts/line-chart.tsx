@@ -10,8 +10,26 @@ import { ChartFrame, Plot } from './frame';
 import type { LegendItem, PlotLayout } from './frame';
 import { formatCompact, formatValue } from './format';
 import type { ValueFormat } from './format';
-import { DOT_R, LABEL_SIZE, RING, crisp, spreadLabels, thinLabels, valueTicks } from './layout';
-import { AXIS_TEXT, LABEL_TEXT, MAX_SERIES, SURFACE, seriesColor } from './palette';
+import type { Box, Segment } from './layout';
+import {
+  placeLabel,
+  DOT_R,
+  LABEL_SIZE,
+  RING,
+  crisp,
+  spreadLabels,
+  thinLabels,
+  valueTicks,
+} from './layout';
+import {
+  AXIS_TEXT,
+  CONTEXT,
+  LABEL_TEXT,
+  MAX_SERIES,
+  STRONG_TEXT,
+  SURFACE,
+  seriesColor,
+} from './palette';
 import { textWidth } from './text';
 
 export type Series = { name: string; values: Array<number | null> };
@@ -46,11 +64,12 @@ export function LineChart(props: LineChartProps) {
     emphasis === undefined ? undefined : series.findIndex((s) => s.name === emphasis);
   const colors = series.map((_, i) => seriesColor(i, emphasisIndex));
   const hasValues = series.some((s) => s.values.some((v) => v !== null));
-  const legend: LegendItem[] = series.map((s, i) => ({
-    name: s.name,
-    color: colors[i],
-    key: 'line',
-  }));
+  const legend = legendFor(
+    series.map((s) => s.name),
+    colors,
+    emphasisIndex,
+    'line',
+  );
   return (
     <ChartFrame
       title={props.title}
@@ -138,18 +157,41 @@ export function layoutLine(
     .sort((a, b) => Number(a === emphasisIndex) - Number(b === emphasisIndex));
   const focusSeries = emphasisIndex !== undefined && emphasisIndex >= 0 ? emphasisIndex : 0;
 
+  const endBoxes: Box[] = endYs
+    ? ends.flatMap((e, k) =>
+        e.i < 0
+          ? []
+          : [
+              {
+                x: px(e.i) + DOT_R + RING + 4,
+                y: endYs[k] - 8,
+                w: textWidth(e.text, LABEL_SIZE),
+                h: 16,
+              },
+            ],
+      )
+    : [];
+  const segments: Segment[] = series.flatMap((s) =>
+    s.values.slice(1).flatMap((v, i) => {
+      const u = s.values[i];
+      return u === null || v === null ? [] : [[px(i), y(u), px(i + 1), y(v)] as Segment];
+    }),
+  );
+
+  // The point the sentence is about: a label placed clear of every line.
   const markLabel = (() => {
     if (mark === undefined || mark < 0 || mark >= categories.length) return null;
     // The line end already carries its value.
     if (showEnds && mark === ends[focusSeries]?.i) return null;
     const v = series[focusSeries]?.values[mark];
     if (v === null || v === undefined) return null;
-    const text = formatValue(v, format);
-    const w = textWidth(text, LABEL_SIZE);
-    const cx = Math.max(w / 2, Math.min(width - w / 2, px(mark)));
-    const cy = y(v);
-    const above = cy - 12 > top;
-    return { x: cx, y: above ? cy - 10 : cy + 18, text };
+    const text = formatCompact(v, format);
+    const box = placeLabel({ x: px(mark), y: y(v) }, textWidth(text, LABEL_SIZE), 14, {
+      bounds: { x: left, y: 0, w: width - left, h: bottom },
+      lines: segments,
+      avoid: endBoxes,
+    });
+    return box ? { x: box.x, y: box.y + 11, text } : null;
   })();
 
   const svg = (
@@ -203,7 +245,8 @@ export function layoutLine(
               key={k}
               x={px(e.i) + DOT_R + RING + 4}
               y={endYs[k] + 4}
-              fill={LABEL_TEXT}
+              fill={k === emphasisIndex ? STRONG_TEXT : LABEL_TEXT}
+              fontWeight={k === emphasisIndex ? 600 : 400}
               fontSize={LABEL_SIZE}
               style={{ fontVariantNumeric: 'tabular-nums' }}
             >
@@ -215,8 +258,7 @@ export function layoutLine(
         <text
           x={markLabel.x}
           y={markLabel.y}
-          textAnchor="middle"
-          fill={LABEL_TEXT}
+          fill={STRONG_TEXT}
           fontSize={LABEL_SIZE}
           fontWeight={600}
           style={{ fontVariantNumeric: 'tabular-nums' }}
@@ -262,4 +304,24 @@ export function Dot({ x, y, color }: { x: number; y: number; color: string }) {
       <circle cx={x} cy={y} r={DOT_R} fill={color} />
     </g>
   );
+}
+
+/**
+ * Legend entries. With emphasis, the context series share one grey entry,
+ * because one grey cannot tell them apart: "West" and "East, North, South".
+ */
+export function legendFor(
+  names: string[],
+  colors: string[],
+  emphasisIndex: number | undefined,
+  key: 'line' | 'rect',
+): LegendItem[] {
+  if (emphasisIndex === undefined || emphasisIndex < 0) {
+    return names.map((name, i) => ({ name, color: colors[i], key }));
+  }
+  const others = names.filter((_, i) => i !== emphasisIndex);
+  return [
+    { name: names[emphasisIndex], color: colors[emphasisIndex], key },
+    ...(others.length ? [{ name: others.join(', '), color: CONTEXT, key }] : []),
+  ];
 }

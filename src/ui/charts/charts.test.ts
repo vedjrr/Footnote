@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { formatChange, formatCompact, formatValue } from './format';
-import { barPath, spreadLabels, thinLabels, valueTicks } from './layout';
+import {
+  barPath,
+  placeLabel,
+  segmentHitsBox,
+  spreadLabels,
+  thinLabels,
+  valueTicks,
+} from './layout';
+import type { Box, Segment } from './layout';
 import { CONTEXT, EMPHASIS, SERIES, seriesColor } from './palette';
 import { textWidth, wrapText } from './text';
 import { waterfallZooms } from './waterfall';
@@ -145,5 +153,41 @@ describe('waterfallZooms', () => {
     expect(waterfallZooms(100, [80, -30], 150)).toBe(false);
     expect(waterfallZooms(20, [-50], -30)).toBe(false);
     expect(waterfallZooms(0, [0], 0)).toBe(false);
+  });
+});
+
+describe('placeLabel', () => {
+  const bounds = { x: 0, y: 0, w: 200, h: 200 };
+  it('puts the label above the point when nothing is in the way', () => {
+    const box = placeLabel({ x: 100, y: 100 }, 40, 12, { bounds, lines: [], avoid: [] });
+    expect(box).toEqual({ x: 80, y: 80, w: 40, h: 12 });
+  });
+  it('moves below when a line runs above the point', () => {
+    const box = placeLabel({ x: 100, y: 100 }, 40, 12, {
+      bounds,
+      lines: [[0, 85, 200, 85]],
+      avoid: [],
+    }) as Box;
+    expect(box.y).toBeGreaterThan(100);
+  });
+  it('keeps inside the bounds and clear of other labels', () => {
+    const avoid = { x: 150, y: 60, w: 50, h: 20 };
+    const box = placeLabel({ x: 192, y: 50 }, 40, 12, { bounds, lines: [], avoid: [avoid] }) as Box;
+    expect(box.x + box.w).toBeLessThanOrEqual(200);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.h <= avoid.y || box.x + box.w <= avoid.x).toBe(true);
+  });
+  it('gives up when every side is blocked', () => {
+    const lines: Segment[] = [
+      [0, 95, 200, 95],
+      [0, 105, 200, 105],
+      [95, 0, 95, 200],
+      [105, 0, 105, 200],
+    ];
+    expect(placeLabel({ x: 100, y: 100 }, 40, 12, { bounds, lines, avoid: [] })).toBeNull();
+  });
+  it('detects a segment crossing a box without an end inside it', () => {
+    expect(segmentHitsBox([0, 10, 100, 90], { x: 40, y: 40, w: 10, h: 10 })).toBe(true);
+    expect(segmentHitsBox([0, 100, 10, 100], { x: 40, y: 40, w: 10, h: 10 })).toBe(false);
   });
 });

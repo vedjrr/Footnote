@@ -9,7 +9,7 @@
 import { scaleBand, scaleLinear } from 'd3-scale';
 import { AxisText, CategoryLabels, ValueGridY, tickLabelWidth } from './axes';
 import { ChartFrame, Plot } from './frame';
-import type { LegendItem, PlotLayout } from './frame';
+import type { PlotLayout, Rect } from './frame';
 import { formatCompact, formatValue } from './format';
 import type { ValueFormat } from './format';
 import { layoutHBars } from './hbars';
@@ -23,8 +23,9 @@ import {
   thinLabels,
   valueTicks,
 } from './layout';
+import { legendFor } from './line-chart';
 import type { Series } from './line-chart';
-import { HOVER, LABEL_TEXT, MAX_SERIES, STRONG_TEXT, seriesColor } from './palette';
+import { FALL, HOVER, RISE, LABEL_TEXT, MAX_SERIES, STRONG_TEXT, seriesColor } from './palette';
 import { textWidth, wrapText } from './text';
 
 export type ColumnChartProps = {
@@ -41,6 +42,8 @@ export type ColumnChartProps = {
   emphasisCategory?: string;
   /** Several series: the series the sentence is about; the others turn grey. */
   emphasisSeries?: string;
+  /** One series of changes: rises in series blue, falls in series orange. */
+  change?: boolean;
   height?: number;
   empty?: string;
 };
@@ -55,14 +58,16 @@ export function ColumnChart(props: ColumnChartProps) {
   const categoryEmphasis =
     emphasisCategory === undefined ? -1 : categories.indexOf(emphasisCategory);
   const colorOf = (k: number, i: number) => {
+    if (props.change && series.length === 1) return (series[0].values[i] ?? 0) >= 0 ? RISE : FALL;
     if (series.length === 1 && categoryEmphasis >= 0) return seriesColor(i, categoryEmphasis);
     return seriesColor(k, seriesEmphasis);
   };
-  const legend: LegendItem[] = series.map((s, k) => ({
-    name: s.name,
-    color: seriesColor(k, seriesEmphasis),
-    key: 'rect',
-  }));
+  const legend = legendFor(
+    series.map((s) => s.name),
+    series.map((_, k) => seriesColor(k, seriesEmphasis)),
+    seriesEmphasis,
+    'rect',
+  );
   const hasValues = series.some((s) => s.values.some((v) => v !== null));
   return (
     <ChartFrame
@@ -127,20 +132,35 @@ export function layoutColumns(
   const wrapped = categories.map((c) => wrapText(c, labelWidth, AXIS_SIZE));
   const maxLines = Math.max(1, ...wrapped.map((l) => l.length));
 
-  // One series of unordered names that need more than two lines: use rows.
-  if (!ordered && n === 1 && maxLines > 2) {
-    const rows = categories.map((c, i) => {
-      const v = series[0].values[i] ?? 0;
-      return {
-        label: c,
+  // Unordered names that need more than two lines, or a word broken in the
+  // middle, are drawn as rows instead: one bar per series, grouped.
+  const brokenWord = categories.some((c) =>
+    c.split(/\s+/).some((word) => textWidth(word, AXIS_SIZE) > labelWidth),
+  );
+  if (!ordered && (maxLines > 2 || brokenWord)) {
+    const rows = categories.flatMap((c, i) =>
+      series.map((s, k) => ({
+        label: k === 0 ? c : '',
         from: 0,
-        to: v,
-        color: colorOf(0, i),
-        text: formatValue(series[0].values[i] ?? null, format),
-        strong: i === categoryEmphasis,
-      };
-    });
-    return { ...layoutHBars(rows, width, { activeIndex: active }), tip };
+        to: s.values[i] ?? 0,
+        color: colorOf(k, i),
+        text: formatValue(s.values[i] ?? null, format),
+        strong: n === 1 && i === categoryEmphasis,
+        tight: k > 0,
+      })),
+    );
+    const l = layoutHBars(rows, width, { isActive: (r) => Math.floor(r / n) === active });
+    return {
+      height: l.height,
+      svg: l.svg,
+      targets: categories.map((_, i) => {
+        const first = l.targets[i * n] as Rect;
+        const last = l.targets[i * n + n - 1] as Rect;
+        return { x: 0, y: first.y, w: width, h: last.y + last.h - first.y };
+      }),
+      anchor: (i) => l.anchor(i * n),
+      tip,
+    };
   }
 
   const labelLines = ordered ? 1 : maxLines;
@@ -150,7 +170,10 @@ export function layoutColumns(
 
   // Values on the caps: the emphasised column, or every column of a single
   // series when each value fits its column.
-  const capText = (k: number, i: number) => formatCompact(series[k].values[i] as number, format);
+  const capText = (k: number, i: number) => {
+    const v = series[k].values[i] as number;
+    return (props.change && v > 0 ? '+' : '') + formatCompact(v, format);
+  };
   const labelAll =
     n === 1 &&
     categoryEmphasis < 0 &&

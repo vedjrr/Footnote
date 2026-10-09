@@ -206,7 +206,7 @@ export function layoutMultiples(
           text: formatValue(p.values[i] ?? null, format),
         })),
         panelW,
-        { domain, activeIndex: active },
+        { domain, isActive: (i) => i === active },
       ),
     );
   }

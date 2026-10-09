@@ -5,11 +5,11 @@
  * largest first. ui-ux-rules §7.
  */
 import { ChartFrame, Plot } from './frame';
-import { formatValue } from './format';
+import { formatChange, formatValue } from './format';
 import type { ValueFormat } from './format';
 import { layoutHBars } from './hbars';
 import type { HRow } from './hbars';
-import { seriesColor } from './palette';
+import { FALL, RISE, seriesColor } from './palette';
 
 export type BarItem = {
   label: string;
@@ -31,6 +31,8 @@ export type RankedBarsProps = {
   emphasis?: string;
   /** Keep the given order (for ordered categories). Default: largest first. */
   ordered?: boolean;
+  /** The values are changes: rises in series blue, falls in series orange. */
+  change?: boolean;
   empty?: string;
 };
 
@@ -40,13 +42,18 @@ export function RankedBars(props: RankedBarsProps) {
   const emphasisIndex =
     emphasis === undefined ? undefined : items.findIndex((it) => it.label === emphasis);
   const text = (it: BarItem) =>
-    it.detail ? `${formatValue(it.value, format)}  ${it.detail}` : formatValue(it.value, format);
+    props.change ? formatChange(it.value, format) : formatValue(it.value, format);
+  const color = (it: BarItem, i: number) => {
+    if (props.change) return it.value >= 0 ? RISE : FALL;
+    return emphasisIndex === undefined ? seriesColor(0) : seriesColor(i, emphasisIndex);
+  };
   const rows: HRow[] = items.map((it, i) => ({
     label: it.label,
     from: 0,
     to: it.value,
-    color: emphasisIndex === undefined ? seriesColor(0) : seriesColor(i, emphasisIndex),
+    color: color(it, i),
     text: text(it),
+    detail: it.detail,
     strong: i === emphasisIndex,
   }));
   const hasDetail = items.some((it) => it.detail);
@@ -62,21 +69,23 @@ export function RankedBars(props: RankedBarsProps) {
           props.valueName ?? 'Amount',
           ...(hasDetail ? ['Change'] : []),
         ],
-        rows: items.map((it) => [
-          it.label,
-          formatValue(it.value, format),
-          ...(hasDetail ? [it.detail ?? ''] : []),
-        ]),
+        rows: items.map((it) => [it.label, text(it), ...(hasDetail ? [it.detail ?? ''] : [])]),
       }}
     >
       <Plot
         label={props.summary}
         defaultIndex={emphasisIndex !== undefined && emphasisIndex >= 0 ? emphasisIndex : 0}
         layout={(width, active) => {
-          const l = layoutHBars(rows, width, { activeIndex: active });
+          const l = layoutHBars(rows, width, { isActive: (i) => i === active });
           return {
             ...l,
-            tip: (i) => ({ title: items[i].label, rows: [{ value: text(items[i]) }] }),
+            tip: (i) => ({
+              title: items[i].label,
+              rows: [
+                { value: text(items[i]) },
+                ...(items[i].detail ? [{ value: items[i].detail as string, name: 'change' }] : []),
+              ],
+            }),
           };
         }}
       />

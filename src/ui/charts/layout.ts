@@ -120,3 +120,74 @@ export function barPath(
 export function crisp(v: number): number {
   return Math.round(v) + 0.5;
 }
+
+export type Box = { x: number; y: number; w: number; h: number };
+export type Segment = [number, number, number, number];
+
+function cross(ax: number, ay: number, bx: number, by: number, cx: number, cy: number): number {
+  return (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
+}
+
+function segmentsCross(a: Segment, b: Segment): boolean {
+  const d1 = cross(b[0], b[1], b[2], b[3], a[0], a[1]);
+  const d2 = cross(b[0], b[1], b[2], b[3], a[2], a[3]);
+  const d3 = cross(a[0], a[1], a[2], a[3], b[0], b[1]);
+  const d4 = cross(a[0], a[1], a[2], a[3], b[2], b[3]);
+  return d1 * d2 < 0 && d3 * d4 < 0;
+}
+
+/** Whether a line segment passes through a box. */
+export function segmentHitsBox(s: Segment, b: Box): boolean {
+  const inside = (x: number, y: number) => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+  if (inside(s[0], s[1]) || inside(s[2], s[3])) return true;
+  const x1 = b.x + b.w;
+  const y1 = b.y + b.h;
+  const edges: Segment[] = [
+    [b.x, b.y, x1, b.y],
+    [x1, b.y, x1, y1],
+    [x1, y1, b.x, y1],
+    [b.x, y1, b.x, b.y],
+  ];
+  return edges.some((e) => segmentsCross(s, e));
+}
+
+function boxesOverlap(a: Box, b: Box): boolean {
+  return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+}
+
+/**
+ * Places a label of `w` by `h` next to a point so that it stays inside
+ * `bounds` and touches no line and no other label. Tries above, below,
+ * then the sides and corners. Returns the box, or null when nothing fits:
+ * the value is then left to the tooltip and the table.
+ */
+export function placeLabel(
+  point: { x: number; y: number },
+  w: number,
+  h: number,
+  { bounds, lines, avoid }: { bounds: Box; lines: Segment[]; avoid: Box[] },
+): Box | null {
+  const g = 8;
+  const { x, y } = point;
+  const candidates: Box[] = [
+    { x: x - w / 2, y: y - g - h, w, h },
+    { x: x - w / 2, y: y + g, w, h },
+    { x: x - g - w, y: y - h / 2, w, h },
+    { x: x + g, y: y - h / 2, w, h },
+    { x: x - g / 2 - w, y: y - g / 2 - h, w, h },
+    { x: x + g / 2, y: y - g / 2 - h, w, h },
+    { x: x - g / 2 - w, y: y + g / 2, w, h },
+    { x: x + g / 2, y: y + g / 2, w, h },
+  ];
+  for (const raw of candidates) {
+    // Slide along x to stay inside the bounds, as long as it still sits by the point.
+    const cx = Math.max(bounds.x, Math.min(bounds.x + bounds.w - raw.w, raw.x));
+    const c = Math.abs(cx - raw.x) <= w / 2 ? { ...raw, x: cx } : raw;
+    if (c.x < bounds.x || c.y < bounds.y) continue;
+    if (c.x + c.w > bounds.x + bounds.w || c.y + c.h > bounds.y + bounds.h) continue;
+    if (avoid.some((a) => boxesOverlap(a, c))) continue;
+    if (lines.some((s) => segmentHitsBox(s, c))) continue;
+    return c;
+  }
+  return null;
+}
