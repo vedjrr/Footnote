@@ -90,10 +90,33 @@ const boundaries = [
   },
 ];
 
+// One formatter (analytics-spec §9.2): numbers and dates become text only in
+// core/narrative/format.ts. Tests may format their own messages.
+const oneFormatter = {
+  files: ['src/**/*.{ts,tsx}'],
+  ignores: ['src/core/narrative/format.ts', 'src/**/*.test.ts', 'src/**/*.test.tsx'],
+  rules: {
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector:
+          'CallExpression[callee.property.name=/^(toFixed|toPrecision|toLocaleString|toLocaleDateString|toLocaleTimeString)$/]',
+        message: 'Format numbers and dates with core/narrative/format.ts (analytics-spec §9.2).',
+      },
+      {
+        selector:
+          "MemberExpression[object.name='Intl'][property.name=/^(NumberFormat|DateTimeFormat|RelativeTimeFormat|PluralRules)$/]",
+        message: 'Format numbers and dates with core/narrative/format.ts (analytics-spec §9.2).',
+      },
+    ],
+  },
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   ...boundaries,
+  oneFormatter,
   prettier,
   globalIgnores([
     '.next/**',
