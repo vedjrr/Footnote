@@ -1,0 +1,599 @@
+{
+  "runs": [
+    {
+      "mode": "keyless",
+      "set": "dev",
+      "runAt": "2026-10-10T16:36:29.724Z",
+      "commit": "26229db",
+      "dirty": false,
+      "modelId": null,
+      "engineVersion": "duckdb v1.5.6 (node-api)",
+      "headline": {
+        "questions": 50,
+        "correct": 2,
+        "wrong": 0,
+        "overCautious": 48,
+        "overConfident": 0,
+        "error": 0,
+        "correctRate": 0.04,
+        "wrongAnswerRate": 0,
+        "coverage": 0,
+        "rawSqlShare": null,
+        "groundingRejectionRate": null,
+        "modelCalls": 0
+      },
+      "byCategory": {
+        "single": {
+          "questions": 7,
+          "correct": 0,
+          "wrong": 0,
+          "overCautious": 7,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0,
+          "wrongAnswerRate": 0,
+          "coverage": 0,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        },
+        "ranking": {
+          "questions": 8,
+          "correct": 0,
+          "wrong": 0,
+          "overCautious": 8,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0,
+          "wrongAnswerRate": 0,
+          "coverage": 0,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        },
+        "trend": {
+          "questions": 6,
+          "correct": 0,
+          "wrong": 0,
+          "overCautious": 6,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0,
+          "wrongAnswerRate": 0,
+          "coverage": 0,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        },
+        "comparison": {
+          "questions": 6,
+          "correct": 0,
+          "wrong": 0,
+          "overCautious": 6,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0,
+          "wrongAnswerRate": 0,
+          "coverage": 0,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        },
+        "ratio": {
+          "questions": 6,
+          "correct": 0,
+          "wrong": 0,
+          "overCautious": 6,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0,
+          "wrongAnswerRate": 0,
+          "coverage": 0,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        },
+        "filters": {
+          "questions": 5,
+          "correct": 0,
+          "wrong": 0,
+          "overCautious": 5,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0,
+          "wrongAnswerRate": 0,
+          "coverage": 0,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        },
+        "conditions": {
+          "questions": 4,
+          "correct": 0,
+          "wrong": 0,
+          "overCautious": 4,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0,
+          "wrongAnswerRate": 0,
+          "coverage": 0,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        },
+        "change": {
+          "questions": 4,
+          "correct": 0,
+          "wrong": 0,
+          "overCautious": 4,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0,
+          "wrongAnswerRate": 0,
+          "coverage": 0,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        },
+        "ambiguous": {
+          "questions": 2,
+          "correct": 0,
+          "wrong": 0,
+          "overCautious": 2,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0,
+          "wrongAnswerRate": 0,
+          "coverage": null,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        },
+        "unanswerable": {
+          "questions": 2,
+          "correct": 2,
+          "wrong": 0,
+          "overCautious": 0,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 1,
+          "wrongAnswerRate": 0,
+          "coverage": null,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        }
+      },
+      "byDataset": {
+        "retail": {
+          "questions": 18,
+          "correct": 1,
+          "wrong": 0,
+          "overCautious": 17,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0.05555555555555555,
+          "wrongAnswerRate": 0,
+          "coverage": 0,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        },
+        "saas": {
+          "questions": 17,
+          "correct": 1,
+          "wrong": 0,
+          "overCautious": 16,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0.058823529411764705,
+          "wrongAnswerRate": 0,
+          "coverage": 0,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        },
+        "support": {
+          "questions": 15,
+          "correct": 0,
+          "wrong": 0,
+          "overCautious": 15,
+          "overConfident": 0,
+          "error": 0,
+          "correctRate": 0,
+          "wrongAnswerRate": 0,
+          "coverage": 0,
+          "rawSqlShare": null,
+          "groundingRejectionRate": null,
+          "modelCalls": 0
+        }
+      },
+      "notCorrect": [
+        {
+          "id": "retail-001",
+          "dataset": "retail",
+          "category": "single",
+          "question": "What was revenue in February 2025?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-002",
+          "dataset": "retail",
+          "category": "single",
+          "question": "How many orders did we take in 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-003",
+          "dataset": "retail",
+          "category": "single",
+          "question": "Total units sold last month",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-005",
+          "dataset": "retail",
+          "category": "ranking",
+          "question": "Top 5 sub-categories by revenue in Q4 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-006",
+          "dataset": "retail",
+          "category": "ranking",
+          "question": "Which channel brought in the most gross profit in 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-007",
+          "dataset": "retail",
+          "category": "ranking",
+          "question": "Rank the product categories by average order value for 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-010",
+          "dataset": "retail",
+          "category": "trend",
+          "question": "Monthly revenue in 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-011",
+          "dataset": "retail",
+          "category": "trend",
+          "question": "How has margin moved month by month over the last 12 months?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-014",
+          "dataset": "retail",
+          "category": "comparison",
+          "question": "Revenue this month vs the same month last year",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-015",
+          "dataset": "retail",
+          "category": "comparison",
+          "question": "Did we sell more units in February 2025 than in January 2025?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-018",
+          "dataset": "retail",
+          "category": "ratio",
+          "question": "Return rate by category in Q4 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-019",
+          "dataset": "retail",
+          "category": "ratio",
+          "question": "What was the average selling price in each category last year?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-022",
+          "dataset": "retail",
+          "category": "filters",
+          "question": "units sold through the marketplace last month",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-023",
+          "dataset": "retail",
+          "category": "filters",
+          "question": "electronics takings jan 25",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-025",
+          "dataset": "retail",
+          "category": "conditions",
+          "question": "Revenue by channel for Kitchen in the second half of 2024, leaving out returned lines",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "retail-027",
+          "dataset": "retail",
+          "category": "change",
+          "question": "Where did the March 2025 drop in electronics revenue come from?",
+          "label": "over-cautious",
+          "reason": "decline; expected change"
+        },
+        {
+          "id": "retail-029",
+          "dataset": "retail",
+          "category": "ambiguous",
+          "question": "How are sales doing?",
+          "label": "over-cautious",
+          "reason": "decline; expected clarify"
+        },
+        {
+          "id": "saas-001",
+          "dataset": "saas",
+          "category": "single",
+          "question": "What was our MRR in 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-002",
+          "dataset": "saas",
+          "category": "single",
+          "question": "How many active accounts did we have in June 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-004",
+          "dataset": "saas",
+          "category": "ranking",
+          "question": "Which plan had the most seats in Q3 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-005",
+          "dataset": "saas",
+          "category": "ranking",
+          "question": "Rank industries by MRR for 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-006",
+          "dataset": "saas",
+          "category": "ranking",
+          "question": "Top 2 regions for new sign-ups in 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-009",
+          "dataset": "saas",
+          "category": "trend",
+          "question": "MRR by month over 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-010",
+          "dataset": "saas",
+          "category": "trend",
+          "question": "Quarterly MRR across the whole history",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-012",
+          "dataset": "saas",
+          "category": "comparison",
+          "question": "MRR in December 2024 compared with December 2023",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-013",
+          "dataset": "saas",
+          "category": "comparison",
+          "question": "Paid seats this year versus last year",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-015",
+          "dataset": "saas",
+          "category": "ratio",
+          "question": "Churn rate by plan in November 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-016",
+          "dataset": "saas",
+          "category": "ratio",
+          "question": "What was MRR per account in 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-018",
+          "dataset": "saas",
+          "category": "filters",
+          "question": "enterprise mrr in emea last month",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-019",
+          "dataset": "saas",
+          "category": "filters",
+          "question": "how many signups came from paid search in 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-021",
+          "dataset": "saas",
+          "category": "conditions",
+          "question": "MRR by plan for APAC accounts that came through partners, Q4 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-022",
+          "dataset": "saas",
+          "category": "conditions",
+          "question": "Churned Starter accounts in EMEA during 2024, split by signup channel",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "saas-023",
+          "dataset": "saas",
+          "category": "change",
+          "question": "Why did the churn rate jump in December 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected change"
+        },
+        {
+          "id": "support-001",
+          "dataset": "support",
+          "category": "single",
+          "question": "How many tickets came in during July 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-002",
+          "dataset": "support",
+          "category": "single",
+          "question": "What was customer satisfaction across 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-004",
+          "dataset": "support",
+          "category": "ranking",
+          "question": "Which ticket category had the worst CSAT in Q3 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-005",
+          "dataset": "support",
+          "category": "ranking",
+          "question": "Top 3 contact reasons by number of tickets in the first half of 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-006",
+          "dataset": "support",
+          "category": "trend",
+          "question": "Monthly ticket volume in 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-007",
+          "dataset": "support",
+          "category": "trend",
+          "question": "Weekly SLA breach rate for the Technical team in Q4 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-009",
+          "dataset": "support",
+          "category": "comparison",
+          "question": "Tickets in December 2024 vs November 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-010",
+          "dataset": "support",
+          "category": "comparison",
+          "question": "Was satisfaction better in Q4 than in Q3 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-012",
+          "dataset": "support",
+          "category": "ratio",
+          "question": "SLA breach rate by team in December 2024",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-013",
+          "dataset": "support",
+          "category": "ratio",
+          "question": "What proportion of tickets got reopened, per channel, in 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-015",
+          "dataset": "support",
+          "category": "filters",
+          "question": "phone tickets about refunds in august",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-017",
+          "dataset": "support",
+          "category": "conditions",
+          "question": "Average resolution time for urgent technical tickets by channel",
+          "label": "over-cautious",
+          "reason": "decline; expected answer"
+        },
+        {
+          "id": "support-019",
+          "dataset": "support",
+          "category": "change",
+          "question": "What drove the rise in SLA breach rate in December 2024?",
+          "label": "over-cautious",
+          "reason": "decline; expected change"
+        },
+        {
+          "id": "support-020",
+          "dataset": "support",
+          "category": "change",
+          "question": "Why did CSAT fall in November?",
+          "label": "over-cautious",
+          "reason": "decline; expected change"
+        },
+        {
+          "id": "support-021",
+          "dataset": "support",
+          "category": "ambiguous",
+          "question": "How quick are we on urgent tickets?",
+          "label": "over-cautious",
+          "reason": "decline; expected clarify"
+        }
+      ]
+    }
+  ]
+}
