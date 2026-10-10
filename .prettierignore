@@ -10,3 +10,6 @@ tests/parity/expected.json
 
 # written by npm run data:generate, compared by the truth tests
 data/demo/
+
+# written by npm run eval, never edited by hand (evals §8)
+eval/results/

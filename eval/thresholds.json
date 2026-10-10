@@ -1,0 +1,8 @@
+{
+  "keyless": {
+    "dev": { "minCorrectRate": 0.04, "maxWrongAnswerRate": 0, "minCoverage": 0 },
+    "holdout": null
+  },
+  "ai": { "dev": null, "holdout": null },
+  "baseline": { "dev": null, "holdout": null }
+}
