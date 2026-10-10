@@ -837,6 +837,37 @@ Format for a new decision:
   evals §8 names); showing correct rate as a percentage (a second form
   of the same figure, and the test would need to model the rounding).
 
+### D-043 Key changes: two queries per metric, points, and the score's share term
+- Date: 2026-10-10, task T40
+- Decision:
+  - Each metric runs two compiled queries. `series` holds every complete
+    period from the first to the current one (an absolute range, so the
+    spec reproduces it exactly), and the normal-range label is worked
+    out from its cells. `compare` is `period` offset N with
+    `previous_period`. The current, previous, change and percent change
+    facts are cells of `compare`, so a sentence's numbers come from SQL,
+    not from subtraction in TypeScript. A test checks that the two
+    queries agree.
+  - "Ratio metrics report the change in points" (§5.1) is read as
+    metrics whose format style is `percent`, which is also how the
+    answer sentence decides (D-039). A ratio shown as currency, such as
+    average order value, is reported in percent.
+  - A period with no rows in the series is empty (null), not 0. Changes
+    that touch it are left out of the history. If the current value is
+    empty, the change is not assessed (`missing_value`). If the history
+    has no spread, it is not assessed either (`no_spread`). Only
+    `short_history` gets the "too little history" sentence.
+  - "Little changed" is a flag next to the label. A change can be little
+    changed and still unusual against its history (retail discount rate,
+    January 2025). T44 decides what to say then.
+  - The §7 score's top-segment share term is 0 until T41 works out the
+    segments. `scoreKeyChange` takes `topShare` so T41 or T44 can rescore.
+  - `keyChanges` takes `grain` and `offset` options, so tests can judge
+    earlier periods and other grains. The briefing uses the defaults.
+- Considered: one series query and computing change in TypeScript (the
+  numbers shown would not be SQL cells); reading points from
+  `kind: ratio` (would report average order value in points).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.

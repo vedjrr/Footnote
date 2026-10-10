@@ -55,7 +55,7 @@ Phase 3, evals before AI
 - [x] T32 Accuracy page
 
 Phase 4, briefing
-- [ ] T40 Key changes
+- [x] T40 Key changes
 - [ ] T41 Where a change came from: additive metrics
 - [ ] T42 Where a change came from: mix and rate
 - [ ] T43 Unusual points, runs, concentration and caveats

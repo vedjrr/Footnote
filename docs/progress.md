@@ -10,27 +10,28 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T32 Accuracy page (done)
-- Next task: T40 Key changes
+- Last finished task: T40 Key changes (done)
+- Next task: T41 Where a change came from: additive metrics
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   and files (`file-1`, ...), `/open`, `/accuracy`, `/about`;
   `/styleguide`, `/dev/engine`, `/dev/answer` outside the shell.
-  `npm run check` (478 tests) and `npm run build` pass (T32);
-  `npm run test:e2e` (44) last run T24.
+  `npm run check` (502 tests) passes (T40); `npm run build` last run
+  T32; `npm run test:e2e` (44) last run T24.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
   `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
   page's one engine, the samples, the user's files and `time` facts.
 - Query: `compile`, `checkResult` C1 to C8, `guardSql`/`withTimeout`.
   Answers: `runAnswer` in `core/ask/answer.ts`; Ask view runs starters.
+- Findings: `core/findings/finding.ts` (`Finding`, facts cite a query id
+  and cell); `keyChanges(model, engine, time, {grain, offset})` in
+  `changes.ts`; every threshold in `findings/constants.ts`; robust z in
+  `stats.ts` (D-043).
 - Narrative: `core/narrative/format.ts` is the one formatter (lint
   enforced); `chooseChart` (D-038). Charts in `src/ui/charts`.
-- Evals: 80 goldens (D-040). `npm run eval -- --mode keyless --set dev`
-  writes `eval/results/` (D-041; summary has `goldens`, D-042). Keyless
-  only declines until T51: 2/50 correct, 0 wrong. `/accuracy` is
-  prerendered from `summary.json` (`features/accuracy`); rebuild after
-  any eval run.
+- Evals: 80 goldens (D-040), runner D-041/D-042. Keyless declines only
+  until T51 (2/50). `/accuracy` is prerendered from `summary.json`.
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
   The retail profile timing test can exceed 1 s under load; rerun.
@@ -38,7 +39,7 @@ each new session automatically, so it must be enough to start from.
   in `tests/` and need adding to `include` in `vitest.config.mts`.
   `.fn-table th` sets `nowrap` unlayered: Tailwind needs `!` to beat it.
   Open questions Q-02, Q-05, Q-09, Q-10, Q-12.
-- Updated: 2026-10-10, T32
+- Updated: 2026-10-10, T40
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -75,6 +76,37 @@ Template:
 ```
 
 ## Log
+
+### T40 Key changes
+- Date: 2026-10-10
+- Outcome: done
+- What changed: `core/findings/constants.ts` (§1, §5.1 and §7 numbers),
+  `stats.ts` (`median`, `robustZ`), `finding.ts` (`Finding`,
+  `FindingQuery`, `FindingFact`, `KeyChange`, `ChangeAssessment`),
+  `changes.ts` (`assessChange`, `normalRange`, `scoreKeyChange`,
+  `keyChanges`). `periods.ts` now uses the shared `median`. Unit tests
+  next to the code; engine tests in `tests/findings/key-changes.test.ts`
+  (added to vitest `include`).
+- Verified: `npm run check`: 502 passed. `npx vitest run tests/findings`:
+  9 passed. Retail March 2025 revenue: larger than usual (z -2.62,
+  seasonal), -8.0%. December 2024: normal (z 0.80). January 2025: -30.5%
+  but normal (z -0.50). Retail by year: not assessed (2 periods).
+  Saas churn rate z 17.9 and support SLA breach rate z 163: unusually
+  large. Support by quarter: not assessed. Every fact equals its cell,
+  and the series' last value equals the compare query's current value.
+  Mutations: month season set to null failed the March and December
+  tests. `Z_LARGER` 3 failed the March test. Both restored.
+- Decisions: D-043
+- Differs from the spec: points apply to percent-format metrics (D-043).
+- Not done: nothing
+- For the next agent: the score's top-share term is 0 until T41; call
+  `scoreKeyChange({ assessment, importance, topShare })` again once it
+  is known. Retail December 2024 flags return rate, margin and
+  discount rate as unusually large (R3, R6 and R2 are planted there);
+  support December flags average CSAT (z 18.7, +2.1%) because CSAT is
+  very steady month to month. T44's ranking will surface these.
+- Ved should know: nothing
+- Commits: daaa800..(this handoff)
 
 ### T32 Accuracy page
 - Date: 2026-10-10
