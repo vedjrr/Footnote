@@ -14,7 +14,7 @@
 // | a series per value of a split           | the highest value in the latest period    |
 // | one split                               | the top value and the one after it        |
 // | one split with a comparison             | the value that changed the most           |
-// | anything else                           | no numbers; the table holds them          |
+// | anything else                           | no numbers; the chart or table holds them |
 
 import type { Cell, QueryResult } from '@/core/engine/types';
 import { type TimeFacts, isComplete } from '@/core/findings/periods';
@@ -288,7 +288,7 @@ export function writeSentence(ctx: Ctx): Sentence {
   const labels = metrics.map((m, i) => (i ? inSentence(m.label) : m.label));
   const by = spec.by.map((d) => inSentence(dimLabel(d)));
   say(
-    `The table shows ${inSentence(labels.join(' and '))}`,
+    `Here is ${inSentence(labels.join(' and '))}`,
     by.length ? ` by ${by.join(' and ')}` : '',
     grain ? ` for each ${grain}` : '',
     where ? ` ${where}` : '',

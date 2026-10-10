@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { formatDay, formatInteger } from '@/core/narrative/format';
+import { currentPeriod } from '@/core/findings/periods';
+import { formatDay, formatInteger, formatPeriod } from '@/core/narrative/format';
 import { viewHref } from '@/features/shell/routes';
 import { useHealth, type HealthState, type LoadedSample, type Workspace } from './workspace-store';
 
@@ -30,6 +31,7 @@ export function GlancePaper({
         ['Days covered', dayRange(data)],
         ['Columns', formatInteger(data.glance.columns)],
         ['Dated by', data.model.time?.column ?? 'No date column'],
+        ...latest(data),
         ['Data health', <HealthSummary key="health" workspace={workspace} health={health} />],
       ]
     : [];
@@ -51,12 +53,21 @@ export function GlancePaper({
       ) : (
         <p className="text-ink-2">Waiting for the data to load.</p>
       )}
-      <p className="text-ink-2">The period being reported will be added here.</p>
       {marks && data && (
         <p className="text-ink-2">Select a numbered mark to see how that number was worked out.</p>
       )}
     </div>
   );
+}
+
+/** The latest complete period at the data's own grain: what "last month" means here. */
+function latest(data: LoadedSample): [string, ReactNode][] {
+  const time = data.model.time;
+  if (!time || !data.time) return [];
+  const period = currentPeriod(time.defaultGrain, data.time);
+  return period
+    ? [[`Latest complete ${time.defaultGrain}`, formatPeriod(period, time.defaultGrain)]]
+    : [];
 }
 
 function HealthSummary({

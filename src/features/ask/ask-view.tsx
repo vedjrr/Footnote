@@ -199,9 +199,13 @@ function Thread({
           <ul className="flex flex-col items-start gap-1">
             {starters.map((s) => (
               <li key={s.label}>
-                <Button variant="quiet" className="type-body text-left" onClick={() => ask(s)}>
+                <button
+                  type="button"
+                  className="min-h-8 rounded-sm text-left type-body text-mark underline-offset-3 decoration-1 hover:underline"
+                  onClick={() => ask(s)}
+                >
                   {s.label}
-                </Button>
+                </button>
               </li>
             ))}
           </ul>

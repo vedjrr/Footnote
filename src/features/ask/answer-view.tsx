@@ -56,6 +56,14 @@ export function AnswerView({
           ] ?? '',
         ) || undefined
       : undefined;
+  // On a line, the period the sentence names besides the last one (the line
+  // labels its end): the highest point, or else the first.
+  const periodAt = answer.compiled.columns.findIndex((c) => c.name === 'period');
+  const lastRow = answer.result.rowCount - 1;
+  const named = facts.filter((f) => f.cell.row !== lastRow && periodAt !== -1);
+  const markPeriod = named.length
+    ? String(answer.result.rows[named[named.length - 1].cell.row][periodAt])
+    : undefined;
   const paperButton = (
     <Button variant="quiet" className="self-start" onClick={() => select(firstNote)}>
       Show the working paper
@@ -106,6 +114,7 @@ export function AnswerView({
               model={model}
               summary={summary || answer.question}
               emphasis={emphasis}
+              markPeriod={markPeriod}
             />
           </div>
         </>

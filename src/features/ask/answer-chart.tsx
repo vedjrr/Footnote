@@ -35,6 +35,7 @@ export function AnswerChart({
   model,
   summary,
   emphasis,
+  markPeriod,
 }: {
   answer: Answer;
   model: SemanticModel;
@@ -42,6 +43,8 @@ export function AnswerChart({
   summary: string;
   /** The split value the sentence is about. */
   emphasis?: string;
+  /** A period the sentence names, labelled on a line. */
+  markPeriod?: string;
 }) {
   const { chart: plan, compiled, result, spec } = answer;
   const index = (name: string) => compiled.columns.findIndex((c) => c.name === name);
@@ -97,6 +100,7 @@ export function AnswerChart({
           }))}
           format={format}
           emphasis={emphasis}
+          mark={markPeriod === undefined ? undefined : keys.indexOf(markPeriod)}
         />
       );
     }

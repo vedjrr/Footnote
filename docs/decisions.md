@@ -681,6 +681,44 @@ Format for a new decision:
   the browser; a dimension flag for ordered categories in the dictionary
   (a schema change for one sort order).
 
+### D-039 Answers: sentence shapes, linked cells and the working paper
+- Date: 2026-10-10, task T24
+- Decision:
+  - `runAnswer` (`core/ask/answer.ts`) compiles, runs (5 s timeout),
+    checks, chooses a chart and writes the sentence. The sentence
+    (`core/narrative/answer-sentence.ts`) has one template per shape:
+    totals, totals with a comparison, a series (first, last, highest), a
+    series per split value (highest in the latest period), one split
+    (top two when sorted on the metric, else the top one), one split with
+    a comparison (the value whose change is largest in absolute terms),
+    and anything else (no numbers; the chart or table holds them). Each
+    number is a fact naming a result row and column; picking the largest
+    row chooses a cell and never makes a number.
+  - A series whose last period is not complete ends its sentence at the
+    last complete period and says the latest one is not complete. A
+    partial week read as a fall otherwise (tickets by week: 776 to 286).
+  - Notes are numbered through the whole Ask page. An answer with no
+    numbers, or one whose check failed, still takes one note, opened by
+    "Show the working paper", so its SQL and checks are reachable.
+  - Checks belong to the whole result, so a caution applies to every
+    number in it. The caution icon sits on the first mark only, and the
+    caution sentence is shown once under the answer; every mark's
+    accessible name still carries it. An icon on every mark was noisy.
+  - Working paper result table: eight rows that include the linked cell
+    (the first eight, or a window around it), "Show all" for the rest.
+    The unit is in the column header, not after every value. Money with
+    no `decimals` shows two in full values so a column lines up.
+  - "Rows behind it" narrows the answer's base rows to the cell's split
+    values, period and side of the comparison (a change looks at both
+    sides), and shows five rows, the count and both statements.
+  - `/dev/answer` (not in production builds) offers questions the
+    starters do not reach, such as a filter value that does not exist,
+    so the failed-check state is tested end to end.
+- Considered: the caution icon on every mark (the rule's literal reading;
+  three icons in one sentence); scrolling a 27-row result to the cell
+  (lost the header on phones); one statement with a window count for
+  the rows behind (adds a column the table does not want).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
