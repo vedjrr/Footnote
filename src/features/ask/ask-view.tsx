@@ -60,7 +60,14 @@ function noteOwners(entries: Entry[]): Map<number, NoteOwner> {
   return owners;
 }
 
-export function AskView({ workspaceId }: { workspaceId: string }) {
+export function AskView({
+  workspaceId,
+  questions,
+}: {
+  workspaceId: string;
+  /** Questions to offer instead of the dictionary's starters (the test page uses this). */
+  questions?: Starter[];
+}) {
   const { workspace, state } = useWorkspace(workspaceId);
   const data = state.status === 'ready' ? state.data : null;
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -116,7 +123,13 @@ export function AskView({ workspaceId }: { workspaceId: string }) {
           </div>
         )}
         {data && (
-          <Thread workspace={workspace} data={data} entries={entries} setEntries={setEntries} />
+          <Thread
+            workspace={workspace}
+            data={data}
+            starters={questions ?? data.model.starters}
+            entries={entries}
+            setEntries={setEntries}
+          />
         )}
       </div>
     </WorkspacePage>
@@ -128,15 +141,16 @@ let nextId = 1;
 function Thread({
   workspace,
   data,
+  starters,
   entries,
   setEntries,
 }: {
   workspace: Workspace;
   data: LoadedSample;
+  starters: Starter[];
   entries: Entry[];
   setEntries: (update: (entries: Entry[]) => Entry[]) => void;
 }) {
-  const starters = data.model.starters;
   const focusId = useRef<number | null>(null);
   const headings = useRef(new Map<number, HTMLHeadingElement>());
 
