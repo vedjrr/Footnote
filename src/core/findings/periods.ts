@@ -7,6 +7,7 @@ import type { QueryResult } from '@/core/engine/types';
 import type { Grain } from '@/core/model/types';
 import { quoteColumn, quoteTable } from '@/core/profile/profile';
 import type { TimeRange } from '@/core/query/spec';
+import { median } from './stats';
 
 /** The distinct days in the time column, as sorted ISO dates. */
 export interface TimeFacts {
@@ -121,12 +122,6 @@ export function defaultGrain(min: string, max: string): Grain {
   if (days >= MONTH_GRAIN_DAYS) return 'month';
   if (days >= WEEK_GRAIN_DAYS) return 'week';
   return 'day';
-}
-
-function median(xs: number[]): number {
-  const s = [...xs].sort((a, b) => a - b);
-  const mid = Math.floor(s.length / 2);
-  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 }
 
 /** Distinct days with data in each period, from the first period to the last. */
