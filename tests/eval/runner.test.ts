@@ -203,6 +203,8 @@ describe('result files', () => {
     expect(summary.runs.map((r) => r.set)).toEqual(['dev', 'holdout']);
     const [dev, holdout] = summary.runs;
     expect(dev.headline.questions).toBe(50);
+    expect(summary.goldens).toEqual({ dev: 50, holdout: 30 });
+    expect(dev.notCorrect!.every((q) => q.kind === 'decline' && q.expect !== 'decline')).toBe(true);
     expect(dev.notCorrect).toHaveLength(dev.headline.questions - dev.headline.correct);
     expect(holdout.notCorrect).toBeNull();
     expect(dev).not.toHaveProperty('records');

@@ -12,7 +12,16 @@ import type { Cell, QueryEngine } from '@/core/engine/types';
 import type { SemanticModel } from '@/core/model/types';
 import { parseModelYaml } from '@/core/model/yaml';
 import { withTimeout } from '@/core/query/guard';
-import { CATEGORIES, type Category, type Dataset, type LoadedGolden, type Split } from './goldens';
+import {
+  CATEGORIES,
+  type Category,
+  type Dataset,
+  type Golden,
+  type LoadedGolden,
+  SPLITS,
+  type Split,
+  loadGoldens,
+} from './goldens';
 import {
   type Headline,
   type Label,
@@ -253,6 +262,8 @@ export const RESULTS_DIR = join(process.cwd(), 'eval', 'results');
 const RUN_FILE = /^(keyless|ai|baseline)-(dev|holdout)\.json$/;
 
 export interface Summary {
+  /** How many goldens each split holds, run or not. */
+  goldens: Record<Split, number>;
   runs: Array<
     Omit<RunFile, 'records'> & {
       /** The questions not answered correctly; null for holdout, whose failures are not read (§3.2). */
@@ -261,6 +272,9 @@ export interface Summary {
         dataset: Dataset;
         category: Category;
         question: string;
+        expect: Golden['expect'];
+        /** The reply's kind, or `error` when the answerer failed. */
+        kind: Scored['kind'];
         label: Label;
         reason: string | null;
       }> | null;
@@ -269,9 +283,11 @@ export interface Summary {
 }
 
 /** The summary of every run file present, so one mode's run keeps the others. */
-export function buildSummary(runs: RunFile[]): Summary {
+export function buildSummary(runs: RunFile[], goldens: readonly LoadedGolden[]): Summary {
   const key = (r: RunFile) => MODES.indexOf(r.mode) * 2 + (r.set === 'dev' ? 0 : 1);
+  const count = (set: Split) => goldens.filter((g) => g.split === set).length;
   return {
+    goldens: Object.fromEntries(SPLITS.map((set) => [set, count(set)])) as Record<Split, number>,
     runs: [...runs]
       .sort((a, b) => key(a) - key(b))
       .map(({ records, ...run }) => ({
@@ -281,13 +297,15 @@ export function buildSummary(runs: RunFile[]): Summary {
             ? null
             : records
                 .filter((r) => r.label !== 'correct')
-                .map(({ id, dataset, category, question, label, reason }) => ({
+                .map(({ id, dataset, category, question, expect, kind, label, reason, error }) => ({
                   id,
                   dataset,
                   category,
                   question,
+                  expect,
+                  kind,
                   label,
-                  reason,
+                  reason: reason ?? error,
                 })),
       })),
   };
@@ -303,6 +321,6 @@ export function writeResults(run: RunFile, dir = RESULTS_DIR): string {
   const runs = readdirSync(dir)
     .filter((f) => RUN_FILE.test(f))
     .map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8')) as RunFile);
-  writeFileSync(join(dir, 'summary.json'), json(buildSummary(runs)));
+  writeFileSync(join(dir, 'summary.json'), json(buildSummary(runs, loadGoldens())));
   return path;
 }
