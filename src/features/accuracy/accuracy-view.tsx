@@ -206,7 +206,7 @@ function TypeTable({ runs }: { runs: Run[] }) {
           ))}
           <tr>
             <th scope="row">All types</th>
-            <td className="num">{formatInteger(runs[0].headline.questions)}</td>
+            <td className="num font-medium">{formatInteger(runs[0].headline.questions)}</td>
             {runs.flatMap((r) =>
               cells(r.headline).map((n, i) => (
                 <td key={`${r.mode}-${i}`} className="num font-medium">
