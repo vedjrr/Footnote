@@ -1,0 +1,183 @@
+# Golden questions, support sample "Kettle Helpdesk" (table tickets), dev
+# split. One row is one ticket, dated by created_at. CSAT is averaged over
+# rated tickets only. Data now is 2024-12-31, so "last month" is December 2024
+# (D-040).
+
+- id: support-001
+  category: single
+  question: How many tickets came in during July 2024?
+  expect: answer
+  reference_sql: |
+    SELECT COUNT(*) AS tickets
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-07-01' AND created_at < TIMESTAMP '2024-08-01'
+  ordered: false
+
+- id: support-002
+  category: single
+  question: What was customer satisfaction across 2024?
+  expect: answer
+  reference_sql: |
+    SELECT AVG(csat) AS average_csat
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-01-01' AND created_at < TIMESTAMP '2025-01-01'
+  ordered: false
+  notes: Average rating over rated tickets; unrated tickets are left out.
+
+- id: support-004
+  category: ranking
+  question: Which ticket category had the worst CSAT in Q3 2024?
+  expect: answer
+  reference_sql: |
+    SELECT category, AVG(csat) AS average_csat
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-07-01' AND created_at < TIMESTAMP '2024-10-01'
+    GROUP BY category
+    ORDER BY average_csat ASC
+    LIMIT 1
+  ordered: true
+
+- id: support-005
+  category: ranking
+  question: Top 3 contact reasons by number of tickets in the first half of 2024
+  expect: answer
+  reference_sql: |
+    SELECT category, COUNT(*) AS tickets
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-01-01' AND created_at < TIMESTAMP '2024-07-01'
+    GROUP BY category
+    ORDER BY tickets DESC
+    LIMIT 3
+  ordered: true
+  notes: Contact reason is the category column.
+
+- id: support-006
+  category: trend
+  question: Monthly ticket volume in 2024
+  expect: answer
+  reference_sql: |
+    SELECT CAST(date_trunc('month', created_at) AS DATE) AS month, COUNT(*) AS tickets
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-01-01' AND created_at < TIMESTAMP '2025-01-01'
+    GROUP BY month
+    ORDER BY month
+  ordered: true
+
+- id: support-007
+  category: trend
+  question: Weekly SLA breach rate for the Technical team in Q4 2024
+  expect: answer
+  reference_sql: |
+    SELECT CAST(date_trunc('week', created_at) AS DATE) AS week,
+           CAST(SUM(CASE WHEN sla_breached THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*)
+             AS sla_breach_rate
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-10-01' AND created_at < TIMESTAMP '2025-01-01'
+      AND team = 'Technical'
+    GROUP BY week
+    ORDER BY week
+  ordered: true
+  notes: >-
+    Weeks start on Monday, so the first week is dated 30 September and holds
+    1 to 6 October only.
+
+- id: support-009
+  category: comparison
+  question: Tickets in December 2024 vs November 2024
+  expect: answer
+  reference_sql: |
+    SELECT
+      COUNT(*) FILTER (WHERE created_at >= TIMESTAMP '2024-12-01' AND created_at < TIMESTAMP '2025-01-01')
+        AS tickets_current,
+      COUNT(*) FILTER (WHERE created_at >= TIMESTAMP '2024-11-01' AND created_at < TIMESTAMP '2024-12-01')
+        AS tickets_previous
+    FROM tickets
+  ordered: false
+
+- id: support-010
+  category: comparison
+  question: Was satisfaction better in Q4 than in Q3 2024?
+  expect: answer
+  reference_sql: |
+    SELECT
+      AVG(csat) FILTER (WHERE created_at >= TIMESTAMP '2024-10-01' AND created_at < TIMESTAMP '2025-01-01')
+        AS average_csat_current,
+      AVG(csat) FILTER (WHERE created_at >= TIMESTAMP '2024-07-01' AND created_at < TIMESTAMP '2024-10-01')
+        AS average_csat_previous
+    FROM tickets
+  ordered: false
+
+- id: support-012
+  category: ratio
+  question: SLA breach rate by team in December 2024
+  expect: answer
+  reference_sql: |
+    SELECT team,
+           CAST(SUM(CASE WHEN sla_breached THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*)
+             AS sla_breach_rate
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-12-01' AND created_at < TIMESTAMP '2025-01-01'
+    GROUP BY team
+  ordered: false
+
+- id: support-013
+  category: ratio
+  question: What proportion of tickets got reopened, per channel, in 2024?
+  expect: answer
+  reference_sql: |
+    SELECT channel,
+           CAST(SUM(CASE WHEN reopened THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*) AS reopen_rate
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-01-01' AND created_at < TIMESTAMP '2025-01-01'
+    GROUP BY channel
+  ordered: false
+
+- id: support-015
+  category: filters
+  question: phone tickets about refunds in august
+  expect: answer
+  reference_sql: |
+    SELECT COUNT(*) AS tickets
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-08-01' AND created_at < TIMESTAMP '2024-09-01'
+      AND channel = 'Phone'
+      AND category = 'Refunds'
+  ordered: false
+  notes: August is August 2024, the only August in the data.
+
+- id: support-017
+  category: conditions
+  question: Average resolution time for urgent technical tickets by channel
+  expect: answer
+  reference_sql: |
+    SELECT channel, AVG(resolution_hours) AS average_resolution
+    FROM tickets
+    WHERE priority = 'Urgent'
+      AND team = 'Technical'
+    GROUP BY channel
+  ordered: false
+  notes: >-
+    Whole of 2024. Technical is the team. Open tickets have no resolution
+    time and are left out; resolution times are averaged as stored.
+
+- id: support-019
+  category: change
+  question: What drove the rise in SLA breach rate in December 2024?
+  expect: change
+  truth: T1
+  notes: Against November 2024. A rate effect in the Technical team.
+
+- id: support-020
+  category: change
+  question: Why did CSAT fall in November?
+  expect: change
+  truth: T2
+  notes: November 2024 against October 2024; the fall sits in Login issues.
+
+- id: support-021
+  category: ambiguous
+  question: How quick are we on urgent tickets?
+  expect: clarify
+  term: quick
+  acceptable: [average_first_response, average_resolution]
+  notes: Quick could mean time to first response or time to resolve.

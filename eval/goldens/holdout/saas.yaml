@@ -1,0 +1,107 @@
+# Golden questions, subscriptions sample "Slotwise" (table subscriptions),
+# holdout split. Run only at the end of T57 and before a release (evals.md
+# §3.2). Snapshot metrics over several months are the last month's (S5).
+
+- id: saas-003
+  category: single
+  question: How many new accounts signed up in 2023?
+  expect: answer
+  reference_sql: |
+    SELECT COUNT(*) AS new_accounts
+    FROM subscriptions
+    WHERE month BETWEEN DATE '2023-01-01' AND DATE '2023-12-01'
+      AND is_new
+  ordered: false
+
+- id: saas-007
+  category: ranking
+  question: Which signup channel lost the most accounts in 2024?
+  expect: answer
+  reference_sql: |
+    SELECT signup_channel, COUNT(*) AS churned_accounts
+    FROM subscriptions
+    WHERE month BETWEEN DATE '2024-01-01' AND DATE '2024-12-01'
+      AND is_churned
+    GROUP BY signup_channel
+    ORDER BY churned_accounts DESC
+    LIMIT 1
+  ordered: true
+
+- id: saas-008
+  category: ranking
+  question: Order the plans by MRR per account in December 2024
+  expect: answer
+  reference_sql: |
+    SELECT plan, CAST(SUM(mrr) AS DOUBLE) / COUNT(*) AS mrr_per_account
+    FROM subscriptions
+    WHERE month = DATE '2024-12-01'
+    GROUP BY plan
+    ORDER BY mrr_per_account DESC
+  ordered: true
+
+- id: saas-011
+  category: trend
+  question: How many accounts did we lose each month in 2024?
+  expect: answer
+  reference_sql: |
+    SELECT month, COUNT(*) AS churned_accounts
+    FROM subscriptions
+    WHERE month BETWEEN DATE '2024-01-01' AND DATE '2024-12-01'
+      AND is_churned
+    GROUP BY month
+    ORDER BY month
+  ordered: true
+
+- id: saas-014
+  category: comparison
+  question: Active accounts in Q4 2024 versus Q4 2023
+  expect: answer
+  tags: [snapshot]
+  reference_sql: |
+    SELECT
+      COUNT(*) FILTER (WHERE month = DATE '2024-12-01') AS active_accounts_current,
+      COUNT(*) FILTER (WHERE month = DATE '2023-12-01') AS active_accounts_previous
+    FROM subscriptions
+  ordered: false
+  notes: A quarter's active accounts are its last month's, December in both years.
+
+- id: saas-017
+  category: ratio
+  question: What share of active accounts were new in March 2024, by region?
+  expect: answer
+  reference_sql: |
+    SELECT region,
+           CAST(SUM(CASE WHEN is_new THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*) AS new_account_rate
+    FROM subscriptions
+    WHERE month = DATE '2024-03-01'
+    GROUP BY region
+  ordered: false
+
+- id: saas-020
+  category: filters
+  question: seats on the team plan for healthcare customers in 2024
+  expect: answer
+  tags: [snapshot]
+  reference_sql: |
+    SELECT SUM(seats) AS seats
+    FROM subscriptions
+    WHERE month = DATE '2024-12-01'
+      AND plan = 'Team'
+      AND industry = 'Healthcare'
+  ordered: false
+  notes: Seats for a year are December's.
+
+- id: saas-024
+  category: change
+  question: Where did MRR growth in 2024 come from?
+  expect: change
+  truth: S2
+  notes: December 2024 against December 2023; mostly Enterprise seat growth.
+
+- id: saas-025
+  category: ambiguous
+  question: What's churn on the Team plan last month?
+  expect: clarify
+  term: churn
+  acceptable: [churned_accounts, churn_rate]
+  notes: Churn could be a count of accounts lost or a rate.

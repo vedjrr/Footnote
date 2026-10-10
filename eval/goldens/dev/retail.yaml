@@ -1,0 +1,221 @@
+# Golden questions, retail sample "Harbour & Pine" (table orders), dev split.
+# Reference SQL is written by hand against the raw table (evals.md §3.1).
+# Data now is 2025-03-31, so "last month" is March 2025. Figures are computed
+# on the rows as stored: duplicates and negative quantities included (D-040).
+
+- id: retail-001
+  category: single
+  question: What was revenue in February 2025?
+  expect: answer
+  reference_sql: |
+    SELECT SUM(revenue) AS revenue
+    FROM orders
+    WHERE order_date BETWEEN DATE '2025-02-01' AND DATE '2025-02-28'
+  ordered: false
+
+- id: retail-002
+  category: single
+  question: How many orders did we take in 2024?
+  expect: answer
+  reference_sql: |
+    SELECT COUNT(DISTINCT order_id) AS orders
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-01-01' AND DATE '2024-12-31'
+  ordered: false
+  notes: One row is an order line, so orders are distinct order ids.
+
+- id: retail-003
+  category: single
+  question: Total units sold last month
+  expect: answer
+  reference_sql: |
+    SELECT SUM(quantity) AS units
+    FROM orders
+    WHERE order_date BETWEEN DATE '2025-03-01' AND DATE '2025-03-31'
+  ordered: false
+  notes: Last month is March 2025, the latest complete month.
+
+- id: retail-005
+  category: ranking
+  question: Top 5 sub-categories by revenue in Q4 2024
+  expect: answer
+  reference_sql: |
+    SELECT sub_category, SUM(revenue) AS revenue
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-10-01' AND DATE '2024-12-31'
+    GROUP BY sub_category
+    ORDER BY revenue DESC
+    LIMIT 5
+  ordered: true
+
+- id: retail-006
+  category: ranking
+  question: Which channel brought in the most gross profit in 2024?
+  expect: answer
+  reference_sql: |
+    SELECT channel, SUM(revenue) - SUM(cost) AS gross_profit
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-01-01' AND DATE '2024-12-31'
+    GROUP BY channel
+    ORDER BY gross_profit DESC
+    LIMIT 1
+  ordered: true
+
+- id: retail-007
+  category: ranking
+  question: Rank the product categories by average order value for 2024
+  expect: answer
+  tags: [ratio]
+  reference_sql: |
+    SELECT category,
+           CAST(SUM(revenue) AS DOUBLE) / COUNT(DISTINCT order_id) AS average_order_value
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-01-01' AND DATE '2024-12-31'
+    GROUP BY category
+    ORDER BY average_order_value DESC
+  ordered: true
+  notes: >-
+    Revenue over distinct orders in each category. The average revenue per
+    order line is a different, wrong number.
+
+- id: retail-010
+  category: trend
+  question: Monthly revenue in 2024
+  expect: answer
+  reference_sql: |
+    SELECT CAST(date_trunc('month', order_date) AS DATE) AS month,
+           SUM(revenue) AS revenue
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-01-01' AND DATE '2024-12-31'
+    GROUP BY month
+    ORDER BY month
+  ordered: true
+
+- id: retail-011
+  category: trend
+  question: How has margin moved month by month over the last 12 months?
+  expect: answer
+  tags: [ratio]
+  reference_sql: |
+    SELECT CAST(date_trunc('month', order_date) AS DATE) AS month,
+           CAST(SUM(revenue) - SUM(cost) AS DOUBLE) / SUM(revenue) AS margin
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-04-01' AND DATE '2025-03-31'
+    GROUP BY month
+    ORDER BY month
+  ordered: true
+  notes: >-
+    April 2024 to March 2025. Margin is gross profit over revenue from the
+    month's totals, not the average of each line's margin.
+
+- id: retail-014
+  category: comparison
+  question: Revenue this month vs the same month last year
+  expect: answer
+  reference_sql: |
+    SELECT
+      SUM(revenue) FILTER (WHERE order_date BETWEEN DATE '2025-03-01' AND DATE '2025-03-31')
+        AS revenue_current,
+      SUM(revenue) FILTER (WHERE order_date BETWEEN DATE '2024-03-01' AND DATE '2024-03-31')
+        AS revenue_previous
+    FROM orders
+  ordered: false
+  notes: This month is March 2025, the latest complete month; against March 2024.
+
+- id: retail-015
+  category: comparison
+  question: Did we sell more units in February 2025 than in January 2025?
+  expect: answer
+  reference_sql: |
+    SELECT
+      SUM(quantity) FILTER (WHERE order_date BETWEEN DATE '2025-02-01' AND DATE '2025-02-28')
+        AS units_current,
+      SUM(quantity) FILTER (WHERE order_date BETWEEN DATE '2025-01-01' AND DATE '2025-01-31')
+        AS units_previous
+    FROM orders
+  ordered: false
+
+- id: retail-018
+  category: ratio
+  question: Return rate by category in Q4 2024
+  expect: answer
+  reference_sql: |
+    SELECT category,
+           CAST(SUM(CASE WHEN returned THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*) AS return_rate
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-10-01' AND DATE '2024-12-31'
+    GROUP BY category
+  ordered: false
+  notes: Returned order lines over all order lines.
+
+- id: retail-019
+  category: ratio
+  question: What was the average selling price in each category last year?
+  expect: answer
+  tags: [ratio]
+  reference_sql: |
+    SELECT category,
+           CAST(SUM(revenue) AS DOUBLE) / SUM(quantity) AS average_selling_price
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-01-01' AND DATE '2024-12-31'
+    GROUP BY category
+  ordered: false
+  notes: >-
+    Last year is 2024. Revenue over units, not the average of each line's
+    price per unit.
+
+- id: retail-022
+  category: filters
+  question: units sold through the marketplace last month
+  expect: answer
+  reference_sql: |
+    SELECT SUM(quantity) AS units
+    FROM orders
+    WHERE order_date BETWEEN DATE '2025-03-01' AND DATE '2025-03-31'
+      AND channel = 'Marketplace'
+  ordered: false
+
+- id: retail-023
+  category: filters
+  question: electronics takings jan 25
+  expect: answer
+  reference_sql: |
+    SELECT SUM(revenue) AS revenue
+    FROM orders
+    WHERE order_date BETWEEN DATE '2025-01-01' AND DATE '2025-01-31'
+      AND category = 'Electronics'
+  ordered: false
+  notes: Takings is revenue; jan 25 is January 2025.
+
+- id: retail-025
+  category: conditions
+  question: Revenue by channel for Kitchen in the second half of 2024, leaving out returned lines
+  expect: answer
+  reference_sql: |
+    SELECT channel, SUM(revenue) AS revenue
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-07-01' AND DATE '2024-12-31'
+      AND category = 'Kitchen'
+      AND NOT returned
+    GROUP BY channel
+  ordered: false
+
+- id: retail-027
+  category: change
+  question: Where did the March 2025 drop in electronics revenue come from?
+  expect: change
+  truth: R1
+
+- id: retail-029
+  category: ambiguous
+  question: How are sales doing?
+  expect: clarify
+  term: sales
+  acceptable: [revenue, units]
+  notes: Sales could mean money taken or units sold.
+
+- id: retail-031
+  category: unanswerable
+  question: What's our website conversion rate?
+  expect: decline
+  notes: The table has no visits or sessions.

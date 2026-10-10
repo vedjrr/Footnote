@@ -1,0 +1,170 @@
+# Golden questions, retail sample "Harbour & Pine" (table orders), holdout
+# split. Run only at the end of T57 and before a release (evals.md §3.2).
+# Data now is 2025-03-31, so "last month" is March 2025 (D-040).
+
+- id: retail-004
+  category: single
+  question: What was our gross profit in Q3 2024?
+  expect: answer
+  reference_sql: |
+    SELECT SUM(revenue) - SUM(cost) AS gross_profit
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-07-01' AND DATE '2024-09-30'
+  ordered: false
+
+- id: retail-008
+  category: ranking
+  question: Bottom 3 sub-categories by units sold in 2024
+  expect: answer
+  reference_sql: |
+    SELECT sub_category, SUM(quantity) AS units
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-01-01' AND DATE '2024-12-31'
+    GROUP BY sub_category
+    ORDER BY units ASC
+    LIMIT 3
+  ordered: true
+
+- id: retail-009
+  category: ranking
+  question: Which category had the highest return rate in 2024?
+  expect: answer
+  reference_sql: |
+    SELECT category,
+           CAST(SUM(CASE WHEN returned THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*) AS return_rate
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-01-01' AND DATE '2024-12-31'
+    GROUP BY category
+    ORDER BY return_rate DESC
+    LIMIT 1
+  ordered: true
+
+- id: retail-012
+  category: trend
+  question: Quarterly order count over the whole history
+  expect: answer
+  reference_sql: |
+    SELECT CAST(date_trunc('quarter', order_date) AS DATE) AS quarter,
+           COUNT(DISTINCT order_id) AS orders
+    FROM orders
+    GROUP BY quarter
+    ORDER BY quarter
+  ordered: true
+  notes: Nine quarters, Q1 2023 to Q1 2025; an order is a distinct order id.
+
+- id: retail-013
+  category: trend
+  question: Show weekly units sold for March 2025
+  expect: answer
+  reference_sql: |
+    SELECT CAST(date_trunc('week', order_date) AS DATE) AS week,
+           SUM(quantity) AS units
+    FROM orders
+    WHERE order_date BETWEEN DATE '2025-03-01' AND DATE '2025-03-31'
+    GROUP BY week
+    ORDER BY week
+  ordered: true
+  notes: >-
+    Weeks start on Monday. The first week (from 24 February) holds only 1 and
+    2 March, the last (from 31 March) only 31 March.
+
+- id: retail-016
+  category: comparison
+  question: How did Q4 2024 revenue compare with Q4 2023?
+  expect: answer
+  reference_sql: |
+    SELECT
+      SUM(revenue) FILTER (WHERE order_date BETWEEN DATE '2024-10-01' AND DATE '2024-12-31')
+        AS revenue_current,
+      SUM(revenue) FILTER (WHERE order_date BETWEEN DATE '2023-10-01' AND DATE '2023-12-31')
+        AS revenue_previous
+    FROM orders
+  ordered: false
+
+- id: retail-017
+  category: comparison
+  question: Number of orders in 2024 against 2023
+  expect: answer
+  reference_sql: |
+    SELECT
+      COUNT(DISTINCT order_id) FILTER (WHERE order_date BETWEEN DATE '2024-01-01' AND DATE '2024-12-31')
+        AS orders_current,
+      COUNT(DISTINCT order_id) FILTER (WHERE order_date BETWEEN DATE '2023-01-01' AND DATE '2023-12-31')
+        AS orders_previous
+    FROM orders
+  ordered: false
+
+- id: retail-020
+  category: ratio
+  question: Furniture margin by customer segment since October 2024
+  expect: answer
+  tags: [ratio]
+  reference_sql: |
+    SELECT customer_segment,
+           CAST(SUM(revenue) - SUM(cost) AS DOUBLE) / SUM(revenue) AS margin
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-10-01' AND DATE '2025-03-31'
+      AND category = 'Furniture'
+    GROUP BY customer_segment
+  ordered: false
+  notes: >-
+    October 2024 to the end of the data. Rows with an empty segment form their
+    own group. Margin from totals, not the average of line margins.
+
+- id: retail-021
+  category: ratio
+  question: What's the average order value for 2024?
+  expect: answer
+  tags: [ratio]
+  reference_sql: |
+    SELECT CAST(SUM(revenue) AS DOUBLE) / COUNT(DISTINCT order_id) AS average_order_value
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-01-01' AND DATE '2024-12-31'
+  ordered: false
+  notes: Revenue over distinct orders, not the average revenue of an order line.
+
+- id: retail-024
+  category: filters
+  question: how much did corporate customers spend on furniture in 2024
+  expect: answer
+  reference_sql: |
+    SELECT SUM(revenue) AS revenue
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-01-01' AND DATE '2024-12-31'
+      AND customer_segment = 'Corporate'
+      AND category = 'Furniture'
+  ordered: false
+
+- id: retail-026
+  category: conditions
+  question: Return rate by sub-category for Electronics bought online in Q4 2024
+  expect: answer
+  reference_sql: |
+    SELECT sub_category,
+           CAST(SUM(CASE WHEN returned THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*) AS return_rate
+    FROM orders
+    WHERE order_date BETWEEN DATE '2024-10-01' AND DATE '2024-12-31'
+      AND category = 'Electronics'
+      AND channel = 'Online'
+    GROUP BY sub_category
+  ordered: false
+
+- id: retail-028
+  category: change
+  question: What drove the rise in return rate in Q4 2024?
+  expect: change
+  truth: R6
+  notes: Against Q3 2024. A mix effect toward Electronics.
+
+- id: retail-030
+  category: ambiguous
+  question: How did Electronics perform last month?
+  expect: clarify
+  term: perform
+  acceptable: [revenue, gross_profit, margin]
+
+- id: retail-032
+  category: unanswerable
+  question: How much stock of grills do we have left?
+  expect: decline
+  notes: The table holds sales, not inventory.

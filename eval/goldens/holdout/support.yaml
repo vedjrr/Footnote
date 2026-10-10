@@ -1,0 +1,84 @@
+# Golden questions, support sample "Kettle Helpdesk" (table tickets), holdout
+# split. Run only at the end of T57 and before a release (evals.md §3.2).
+# Data now is 2024-12-31, so "last month" is December 2024 (D-040).
+
+- id: support-003
+  category: single
+  question: Average first response time last month
+  expect: answer
+  reference_sql: |
+    SELECT AVG(first_response_minutes) AS average_first_response
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-12-01' AND created_at < TIMESTAMP '2025-01-01'
+  ordered: false
+
+- id: support-008
+  category: trend
+  question: Average resolution time by month
+  expect: answer
+  reference_sql: |
+    SELECT CAST(date_trunc('month', created_at) AS DATE) AS month,
+           AVG(resolution_hours) AS average_resolution
+    FROM tickets
+    GROUP BY month
+    ORDER BY month
+  ordered: true
+  notes: All twelve months of 2024; open tickets are left out.
+
+- id: support-011
+  category: comparison
+  question: SLA breach rate in the second half of 2024 compared with the first half
+  expect: answer
+  reference_sql: |
+    SELECT
+      CAST(COUNT(*) FILTER (WHERE created_at >= TIMESTAMP '2024-07-01' AND sla_breached) AS DOUBLE)
+        / COUNT(*) FILTER (WHERE created_at >= TIMESTAMP '2024-07-01')
+        AS sla_breach_rate_current,
+      CAST(COUNT(*) FILTER (WHERE created_at < TIMESTAMP '2024-07-01' AND sla_breached) AS DOUBLE)
+        / COUNT(*) FILTER (WHERE created_at < TIMESTAMP '2024-07-01')
+        AS sla_breach_rate_previous
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-01-01' AND created_at < TIMESTAMP '2025-01-01'
+  ordered: false
+
+- id: support-014
+  category: ratio
+  question: What share of urgent tickets breached SLA in 2024?
+  expect: answer
+  reference_sql: |
+    SELECT CAST(SUM(CASE WHEN sla_breached THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*)
+             AS sla_breach_rate
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-01-01' AND created_at < TIMESTAMP '2025-01-01'
+      AND priority = 'Urgent'
+  ordered: false
+
+- id: support-016
+  category: filters
+  question: how long do billing tickets take to resolve
+  expect: answer
+  reference_sql: |
+    SELECT AVG(resolution_hours) AS average_resolution
+    FROM tickets
+    WHERE team = 'Billing'
+  ordered: false
+  notes: Average over all resolved Billing team tickets in the data.
+
+- id: support-018
+  category: conditions
+  question: Average CSAT by priority for Login issues tickets that came in by chat in November 2024
+  expect: answer
+  reference_sql: |
+    SELECT priority, AVG(csat) AS average_csat
+    FROM tickets
+    WHERE created_at >= TIMESTAMP '2024-11-01' AND created_at < TIMESTAMP '2024-12-01'
+      AND category = 'Login issues'
+      AND channel = 'Chat'
+    GROUP BY priority
+  ordered: false
+
+- id: support-022
+  category: unanswerable
+  question: Which agent closed the most tickets last month?
+  expect: decline
+  notes: Tickets carry a team, not an agent.

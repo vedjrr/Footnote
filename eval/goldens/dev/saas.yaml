@@ -1,0 +1,214 @@
+# Golden questions, subscriptions sample "Slotwise" (table subscriptions), dev
+# split. One row is one account in one month, a snapshot table: MRR, seats and
+# active accounts over several months are the last month's figure, never a
+# sum (analytics-spec §2.7, S5). Data now is 2024-12-01, so "last month" is
+# December 2024 (D-040).
+
+- id: saas-001
+  category: single
+  question: What was our MRR in 2024?
+  expect: answer
+  tags: [snapshot]
+  reference_sql: |
+    SELECT SUM(mrr) AS mrr
+    FROM subscriptions
+    WHERE month = DATE '2024-12-01'
+  ordered: false
+  notes: MRR for a year is December's, not the sum of twelve months (S5).
+
+- id: saas-002
+  category: single
+  question: How many active accounts did we have in June 2024?
+  expect: answer
+  reference_sql: |
+    SELECT COUNT(*) AS active_accounts
+    FROM subscriptions
+    WHERE month = DATE '2024-06-01'
+  ordered: false
+
+- id: saas-004
+  category: ranking
+  question: Which plan had the most seats in Q3 2024?
+  expect: answer
+  tags: [snapshot]
+  reference_sql: |
+    SELECT plan, SUM(seats) AS seats
+    FROM subscriptions
+    WHERE month = DATE '2024-09-01'
+    GROUP BY plan
+    ORDER BY seats DESC
+    LIMIT 1
+  ordered: true
+  notes: Seats for a quarter are the quarter's last month, September 2024.
+
+- id: saas-005
+  category: ranking
+  question: Rank industries by MRR for 2024
+  expect: answer
+  tags: [snapshot]
+  reference_sql: |
+    SELECT industry, SUM(mrr) AS mrr
+    FROM subscriptions
+    WHERE month = DATE '2024-12-01'
+    GROUP BY industry
+    ORDER BY mrr DESC
+  ordered: true
+  notes: December 2024 MRR. Accounts with no industry form their own row.
+
+- id: saas-006
+  category: ranking
+  question: Top 2 regions for new sign-ups in 2024
+  expect: answer
+  reference_sql: |
+    SELECT region, COUNT(*) AS new_accounts
+    FROM subscriptions
+    WHERE month BETWEEN DATE '2024-01-01' AND DATE '2024-12-01'
+      AND is_new
+    GROUP BY region
+    ORDER BY new_accounts DESC
+    LIMIT 2
+  ordered: true
+  notes: New accounts add up over months; they are not a snapshot.
+
+- id: saas-009
+  category: trend
+  question: MRR by month over 2024
+  expect: answer
+  reference_sql: |
+    SELECT month, SUM(mrr) AS mrr
+    FROM subscriptions
+    WHERE month BETWEEN DATE '2024-01-01' AND DATE '2024-12-01'
+    GROUP BY month
+    ORDER BY month
+  ordered: true
+
+- id: saas-010
+  category: trend
+  question: Quarterly MRR across the whole history
+  expect: answer
+  tags: [snapshot]
+  reference_sql: |
+    SELECT CAST(date_trunc('quarter', month) AS DATE) AS quarter, SUM(mrr) AS mrr
+    FROM subscriptions
+    WHERE EXTRACT(month FROM month) IN (3, 6, 9, 12)
+    GROUP BY quarter
+    ORDER BY quarter
+  ordered: true
+  notes: Each quarter's MRR is its last month's. Eight quarters, 2023 and 2024.
+
+- id: saas-012
+  category: comparison
+  question: MRR in December 2024 compared with December 2023
+  expect: answer
+  reference_sql: |
+    SELECT
+      SUM(mrr) FILTER (WHERE month = DATE '2024-12-01') AS mrr_current,
+      SUM(mrr) FILTER (WHERE month = DATE '2023-12-01') AS mrr_previous
+    FROM subscriptions
+  ordered: false
+
+- id: saas-013
+  category: comparison
+  question: Paid seats this year versus last year
+  expect: answer
+  tags: [snapshot]
+  reference_sql: |
+    SELECT
+      SUM(seats) FILTER (WHERE month = DATE '2024-12-01') AS seats_current,
+      SUM(seats) FILTER (WHERE month = DATE '2023-12-01') AS seats_previous
+    FROM subscriptions
+  ordered: false
+  notes: This year is 2024. Seats for a year are December's.
+
+- id: saas-015
+  category: ratio
+  question: Churn rate by plan in November 2024
+  expect: answer
+  reference_sql: |
+    SELECT plan,
+           CAST(SUM(CASE WHEN is_churned THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*) AS churn_rate
+    FROM subscriptions
+    WHERE month = DATE '2024-11-01'
+    GROUP BY plan
+  ordered: false
+  notes: Accounts in their final month over active accounts in the month.
+
+- id: saas-016
+  category: ratio
+  question: What was average revenue per account in 2024?
+  expect: answer
+  tags: [snapshot]
+  reference_sql: |
+    SELECT CAST(SUM(mrr) AS DOUBLE) / COUNT(*) AS mrr_per_account
+    FROM subscriptions
+    WHERE month = DATE '2024-12-01'
+  ordered: false
+  notes: >-
+    December 2024 MRR over December 2024 active accounts. Both sides are
+    snapshots, so both are December's.
+
+- id: saas-018
+  category: filters
+  question: enterprise mrr in emea last month
+  expect: answer
+  reference_sql: |
+    SELECT SUM(mrr) AS mrr
+    FROM subscriptions
+    WHERE month = DATE '2024-12-01'
+      AND plan = 'Enterprise'
+      AND region = 'EMEA'
+  ordered: false
+
+- id: saas-019
+  category: filters
+  question: how many signups came from paid search in 2024
+  expect: answer
+  reference_sql: |
+    SELECT COUNT(*) AS new_accounts
+    FROM subscriptions
+    WHERE month BETWEEN DATE '2024-01-01' AND DATE '2024-12-01'
+      AND is_new
+      AND signup_channel = 'Paid search'
+  ordered: false
+
+- id: saas-021
+  category: conditions
+  question: MRR by plan for APAC accounts that came through partners, Q4 2024
+  expect: answer
+  tags: [snapshot]
+  reference_sql: |
+    SELECT plan, SUM(mrr) AS mrr
+    FROM subscriptions
+    WHERE month = DATE '2024-12-01'
+      AND region = 'APAC'
+      AND signup_channel = 'Partner'
+    GROUP BY plan
+  ordered: false
+  notes: Q4 MRR is December's.
+
+- id: saas-022
+  category: conditions
+  question: Churned Starter accounts in EMEA during 2024, split by signup channel
+  expect: answer
+  reference_sql: |
+    SELECT signup_channel, COUNT(*) AS churned_accounts
+    FROM subscriptions
+    WHERE month BETWEEN DATE '2024-01-01' AND DATE '2024-12-01'
+      AND is_churned
+      AND plan = 'Starter'
+      AND region = 'EMEA'
+    GROUP BY signup_channel
+  ordered: false
+
+- id: saas-023
+  category: change
+  question: Why did the churn rate jump in December 2024?
+  expect: change
+  truth: S1
+  notes: Against November 2024. A rate effect on the Starter plan.
+
+- id: saas-026
+  category: unanswerable
+  question: What is our customer acquisition cost?
+  expect: decline
+  notes: There is no marketing or sales spend in the table.
