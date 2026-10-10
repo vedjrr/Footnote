@@ -49,7 +49,7 @@ afterAll(async () => {
 
 async function answer(sample: string, question: string, spec: unknown): Promise<Answer> {
   const l = loaded.get(sample)!;
-  const outcome = await runAnswer({ ...l, question, spec: spec as never });
+  const outcome = await runAnswer({ ...l, question, spec });
   if (!outcome.ok) throw new Error(outcome.message);
   return outcome.answer;
 }

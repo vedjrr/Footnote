@@ -11,14 +11,21 @@ export function Disclosure({
   children,
   defaultOpen,
   className,
+  onOpen,
 }: {
   summary: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
   className?: string;
+  /** Called each time the section opens, to load what it shows. */
+  onOpen?: () => void;
 }) {
   return (
-    <details className={cx('group', className)} open={defaultOpen}>
+    <details
+      className={cx('group', className)}
+      open={defaultOpen}
+      onToggle={onOpen && ((e) => e.currentTarget.open && onOpen())}
+    >
       <summary className="flex min-h-8 cursor-pointer list-none items-center gap-2 type-small font-medium text-ink [&::-webkit-details-marker]:hidden">
         <span className="flex-1">{summary}</span>
         <Icon

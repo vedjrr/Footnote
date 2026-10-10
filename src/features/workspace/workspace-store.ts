@@ -10,6 +10,7 @@ import { describeSql } from '@/core/engine/normalise';
 import type { ColumnInfo, QueryEngine } from '@/core/engine/types';
 import { checkSize, fileKind, sizeWarning } from '@/core/ingest/file';
 import { ingestFile } from '@/core/ingest/ingest';
+import { type TimeFacts, readTimeFacts, timeFactsSql } from '@/core/findings/periods';
 import { type HealthReport, checkHealth } from '@/core/health/health';
 import { inferDictionary } from '@/core/model/infer';
 import type { SemanticModel } from '@/core/model/types';
@@ -43,6 +44,8 @@ export interface LoadedSample {
   model: SemanticModel;
   /** The dictionary as first loaded, to bring hidden columns back. */
   original: SemanticModel;
+  /** The distinct days of the dictionary's time column, for relative periods. */
+  time: TimeFacts | null;
 }
 
 export type SampleState =
@@ -54,6 +57,9 @@ export type SampleState =
 
 let pageEngine: QueryEngine | null = null;
 const getEngine = () => (pageEngine ??= createWasmEngine());
+
+/** The page's engine, for views that run their own queries (answers, rows behind a number). */
+export const workspaceEngine = (): QueryEngine => getEngine();
 
 const STARTING: SampleState = { status: 'loading', step: 'Starting the query engine' };
 const MISSING: SampleState = { status: 'missing' };
@@ -132,6 +138,9 @@ async function glance(
   model: SemanticModel,
 ): Promise<LoadedSample> {
   const sql = glanceSql(workspace.table, workspace.timeColumn);
+  const time = model.time
+    ? readTimeFacts(await engine.query(timeFactsSql(workspace.table, model.time.column)))
+    : null;
   return {
     columns,
     glance: readGlance(await engine.query(sql), columns),
@@ -139,6 +148,7 @@ async function glance(
     describeSql: describeSql(workspace.table),
     model,
     original: model,
+    time,
   };
 }
 

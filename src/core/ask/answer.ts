@@ -13,7 +13,7 @@ import { quoteColumn } from '@/core/profile/profile';
 import { type ResultCheck, checkResult } from '@/core/query/checks';
 import { type Compiled, CompileError, HELPERS, compile, displaySql } from '@/core/query/compile';
 import { withTimeout } from '@/core/query/guard';
-import { type QuerySpec, type QuerySpecInput, querySpecSchema } from '@/core/query/spec';
+import { type QuerySpec, querySpecSchema } from '@/core/query/spec';
 
 /** One part of the interpretation row: "Metric Revenue", "Period March 2025". */
 export interface Part {
@@ -46,7 +46,10 @@ export interface AnswerInput {
   model: SemanticModel;
   time: TimeFacts | null;
   question: string;
-  spec: QuerySpecInput;
+  /** A QuerySpec, checked here: a starter's spec is plain data from the dictionary. */
+  spec: unknown;
+  /** The step in words, for the progress line. */
+  onStep?: (step: string) => void;
 }
 
 export async function runAnswer(input: AnswerInput): Promise<AnswerOutcome> {
@@ -64,12 +67,14 @@ export async function runAnswer(input: AnswerInput): Promise<AnswerOutcome> {
     throw error;
   }
   let result: QueryResult;
+  input.onStep?.('Running the query');
   try {
     result = await withTimeout(engine.query(compiled.sql, compiled.params));
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return { ok: false, question, message: `The query did not finish: ${message}` };
   }
+  input.onStep?.('Checking the result');
   const checks = await checkResult({ engine, model, spec, compiled, result, time });
   const problem = checks.find((c) => c.outcome === 'fail') ?? null;
   const sentence = problem
