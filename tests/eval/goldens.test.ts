@@ -120,16 +120,31 @@ describe('counts', () => {
 });
 
 describe('references', () => {
-  test('change questions name an effect in their truth.json', () => {
+  test('change questions name an effect and a path that agree with truth.json and the data', async () => {
     for (const g of goldens) {
       if (g.expect !== 'change') continue;
       const truth = JSON.parse(readFileSync(`data/demo/${g.dataset}/truth.json`, 'utf8')) as {
-        effects: { id: string }[];
+        effects: { id: string; parameters: Record<string, unknown> }[];
       };
-      expect(
-        truth.effects.map((e) => e.id),
-        g.id,
-      ).toContain(g.truth);
+      const effect = truth.effects.find((e) => e.id === g.truth);
+      expect(effect, `${g.id}: ${g.truth}`).toBeDefined();
+      const parsed = parseModelYaml(readFileSync(`data/demo/${g.dataset}/dictionary.yaml`, 'utf8'));
+      if (!parsed.ok) throw new Error(JSON.stringify(parsed.problems));
+      expect(Object.keys(g.path).length, g.id).toBeGreaterThan(0);
+      for (const [dimension, value] of Object.entries(g.path)) {
+        const dim = parsed.model.dimensions.find((d) => d.id === dimension);
+        expect(dim, `${g.id}: ${dimension}`).toBeDefined();
+        // Where the effect's parameters name this dimension, they agree.
+        if (dimension in effect!.parameters) {
+          expect(effect!.parameters[dimension], `${g.id}: ${dimension}`).toBe(value);
+        }
+        const hits = await engines
+          .get(g.dataset)!
+          .query(`SELECT count(*) AS n FROM ${TABLES[g.dataset]} WHERE "${dim!.column}" = ?`, [
+            value,
+          ]);
+        expect(Number(hits.rows[0][0]), `${g.id}: ${dimension} = ${value}`).toBeGreaterThan(0);
+      }
     }
   });
 

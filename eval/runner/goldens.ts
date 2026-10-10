@@ -54,6 +54,11 @@ const changeGolden = z.strictObject({
   expect: z.literal('change'),
   /** An effect id in the dataset's truth.json. */
   truth: z.string().regex(/^[RST]\d$/),
+  /**
+   * The segment the change came from, as dimension id to value, below any
+   * filter the question already names (D-040). Matched in any order.
+   */
+  path: z.record(z.string().min(1), z.string().min(1)),
 });
 
 const clarifyGolden = z.strictObject({

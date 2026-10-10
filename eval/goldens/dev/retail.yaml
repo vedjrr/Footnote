@@ -205,6 +205,8 @@
   question: Where did the March 2025 drop in electronics revenue come from?
   expect: change
   truth: R1
+  path: { region: West, channel: Online }
+  notes: Electronics is already the filter, so the path is the drill-down below it.
 
 - id: retail-029
   category: ambiguous

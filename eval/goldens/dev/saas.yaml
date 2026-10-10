@@ -205,6 +205,7 @@
   question: Why did the churn rate jump in December 2024?
   expect: change
   truth: S1
+  path: { plan: Starter }
   notes: Against November 2024. A rate effect on the Starter plan.
 
 - id: saas-026

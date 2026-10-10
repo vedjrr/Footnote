@@ -96,6 +96,7 @@
   question: Where did MRR growth in 2024 come from?
   expect: change
   truth: S2
+  path: { plan: Enterprise }
   notes: December 2024 against December 2023; mostly Enterprise seat growth.
 
 - id: saas-025

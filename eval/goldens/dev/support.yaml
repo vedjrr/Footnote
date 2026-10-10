@@ -165,6 +165,7 @@
   question: What drove the rise in SLA breach rate in December 2024?
   expect: change
   truth: T1
+  path: { team: Technical }
   notes: Against November 2024. A rate effect in the Technical team.
 
 - id: support-020
@@ -172,6 +173,7 @@
   question: Why did CSAT fall in November?
   expect: change
   truth: T2
+  path: { category: Login issues }
   notes: November 2024 against October 2024; the fall sits in Login issues.
 
 - id: support-021
