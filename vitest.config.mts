@@ -17,6 +17,7 @@ export default defineConfig({
       'tests/health/**/*.test.ts',
       'tests/query/**/*.test.ts',
       'tests/narrative/**/*.test.ts',
+      'tests/ask/**/*.test.ts',
     ],
     passWithNoTests: false,
     coverage: {
