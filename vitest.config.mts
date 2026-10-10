@@ -19,6 +19,7 @@ export default defineConfig({
       'tests/narrative/**/*.test.ts',
       'tests/ask/**/*.test.ts',
       'tests/eval/**/*.test.ts',
+      'tests/findings/**/*.test.ts',
     ],
     passWithNoTests: false,
     coverage: {
