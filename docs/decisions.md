@@ -719,6 +719,55 @@ Format for a new decision:
   (lost the header on phones); one statement with a window count for
   the rows behind (adds a column the table does not want).
 
+### D-040 Golden questions: format details, data as stored, and change paths (answers Q-08)
+- Date: 2026-10-10, task T30
+- Decision:
+  - Goldens live in `eval/goldens/<split>/<dataset>.yaml`, validated by
+    `eval/runner/goldens.ts` (`loadGoldens`). Category slugs: `single`,
+    `ranking`, `trend`, `comparison`, `ratio`, `filters`, `conditions`,
+    `change`, `ambiguous`, `unanswerable`. Ids run 001 to N per dataset
+    across both splits.
+  - Two additions to the evals §3.1 format. `tags: [snapshot]` marks a
+    question whose answer depends on a snapshot metric rolled up as its
+    last period; `tags: [ratio]` marks one whose answer changes if a
+    ratio is averaged over rows instead of built from totals. Rates of a
+    yes/no column (return, churn, breach) are not tagged: the mean of a
+    0/1 column equals the ratio of counts. Counts: 9 snapshot, 5 ratio.
+  - Change goldens carry `path`, dimension id to value, the segment the
+    change came from below any filter the question already names (Q-08).
+    R1 asked about electronics is `{ region: West, channel: Online }`.
+    The test checks each path against the effect's parameters where they
+    name the dimension, and that the value exists in the data.
+  - Reference SQL computes on rows as stored: duplicates, negative
+    quantities, negative resolution times and empty segments included,
+    because checks never change the data (analytics-spec §3) and the
+    dictionary defines each metric on rows. No golden filters or splits
+    retail by `region`, so none turns on the lower-case variants (R7);
+    whether "the West" includes "west" is a judgement the goldens avoid.
+  - Relative words resolve to the latest complete period (§4): "last
+    month" is March 2025 (retail), December 2024 (others). A comparison
+    answer is two columns, current then previous.
+  - `acceptable` for a clarify golden lists metric ids.
+  - Replaced before the first commit: saas "new accounts each month" (52
+    in every month) and "new accounts H2 vs H1" (312 and 312), which could
+    not tell a right answer from several wrong ones.
+- Independent review (T30): a fresh agent given only 25 goldens (seeded
+  random pick of the 66 with SQL) and the table schemas, with read-only
+  queries. 22 OK, 0 mismatches, 3 debatable:
+  - saas-016 "average revenue per account in 2024" could mean a year of
+    revenue. Reworded to "MRR per account in 2024" (own commit).
+  - retail-007 average order value by category: 32% of 2024 orders span
+    categories, so "category revenue over orders with that category" is
+    one reading and "whole order value" another. Kept: it is how the
+    dictionary defines the metric split by category.
+  - support-016 "how long do billing tickets take": mean or median. Kept:
+    the mean is the dictionary metric; the Billing team owns exactly the
+    Invoices and Refunds categories, so team or category give the same set.
+- Considered: writing paths into `truth.json` through the generator
+  (changes generated data and its content hash for a fact only evals
+  use); deduplicating rows in references (would grade the product
+  against data it is told not to change).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
@@ -731,11 +780,7 @@ Answer these in the task named, then move the answer up into a decision.
 - Q-05 (Ved): final repository name and whether to buy a domain.
 - Q-06 (T13, T45): answered in D-032, new check H12.
 - Q-07 (T13): answered in D-032, information for averaged-only columns.
-- Q-08 (T30, T42): for a change question already filtered to a segment
-  ("Where did the March drop in electronics revenue come from?"), does the
-  `truth.json` path for R1 include the filter value (Electronics, Online,
-  West) or only the drill-down below it (Online, West)? evals §4 says the
-  path must equal truth; the goldens need one convention.
+- Q-08 (T30): answered in D-040, the drill-down below the filter.
 - Q-09 (T00): the T00 skim of `docs/architecture.md` did not happen. The
   session's tool permission check refused to read that file. The next agent
   that reads it should look for conflicts with the other specs.

@@ -10,37 +10,32 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T24 Answers, reference marks and the working paper (done)
-- Next task: T30 Golden questions
+- Last finished task: T30 Golden questions (done)
+- Next task: T31 Eval runner and scoring
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   and files (`file-1`, ...), `/open`, `/accuracy`, `/about`;
   `/styleguide`, `/dev/engine`, `/dev/answer` outside the shell.
-  `npm run check` (433 tests) and `npm run test:e2e` (44) pass;
-  `npm run build` last run in T10.
+  `npm run check` (445 tests) and `npm run test:e2e` (44, last run T24)
+  pass; `npm run build` last run in T10.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
   `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
-  page's one engine (`workspaceEngine()`), the samples, the user's files
-  and each workspace's `time` facts.
-- Ingest, profile, dictionary, health: `src/core/{ingest,profile,model,
-  health}`; screens in `features/{metrics,health}`.
+  page's one engine, the samples, the user's files and `time` facts.
 - Query: `compile`, `checkResult` C1 to C8, `guardSql`/`withTimeout`.
-- Answers: `runAnswer` in `core/ask/answer.ts` (compile, run, check,
-  chart plan, sentence, interpretation, scope; `rowsBehind`); templates
-  in `core/narrative/answer-sentence.ts` (D-039). Ask view in
-  `features/ask` runs the dictionary's starters only; no typing yet.
+  Answers: `runAnswer` in `core/ask/answer.ts`; Ask view runs starters.
 - Narrative: `core/narrative/format.ts` is the one formatter (lint
-  enforced); `chooseChart` (D-038); `period-words.ts` for ranges.
-- Charts: `src/ui/charts`; UI tokens in `src/ui/tokens.css`.
-- Evals: not run
+  enforced); `chooseChart` (D-038). Charts in `src/ui/charts`.
+- Evals: 80 goldens in `eval/goldens/{dev,holdout}/{retail,saas,support}
+  .yaml` (50/30), loaded by `eval/runner/goldens.ts` (D-040). No runner
+  yet; not run.
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
-  Next refuses a second `next dev` in the same folder: stop yours before
-  `npm run test:e2e`. Engine-backed tests go in `tests/` and need adding
-  to `include` in `vitest.config.mts`. Open questions Q-02, Q-05, Q-08
-  to Q-10.
-- Updated: 2026-10-10, T24
+  The retail profile timing test can exceed 1 s under load; rerun.
+  Stop your `next dev` before `npm run test:e2e`. Engine-backed tests go
+  in `tests/` and need adding to `include` in `vitest.config.mts`. Open
+  questions Q-02, Q-05, Q-09, Q-10.
+- Updated: 2026-10-10, T30
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -77,6 +72,40 @@ Template:
 ```
 
 ## Log
+
+### T30 Golden questions
+- Date: 2026-10-10
+- Outcome: done
+- What changed: `eval/runner/goldens.ts` (zod schema, `loadGoldens`);
+  80 goldens in `eval/goldens/{dev,holdout}/{retail,saas,support}.yaml`
+  (32/26/22; 50 dev, 30 holdout; every category in both splits; 9
+  snapshot, 5 ratio-from-totals); `tests/eval/goldens.test.ts` (added to
+  vitest `include`); D-040; `docs/learn/T30-golden-questions.md`.
+- Verified: `npm run check`: 445 passed (one earlier run failed only the
+  retail profile timing test at 1.31 s, passed on rerun).
+  `npx vitest run tests/eval`: 12 passed: counts per dataset, category
+  and split; quotas; every reference SQL runs with rows and no all-empty
+  column; no tie at a LIMIT cut; change paths agree with truth.json and
+  the data; clarify options are dictionary metrics; closest wording pair
+  0.57 Jaccard (limit 0.7). Planted a typo in a filter value: the test
+  failed on retail-022, then restored. All 66 reference results printed
+  and read.
+- Review: fresh agent, only 25 seeded-random goldens with SQL and the
+  schemas, read-only queries. 22 OK, 0 mismatches, 3 debatable. Fixed
+  saas-016 wording (own commit). Kept retail-007 (AOV by category: orders
+  spanning categories) and support-016 (mean vs median); reasons in D-040.
+- Decisions: D-040 (answers Q-08)
+- Differs from the spec: goldens add `tags` and, on change questions,
+  `path` to the evals §3.1 format.
+- Not done: nothing
+- For the next agent: comparison references return current then previous
+  as two columns; the runner matches columns by values (evals §4), so the
+  product's extra `__change` columns are fine. Change scoring should use
+  the golden's `path`, not parse truth.json parameters. Do not read
+  holdout results while building.
+- Ved should know: no golden splits or filters retail by region, because
+  0.8% of rows say "west" for "West" and the right answer is a judgement.
+- Commits: 79c520d..(this handoff)
 
 ### T24 Answers, reference marks and the working paper
 - Date: 2026-10-10

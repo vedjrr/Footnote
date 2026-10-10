@@ -50,7 +50,7 @@ Phase 2, query core
 - [x] T24 Answers, reference marks and the working paper
 
 Phase 3, evals before AI
-- [ ] T30 Golden questions
+- [x] T30 Golden questions
 - [ ] T31 Eval runner and scoring
 - [ ] T32 Accuracy page
 
