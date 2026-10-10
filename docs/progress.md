@@ -10,14 +10,14 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T30 Golden questions (done)
-- Next task: T31 Eval runner and scoring
+- Last finished task: T31 Eval runner and scoring (done)
+- Next task: T32 Accuracy page
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   and files (`file-1`, ...), `/open`, `/accuracy`, `/about`;
   `/styleguide`, `/dev/engine`, `/dev/answer` outside the shell.
-  `npm run check` (445 tests) and `npm run test:e2e` (44, last run T24)
+  `npm run check` (472 tests) and `npm run test:e2e` (44, last run T24)
   pass; `npm run build` last run in T10.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
   `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
@@ -26,16 +26,17 @@ each new session automatically, so it must be enough to start from.
   Answers: `runAnswer` in `core/ask/answer.ts`; Ask view runs starters.
 - Narrative: `core/narrative/format.ts` is the one formatter (lint
   enforced); `chooseChart` (D-038). Charts in `src/ui/charts`.
-- Evals: 80 goldens in `eval/goldens/{dev,holdout}/{retail,saas,support}
-  .yaml` (50/30), loaded by `eval/runner/goldens.ts` (D-040). No runner
-  yet; not run.
+- Evals: 80 goldens (D-040). `npm run eval -- --mode keyless --set dev`
+  scores with `eval/runner/score.ts`, writes `eval/results/keyless-dev
+  .json` and `summary.json` (D-041). Keyless only declines until T51:
+  2/50 correct, 0 wrong, coverage 0. ai/baseline not built.
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
   The retail profile timing test can exceed 1 s under load; rerun.
   Stop your `next dev` before `npm run test:e2e`. Engine-backed tests go
   in `tests/` and need adding to `include` in `vitest.config.mts`. Open
-  questions Q-02, Q-05, Q-09, Q-10.
-- Updated: 2026-10-10, T30
+  questions Q-02, Q-05, Q-09, Q-10, Q-12.
+- Updated: 2026-10-10, T31
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -72,6 +73,42 @@ Template:
 ```
 
 ## Log
+
+### T31 Eval runner and scoring
+- Date: 2026-10-10
+- Outcome: done
+- What changed: `eval/runner/score.ts` (outcome types, column and row
+  matching, labels, headline figures); `run.ts` (`Answerer`,
+  `openDatasets`, `runEval`, run files, `summary.json`); `keyless.ts`
+  (declines only); `thresholds.ts` + `eval/thresholds.json`; `cli.ts`
+  and `npm run eval`; CI job `eval-keyless`; `eval/results/` committed
+  and in `.prettierignore`; tests `tests/eval/score.test.ts`,
+  `tests/eval/runner.test.ts`; D-041, Q-12.
+- Verified: `npm run check`: 472 passed. `npm run eval -- --mode keyless
+  --set dev`: 50 questions, 2 correct (the two declines), 0 wrong, 0
+  over-confident, 48 over-cautious, coverage 0.0%, exit 0; file at
+  commit 26229db, dirty false. `npx vitest run tests/eval`: 39 passed,
+  including: an oracle replying with each of the 80 reference results
+  (rows reversed, columns renamed, extra column) scores 80/80 correct;
+  nudging one number makes all 66 answers wrong; reversing ordered
+  answers is wrong unless symmetric; throw and timeout are `error`.
+  Mutation: first-come row pairing failed the near-equal-rows test.
+  Raised `minCorrectRate` to 0.5 by hand: run exited 1 naming the
+  breach; restored. `--mode ai` prints "not built yet" and exits 1.
+- Decisions: D-041; opened Q-12
+- Differs from the spec: none. §4 leaves some label cases open; D-041
+  fills them.
+- Not done: nothing. CI run 38068329888: `check` and `eval-keyless`
+  both succeeded on GitHub.
+- For the next agent: T32 reads `eval/results/summary.json` (`runs[]`
+  with `headline`, `byCategory`, `byDataset`, `notCorrect`, which is
+  null for holdout). New answerers implement `Answerer` in `run.ts` and
+  get only the question and dataset context, never the golden. Never
+  edit `eval/results/*` by hand; rerun the CLI on a clean tree.
+- Ved should know: Q-12. The 0.005 absolute tolerance lets a rate be
+  up to half a point off and still score correct (Starter churn 3.36%
+  vs 3.80%). Deciding before AI runs (T55) keeps figures comparable.
+- Commits: 0633b39..(this handoff)
 
 ### T30 Golden questions
 - Date: 2026-10-10

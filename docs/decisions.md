@@ -768,6 +768,46 @@ Format for a new decision:
   use); deduplicating rows in references (would grade the product
   against data it is told not to change).
 
+### D-041 Eval runner: labels for every reply, the change share, result files
+- Date: 2026-10-10, task T31
+- Decision:
+  - Labels where evals §4 is silent. A shown answer or change analysis
+    that is not correct is `wrong` when one was expected and
+    `over-confident` when a clarify or decline was. A clarify or decline
+    that is not correct (declined when it should ask, asked about another
+    term, left out an acceptable option, asked when it should decline) is
+    `over-cautious`: no number was shown, so it does not count against
+    the wrong-answer rate. A change analysis given for an answer question
+    (or the reverse) is `wrong`.
+  - Change share: the realised share is the one figure in the effect's
+    `truth.json` `realised` whose key contains `share` (R1
+    `online_west_share_of_fall` 1.0615, S2 `enterprise_expansion_share`
+    0.9589). The other change goldens (S1, T1, T2, R6) are rate or mix
+    effects with no share recorded; they are scored on the path alone
+    until T41/T42 say what a rate effect reports.
+  - Cell matching: null and blank text are both empty; a timestamp at
+    midnight equals its date; text that is a plain number compares as
+    that number; booleans compare as `true`/`false`. Reference columns map
+    one to one onto result columns (one result column cannot match two
+    reference columns). Unordered rows are paired by a full matching, so
+    near-equal rows cannot pair up wrongly.
+  - Records keep the first 20 rows of an answer's result and its row
+    count. `summary.json` is rebuilt from every `<mode>-<set>.json`
+    present, and lists non-correct questions for dev only; holdout gets
+    totals, so its failures are not read while building (§3.2).
+  - `dirty` in a run file means uncommitted changes outside
+    `eval/results` when the run started. `eval/results/` is in
+    `.prettierignore`: the runner writes it and nobody edits it.
+  - Thresholds start at what the keyless run gives: dev correct rate at
+    least 0.04, wrong-answer rate at most 0, coverage at least 0. ai and
+    baseline are null until they run. Per-question timeout 60 s.
+  - The CLI rejects `--mode ai|baseline` with "not built yet" until T54
+    and T55; `--live` is refused in keyless mode.
+- Considered: scoring a change share computed from the data at eval time
+  (the golden does not say which metric and periods, so the runner
+  would be guessing); labelling a misdirected clarify `wrong` (it would
+  count a question as a confidently wrong answer).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
@@ -794,6 +834,13 @@ Answer these in the task named, then move the answer up into a decision.
   commands that need write access to `vedjrr/Footnote` (issues, releases)
   may fail until `gh` is switched to `vedjrr`.
 - Q-11 (T13): answered in D-032, H3 floor 0.1% on dictionary columns.
+- Q-12 (Ved, before T55): the §4 absolute tolerance 0.005 is half a
+  percentage point on a rate stored as a fraction. Starter churn in
+  November 2024 is 3.36%; an answer of 3.80% would score correct.
+  Margin is safe (the row-averaged mistake is about 5 points out), but
+  churn, breach and return rates are not. Option: keep 0.005 for money
+  and use relative 1e-6 alone (or absolute 1e-4) for ratio metrics. Not
+  changed here: tolerances move only by decision.
 
 ## Later
 

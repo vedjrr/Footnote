@@ -51,7 +51,7 @@ Phase 2, query core
 
 Phase 3, evals before AI
 - [x] T30 Golden questions
-- [ ] T31 Eval runner and scoring
+- [x] T31 Eval runner and scoring
 - [ ] T32 Accuracy page
 
 Phase 4, briefing
