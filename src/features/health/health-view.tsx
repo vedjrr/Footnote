@@ -9,7 +9,7 @@ import type { ReactNode } from 'react';
 import type { Cell, ColumnType } from '@/core/engine/types';
 import type { HealthProblem, HealthReport, Severity } from '@/core/health/health';
 import type { SemanticModel } from '@/core/model/types';
-import { formatDay, formatInteger, formatShare } from '@/core/narrative/format';
+import { formatDay, formatInteger, formatNumber, formatShare } from '@/core/narrative/format';
 import type { ColumnProfile, Profile } from '@/core/profile/profile';
 import { FileNotOpen, FileNotOpenGlance } from '@/features/workspace/file-not-open';
 import { GlancePaper } from '@/features/workspace/glance-paper';
@@ -349,7 +349,7 @@ function summary(c: ColumnProfile): string {
 }
 
 function plain(x: number): string {
-  return new Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(x).replace('-', '−');
+  return formatNumber(x, 2);
 }
 
 function ProfileTable({ profile, note }: { profile: Profile; note: number }): ReactNode {

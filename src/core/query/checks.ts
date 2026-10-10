@@ -5,7 +5,13 @@
 import type { Cell, QueryEngine, QueryResult } from '@/core/engine/types';
 import { type TimeFacts, dataNow, isComplete, periodStart } from '@/core/findings/periods';
 import type { Metric, SemanticModel, SimpleMetric } from '@/core/model/types';
-import { formatDay, formatInteger, formatMonth, formatShare } from '@/core/narrative/format';
+import {
+  formatDay,
+  formatInteger,
+  formatMonth,
+  formatNumber,
+  formatShare,
+} from '@/core/narrative/format';
 import { quoteColumn, quoteTable } from '@/core/profile/profile';
 import { type Compiled, compile, displaySql } from './compile';
 import { type QuerySpecInput, querySpecSchema } from './spec';
@@ -52,7 +58,7 @@ function column(result: QueryResult, name: string): Cell[] {
 }
 
 function plain(x: number): string {
-  return new Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(x).replace('-', '−');
+  return formatNumber(x, 2);
 }
 
 export async function checkResult(input: CheckInput): Promise<ResultCheck[]> {

@@ -7,7 +7,13 @@ import type { Cell, QueryEngine, QueryResult } from '@/core/engine/types';
 import { type Role, assignRoles } from '@/core/model/infer';
 import type { SemanticModel } from '@/core/model/types';
 import { metricsUsing } from '@/core/model/usage';
-import { formatDay, formatInteger, formatMonth, formatShare } from '@/core/narrative/format';
+import {
+  formatDay,
+  formatInteger,
+  formatMonth,
+  formatNumber,
+  formatShare,
+} from '@/core/narrative/format';
 import {
   type ColumnProfile,
   type Profile,
@@ -402,7 +408,7 @@ async function extremeValues(ctx: Ctx): Promise<Found[]> {
 }
 
 function plainNumber(x: number): string {
-  return new Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(x).replace('-', '−');
+  return formatNumber(x, 2);
 }
 
 /** H6: negatives in a measure that is almost never negative. */

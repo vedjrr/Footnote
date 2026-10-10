@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { formatFixed } from '@/core/narrative/format';
 import { contrast } from '@/ui/contrast';
 
 export interface SwatchSpec {
@@ -67,7 +68,7 @@ export function Swatches({ items, caption }: { items: SwatchSpec[]; caption: str
                 </th>
                 <td className="text-ink-2">{fg ?? ''}</td>
                 <td className="num">
-                  {ratio === null ? '' : `${ratio.toFixed(1)} on ${i.on?.replace('--', '')}`}
+                  {ratio === null ? '' : `${formatFixed(ratio, 1)} on ${i.on?.replace('--', '')}`}
                 </td>
                 <td className="text-ink-2">{i.use}</td>
               </tr>
