@@ -43,7 +43,9 @@ test('selecting a mark with the mouse highlights the number and its evidence', a
 });
 
 test('marks work from the keyboard', async ({ page }) => {
-  await page.goto('/styleguide');
+  // Keys pressed before React hydrates the page reach a button with no
+  // handler yet; wait until the page has loaded its scripts.
+  await page.goto('/styleguide', { waitUntil: 'networkidle' });
   // Tab from the start of the page until the first mark has focus.
   for (let i = 0; i < 10; i++) {
     await page.keyboard.press('Tab');

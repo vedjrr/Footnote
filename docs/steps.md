@@ -47,7 +47,7 @@ Phase 2, query core
 - [x] T21 Result checks and the raw SQL guard
 - [x] T22 Chart components
 - [x] T23 Chart choice and number formatting
-- [ ] T24 Answers, reference marks and the working paper
+- [x] T24 Answers, reference marks and the working paper
 
 Phase 3, evals before AI
 - [ ] T30 Golden questions
