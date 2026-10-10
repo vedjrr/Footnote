@@ -808,6 +808,35 @@ Format for a new decision:
   would be guessing); labelling a misdirected clarify `wrong` (it would
   count a question as a confidently wrong answer).
 
+### D-042 Accuracy page: what it reads and how it leads
+- Date: 2026-10-10, task T32
+- Decision:
+  - `summary.json` gains `goldens` (questions per split, run or not)
+    and, on each `notCorrect` entry, `expect` and `kind` (an error's
+    message goes in `reason`). The page can then say "the 30 held-back
+    questions have not been run" and "expected an answer, declined"
+    without a hand-typed figure or parsing reason strings.
+  - The first sentence reports one run, picked in this order: AI assist
+    on held-back, AI assist on dev, keyless held-back, keyless dev, then
+    baseline. Further sentences say what has not run yet.
+  - The page shows counts, not rates. Every figure is a summary field or
+    one of three sums: all goldens, wrong + over-confident, misses
+    listed. `src/features/accuracy/accuracy.test.ts` checks the rendered
+    text against those, on the real file and on made-up summaries whose
+    figures no typed text would match (the real file alone lets small
+    typed numbers through, since it holds most numbers up to 50).
+  - Misses are listed for dev runs only, as the summary already does
+    (§3.2). Findings eval shows "not run yet" until T46 adds it to the
+    summary. The method describes the tolerance in words; its numbers
+    are not in the summary. The limits say a rate can be slightly off
+    and still count (Q-12).
+  - The page imports the JSON statically, so it is prerendered at build
+    time. A missing or malformed file fails the build, which is the
+    error state.
+- Considered: reading run files directly (the summary is the one file
+  evals §8 names); showing correct rate as a percentage (a second form
+  of the same figure, and the test would need to model the rounding).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.

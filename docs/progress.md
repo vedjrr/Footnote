@@ -10,15 +10,15 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T31 Eval runner and scoring (done)
-- Next task: T32 Accuracy page
+- Last finished task: T32 Accuracy page (done)
+- Next task: T40 Key changes
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   and files (`file-1`, ...), `/open`, `/accuracy`, `/about`;
   `/styleguide`, `/dev/engine`, `/dev/answer` outside the shell.
-  `npm run check` (472 tests) and `npm run test:e2e` (44, last run T24)
-  pass; `npm run build` last run in T10.
+  `npm run check` (478 tests) and `npm run build` pass (T32);
+  `npm run test:e2e` (44) last run T24.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
   `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
   page's one engine, the samples, the user's files and `time` facts.
@@ -27,16 +27,18 @@ each new session automatically, so it must be enough to start from.
 - Narrative: `core/narrative/format.ts` is the one formatter (lint
   enforced); `chooseChart` (D-038). Charts in `src/ui/charts`.
 - Evals: 80 goldens (D-040). `npm run eval -- --mode keyless --set dev`
-  scores with `eval/runner/score.ts`, writes `eval/results/keyless-dev
-  .json` and `summary.json` (D-041). Keyless only declines until T51:
-  2/50 correct, 0 wrong, coverage 0. ai/baseline not built.
+  writes `eval/results/` (D-041; summary has `goldens`, D-042). Keyless
+  only declines until T51: 2/50 correct, 0 wrong. `/accuracy` is
+  prerendered from `summary.json` (`features/accuracy`); rebuild after
+  any eval run.
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
   The retail profile timing test can exceed 1 s under load; rerun.
   Stop your `next dev` before `npm run test:e2e`. Engine-backed tests go
-  in `tests/` and need adding to `include` in `vitest.config.mts`. Open
-  questions Q-02, Q-05, Q-09, Q-10, Q-12.
-- Updated: 2026-10-10, T31
+  in `tests/` and need adding to `include` in `vitest.config.mts`.
+  `.fn-table th` sets `nowrap` unlayered: Tailwind needs `!` to beat it.
+  Open questions Q-02, Q-05, Q-09, Q-10, Q-12.
+- Updated: 2026-10-10, T32
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -73,6 +75,48 @@ Template:
 ```
 
 ## Log
+
+### T32 Accuracy page
+- Date: 2026-10-10
+- Outcome: done
+- What changed: `/accuracy` renders `features/accuracy/accuracy-view.tsx`
+  from `eval/results/summary.json`, imported statically (prerendered).
+  `accuracy.ts` builds the lead, names and table helpers. Sections: lead,
+  results by type and mode, every dev miss (expected, what happened,
+  label), findings (not run yet), method, limits, runs with date, commit
+  link and model. Runner: summary gains `goldens` and `expect`/`kind` on
+  misses; keyless dev rerun on a clean tree (98b4612).
+  `product.repository` added for links.
+- Verified: `npm run check`: 478 passed. `npm run build`: passed,
+  `/accuracy` static; the built HTML contains "got 2 of 50 test
+  questions right and gave no wrong answers". `npx vitest run
+  src/features/accuracy`: 6 passed (figures on the page come from the
+  real summary and from made-up summaries; lead for ai/holdout,
+  keyless-only and empty; misses listed). Mutation: typed "the 3
+  datasets" into the limits; the made-up-summary test failed with [3];
+  restored. `npm run shots -- /accuracy`: six images looked at.
+- UI check: 390, 834, 1440, light and dark. Fixed: lead was five serif
+  sentences in `lead` (now first sentence in `lead`, the rest in
+  `prose`); on 390 the miss table's questions overlapped the next
+  column (unlayered `nowrap` beat the utility; now wraps up to 36ch
+  below `wide`); total row weight. Tab order: top bar, the three table
+  regions (now focusable so they scroll by keyboard), commit link,
+  results-file link; focus ring visible. States: ideal for keyless,
+  partial (modes not run), empty (no runs, tested), error is a failed
+  build; no loading state, the page is static. No new tokens or
+  components beyond a grouped table header used only when several modes
+  ran (not rendered yet, not in `/styleguide`). Critic pass not required.
+  Copy passed through humanizer.
+- Decisions: D-042
+- Differs from the spec: counts only, no percentages (D-042).
+- Not done: nothing
+- For the next agent: rerun the eval and rebuild for the page to change;
+  never edit `summary.json`. T46 should add findings results to the
+  summary and replace the "not run yet" section. Other screens' scrolling
+  tables (health, working paper) are not keyboard focusable; for T70.
+- Ved should know: the miss list is 48 rows long until T51 makes keyless
+  answer questions. Q-12 still open.
+- Commits: ece627b..(this handoff)
 
 ### T31 Eval runner and scoring
 - Date: 2026-10-10
