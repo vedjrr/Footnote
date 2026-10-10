@@ -633,6 +633,54 @@ Format for a new decision:
   7 px on phones); rotated x labels; one tab stop per bar (dozens of tab
   stops per chart); a broken-axis symbol on the waterfall totals.
 
+### D-038 Formatter details and chart choice judgement calls
+- Date: 2026-10-10, task T23
+- Decision:
+  - Formatter (`core/narrative/format.ts`): prose and headline figures
+    (`formatCompact`) are compact only from 10,000; below that they keep
+    three significant digits with separators (1,230; 48.2 GBP). Compact
+    uses en-US notation (1.28M, 48.2K, 2.15B) because en-GB writes
+    "1.28m". Axis ticks (`formatTick`) are compact from 1,000 and never
+    carry the unit. Full values (`formatValue`) use the dictionary's
+    `decimals`, else up to two. The unit goes after the number for
+    currency and plain numbers alike. A value that rounds to zero has no
+    sign. Short month names are written out, not taken from Intl, because
+    en-GB's September is "Sept" or "Sep" depending on the ICU version.
+  - Durations: seconds under a minute, minutes under 2 hours (whole from
+    10), hours under 3 days, days beyond; one decimal, trailing zero
+    dropped.
+  - Lint (`eslint.config.mjs`, `oneFormatter`): `toFixed`, `toPrecision`,
+    `toLocale*String` calls and `Intl.NumberFormat`, `DateTimeFormat`,
+    `RelativeTimeFormat`, `PluralRules` fail anywhere in `src` except the
+    formatter. Test files are exempt (their messages are not product).
+  - `chooseChart(spec, result)` (`core/narrative/chart.ts`) returns a plan
+    that names result columns, split values and drawing order; it never
+    computes a value.
+  - A "mark" is a bar, a line or a panel. A 365-day line is one mark, so
+    the 40-mark rule turns bars into tables, not long series.
+  - More than four series over time: small multiples up to eight panels,
+    a table beyond. No "top 3 and Other" line: the Other values would be
+    sums made in TypeScript, not cells of the SQL that ran (invariant 4),
+    and wrong for averages and ratios. See "Later".
+  - Two or more metrics never share an axis: over time they become line
+    panels, across one split bar panels.
+  - Two splits: panels by the split with fewer values, bars by the other;
+    a table when either has more than eight values or there are over 40
+    bars. Two splits over time, or several metrics with two splits: table.
+  - One or two numbers in total (rows times metrics) are figures, as are
+    totals with no split and a series of one period.
+  - Ordered categories: when the question asks for a sort, its order is
+    kept; otherwise values that all start with a number ("0-10", "1 star",
+    "<1 hour", "10,000+") sort by that number. Anything else is largest
+    first.
+  - Split lines are coloured in order of their total, largest first.
+- Why: §9.2 and ui-ux-rules §7; a chart must only draw numbers the shown
+  SQL returned.
+- Considered: en-GB compact with upper-casing; counting points as marks
+  (would turn most monthly splits into tables); an "Other" line summed in
+  the browser; a dimension flag for ordered categories in the dictionary
+  (a schema change for one sort order).
+
 ## Open questions
 
 Answer these in the task named, then move the answer up into a decision.
@@ -674,3 +722,5 @@ Ideas outside 1.0. Add here instead of building them.
 - A saved comparison between two uploads of the same export ("what changed
   since last week's file")
 - Scheduled briefings
+- An "Other" bucket computed by the compiler, so a split over time with
+  many values can be drawn as top 3 and Other from SQL cells (D-038)

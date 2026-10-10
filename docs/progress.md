@@ -10,38 +10,40 @@ Rewrite this block at every handoff. Keep it under 25 lines. It is shown to
 each new session automatically, so it must be enough to start from.
 
 <!-- STATE:START -->
-- Last finished task: T22 Chart components (done)
-- Next task: T23 Chart choice and number formatting
+- Last finished task: T23 Chart choice and number formatting (done)
+- Next task: T24 Answers, reference marks and the working paper
 - In progress: nothing
 - Build: Next.js 16.3 app. Shell in `src/app/(app)/`: `/` (retail
   briefing), `/w/<id>/<briefing|ask|metrics|health|report>` for samples
   (`retail`, `saas`, `support`) and files (`file-1`, ...), `/open`,
   `/accuracy`, `/about`; `/styleguide`, `/dev/engine` outside the shell.
-  `npm run check` (357 tests) and `npm run test:e2e` (37) pass;
+  `npm run check` (417 tests) and `npm run test:e2e` (37) pass;
   `npm run build` last run in T10.
 - Engine: port `src/core/engine/types.ts`; `createNodeEngine()`,
   `createWasmEngine()`. `features/workspace/workspace-store.ts` holds the
   page's one engine, the samples and the user's files.
 - Ingest, profile, dictionary, health: `src/core/{ingest,profile,model,
   health}` (D-030 to D-034); screens in `features/{metrics,health}`.
-- Query: `querySpecSchema` (`core/query/spec.ts`), `compile(spec, model,
-  { time: facts })` (D-035), periods in `core/findings/periods.ts`,
-  `checkResult` C1 to C8 and `guardSql`/`withTimeout` (D-036). Nothing in
-  the app calls them yet.
-- Charts: `src/ui/charts` (`index.ts`): LineChart, ColumnChart,
-  RankedBars, Waterfall, SmallMultiples, Sparkline, ChartTable; all on
-  `/styleguide#charts` with retail fixtures (D-037). Values are formatted
-  by `charts/format.ts` from a serialisable `ValueFormat` until T23.
+- Query: `querySpecSchema`, `compile(spec, model, { time: facts })`
+  (D-035), periods in `core/findings/periods.ts`, `checkResult` C1 to C8,
+  `guardSql`/`withTimeout` (D-036). Nothing in the app calls them yet.
+- Narrative: `core/narrative/format.ts` is the one formatter (lint refuses
+  `toFixed`, `toLocale*`, `Intl` formatters elsewhere in `src`);
+  `chooseChart(spec, { columns, rows })` in `core/narrative/chart.ts`
+  returns a `ChartPlan` naming result columns and order (D-038).
+- Charts: `src/ui/charts` (`index.ts`), on `/styleguide#charts` (D-037);
+  `charts/format.ts` maps `ValueFormat` onto the one formatter.
 - UI: tokens in `src/ui/tokens.css`; chart colour roles in
   `src/ui/charts/palette.ts`; primitives in `src/ui/`.
 - Evals: not run
 - Blocked on Ved: nothing
 - Watch out for: a raw hex outside `tokens.css` fails `npm run check`.
-  A dev server left on port 3000, 3100 or 3200 is reused by shots or
-  e2e (Next refuses a second `next dev` in the same folder). Engine-backed
-  tests of core go in `tests/` and need adding to `include` in
-  `vitest.config.mts`. Open questions Q-02, Q-05, Q-08 to Q-10.
-- Updated: 2026-10-09, T22
+  A dev server left on port 3000, 3100 or 3200 is reused by shots or e2e.
+  Engine-backed tests go in `tests/` and need adding to `include` in
+  `vitest.config.mts`. The "profiling retail under a second" test failed
+  once in three full runs under load (passes alone). Open questions Q-02,
+  Q-05, Q-08 to Q-10.
+- Updated: 2026-10-10, T23
 <!-- STATE:END -->
 
 ## How to write a log entry
@@ -78,6 +80,39 @@ Template:
 ```
 
 ## Log
+
+### T23 Chart choice and number formatting
+- Date: 2026-10-10
+- Outcome: done
+- What changed: `core/narrative/format.ts` grew full, compact and tick
+  values, signed changes, percent changes, points, durations, weeks,
+  quarters and period labels; `core/narrative/chart.ts` (`chooseChart`,
+  `ChartPlan`, `naturalOrder`); `ui/charts/format.ts`, health checks,
+  result checks, health view and styleguide swatches now call the one
+  formatter; lint rule `oneFormatter` in `eslint.config.mjs`;
+  `tests/narrative/chart.test.ts` (retail, real compiled columns).
+- Verified: `npm run check`: 417 passed (twice; a third run had the
+  profile timing test fail at over 1 s under load, passing alone). Unit
+  tests: formatter 25, chart choice 31 (every table row, the 40-mark
+  edge at 40 and 41, natural order); retail engine test 8. Lint probe
+  file with `toFixed`, `new Intl.NumberFormat`, `toLocaleString`: three
+  errors, then deleted. `grep` for those in `src` outside the formatter
+  and tests: none. `npx playwright test charts`: 8 passed.
+- UI check: not a UI task; chart text unchanged (e2e above).
+- Decisions: D-038
+- Differs from the spec: more than four series over time are small
+  multiples (up to eight) or a table, never "top 3 and Other": Other
+  would be a TypeScript sum, not a cell of the SQL that ran (D-038; an
+  Other bucket in the compiler is under "Later").
+- Not done: nothing
+- For the next agent: T24 maps a `ChartPlan` to props. Split values in a
+  plan are `cellKey(cell)` (null is ""). `labelChange` means use the
+  `__change_pct` column, or `__change` in points (`formatPoints`) for
+  percent metrics. Bar `order` is the drawing order; pass `ordered` to
+  `RankedBars`. Use `formatCompact` in sentences, `formatValue` in the
+  working paper and tables.
+- Ved should know: nothing
+- Commits: 0349549..(this handoff)
 
 ### T22 Chart components
 - Date: 2026-10-09
