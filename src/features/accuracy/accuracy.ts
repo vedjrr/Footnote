@@ -98,7 +98,7 @@ export function leadSentences(summary: Summary): string[] {
   ];
   if (h.overCautious > 0) {
     out.push(
-      `It held back on ${formatInteger(h.overCautious)} more, declining or asking a question when it should not have.`,
+      `On ${formatInteger(h.overCautious)} more it declined or asked a question when it should not have.`,
     );
   }
   if (h.error > 0) out.push(`${count(h.error, 'question', 'questions')} failed to run.`);

@@ -41,13 +41,17 @@ export type { Summary };
 export function AccuracyView({ summary }: { summary: Summary }) {
   const sets = (['holdout', 'dev'] as const).filter((set) => runsOn(summary, set).length > 0);
   const total = summary.goldens.dev + summary.goldens.holdout;
+  const lead = leadSentences(summary);
   return (
     <div className="flex flex-col px-4 pt-12 pb-24 md:px-8 wide:pl-[clamp(24px,8vw,128px)]">
       <div className="flex flex-col gap-4">
         <h1 className="type-h2 text-ink">Accuracy</h1>
-        <p className="max-w-[66ch] type-lead text-ink" data-testid="accuracy-lead">
-          {leadSentences(summary).join(' ')}
+        <p className="max-w-[30ch] type-lead text-ink md:max-w-[44ch]" data-testid="accuracy-lead">
+          {lead[0]}
         </p>
+        {lead.length > 1 && (
+          <p className="max-w-[66ch] type-prose text-ink-2">{lead.slice(1).join(' ')}</p>
+        )}
       </div>
 
       {sets.map((set) => (
@@ -64,9 +68,7 @@ export function AccuracyView({ summary }: { summary: Summary }) {
       {summary.runs.some((r) => r.notCorrect) && (
         <Section id="misses" title="What it did not get right">
           <p className="max-w-[66ch] type-prose text-ink-2">
-            Every development question without a correct reply, with what was expected and what
-            happened. Misses on the held-back questions are not listed, so nobody tunes Footnote to
-            them.
+            Misses on the held-back questions are not listed, so nobody can tune Footnote to them.
           </p>
           {summary.runs.map(
             (run) =>
@@ -108,7 +110,7 @@ export function AccuracyView({ summary }: { summary: Summary }) {
 
       <Section id="limits" title="Limits">
         <p className="max-w-[66ch] type-prose text-ink">
-          The data is made up, generated with known effects so the right answers are known. Each
+          The data is made up, with effects planted on purpose so the right answers are known. Each
           dataset is one table. There are {formatInteger(total)} questions, all in English, written
           by the same person who built the product. Rates are compared with the same small rounding
           allowance as other numbers, so a rate can be slightly off and still count as right.
@@ -158,7 +160,7 @@ function TypeTable({ runs }: { runs: Run[] }) {
   const heads = ['Correct', 'Wrong', 'Over-cautious', ...(errors ? ['Error'] : [])];
   const several = runs.length > 1;
   return (
-    <div className="fn-table-wrap">
+    <div className="fn-table-wrap" role="region" aria-label="Results by question type" tabIndex={0}>
       <table className="fn-table">
         <thead>
           {several && (
@@ -232,7 +234,12 @@ function Misses({ run, misses }: { run: Run; misses: Miss[] }) {
   return (
     <div className="flex flex-col gap-2">
       <h3 className="type-body font-medium text-ink">{title}</h3>
-      <div className="fn-table-wrap">
+      <div
+        className="fn-table-wrap"
+        role="region"
+        aria-label="Questions without a correct reply"
+        tabIndex={0}
+      >
         <table className="fn-table">
           <thead>
             <tr>
@@ -246,7 +253,10 @@ function Misses({ run, misses }: { run: Run; misses: Miss[] }) {
           <tbody>
             {misses.map((m) => (
               <tr key={m.id}>
-                <th scope="row" className="min-w-[24ch] font-normal">
+                <th
+                  scope="row"
+                  className="max-w-[20ch] min-w-[20ch] font-normal whitespace-normal! md:max-w-[36ch] md:min-w-[36ch] wide:max-w-none wide:min-w-0 wide:whitespace-nowrap!"
+                >
                   {m.question}
                 </th>
                 <td>{sampleName(m.dataset)}</td>
@@ -267,7 +277,7 @@ function Misses({ run, misses }: { run: Run; misses: Miss[] }) {
 
 function RunsTable({ runs }: { runs: Run[] }) {
   return (
-    <div className="fn-table-wrap">
+    <div className="fn-table-wrap" role="region" aria-label="Runs" tabIndex={0}>
       <table className="fn-table">
         <thead>
           <tr>

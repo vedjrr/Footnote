@@ -147,12 +147,12 @@ describe('accuracy page', () => {
   test('the first sentence leads with AI assist on held-back questions when it has run', () => {
     expect(leadSentences({ goldens, runs: [keylessDev, aiHoldout] })).toEqual([
       'With AI assist, Footnote got 377 of 419 held-back test questions right and gave 18 wrong answers.',
-      'It held back on 22 more, declining or asking a question when it should not have.',
+      'On 22 more it declined or asked a question when it should not have.',
       '2 questions failed to run.',
     ]);
     expect(leadSentences({ goldens, runs: [keylessDev] })).toEqual([
       'Without AI assist, Footnote got 523 of 731 test questions right and gave 23 wrong answers.',
-      'It held back on 181 more, declining or asking a question when it should not have.',
+      'On 181 more it declined or asked a question when it should not have.',
       '4 questions failed to run.',
       'AI assist has not been tested yet.',
       'The 419 held-back questions have not been run yet.',
