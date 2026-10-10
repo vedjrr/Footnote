@@ -1,10 +1,14 @@
 {
+  "goldens": {
+    "dev": 50,
+    "holdout": 30
+  },
   "runs": [
     {
       "mode": "keyless",
       "set": "dev",
-      "runAt": "2026-10-10T16:36:29.724Z",
-      "commit": "26229db",
+      "runAt": "2026-10-10T16:47:20.854Z",
+      "commit": "ece627b",
       "dirty": false,
       "modelId": null,
       "engineVersion": "duckdb v1.5.6 (node-api)",
@@ -214,6 +218,8 @@
           "dataset": "retail",
           "category": "single",
           "question": "What was revenue in February 2025?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -222,6 +228,8 @@
           "dataset": "retail",
           "category": "single",
           "question": "How many orders did we take in 2024?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -230,6 +238,8 @@
           "dataset": "retail",
           "category": "single",
           "question": "Total units sold last month",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -238,6 +248,8 @@
           "dataset": "retail",
           "category": "ranking",
           "question": "Top 5 sub-categories by revenue in Q4 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -246,6 +258,8 @@
           "dataset": "retail",
           "category": "ranking",
           "question": "Which channel brought in the most gross profit in 2024?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -254,6 +268,8 @@
           "dataset": "retail",
           "category": "ranking",
           "question": "Rank the product categories by average order value for 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -262,6 +278,8 @@
           "dataset": "retail",
           "category": "trend",
           "question": "Monthly revenue in 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -270,6 +288,8 @@
           "dataset": "retail",
           "category": "trend",
           "question": "How has margin moved month by month over the last 12 months?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -278,6 +298,8 @@
           "dataset": "retail",
           "category": "comparison",
           "question": "Revenue this month vs the same month last year",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -286,6 +308,8 @@
           "dataset": "retail",
           "category": "comparison",
           "question": "Did we sell more units in February 2025 than in January 2025?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -294,6 +318,8 @@
           "dataset": "retail",
           "category": "ratio",
           "question": "Return rate by category in Q4 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -302,6 +328,8 @@
           "dataset": "retail",
           "category": "ratio",
           "question": "What was the average selling price in each category last year?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -310,6 +338,8 @@
           "dataset": "retail",
           "category": "filters",
           "question": "units sold through the marketplace last month",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -318,6 +348,8 @@
           "dataset": "retail",
           "category": "filters",
           "question": "electronics takings jan 25",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -326,6 +358,8 @@
           "dataset": "retail",
           "category": "conditions",
           "question": "Revenue by channel for Kitchen in the second half of 2024, leaving out returned lines",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -334,6 +368,8 @@
           "dataset": "retail",
           "category": "change",
           "question": "Where did the March 2025 drop in electronics revenue come from?",
+          "expect": "change",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected change"
         },
@@ -342,6 +378,8 @@
           "dataset": "retail",
           "category": "ambiguous",
           "question": "How are sales doing?",
+          "expect": "clarify",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected clarify"
         },
@@ -350,6 +388,8 @@
           "dataset": "saas",
           "category": "single",
           "question": "What was our MRR in 2024?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -358,6 +398,8 @@
           "dataset": "saas",
           "category": "single",
           "question": "How many active accounts did we have in June 2024?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -366,6 +408,8 @@
           "dataset": "saas",
           "category": "ranking",
           "question": "Which plan had the most seats in Q3 2024?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -374,6 +418,8 @@
           "dataset": "saas",
           "category": "ranking",
           "question": "Rank industries by MRR for 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -382,6 +428,8 @@
           "dataset": "saas",
           "category": "ranking",
           "question": "Top 2 regions for new sign-ups in 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -390,6 +438,8 @@
           "dataset": "saas",
           "category": "trend",
           "question": "MRR by month over 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -398,6 +448,8 @@
           "dataset": "saas",
           "category": "trend",
           "question": "Quarterly MRR across the whole history",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -406,6 +458,8 @@
           "dataset": "saas",
           "category": "comparison",
           "question": "MRR in December 2024 compared with December 2023",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -414,6 +468,8 @@
           "dataset": "saas",
           "category": "comparison",
           "question": "Paid seats this year versus last year",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -422,6 +478,8 @@
           "dataset": "saas",
           "category": "ratio",
           "question": "Churn rate by plan in November 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -430,6 +488,8 @@
           "dataset": "saas",
           "category": "ratio",
           "question": "What was MRR per account in 2024?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -438,6 +498,8 @@
           "dataset": "saas",
           "category": "filters",
           "question": "enterprise mrr in emea last month",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -446,6 +508,8 @@
           "dataset": "saas",
           "category": "filters",
           "question": "how many signups came from paid search in 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -454,6 +518,8 @@
           "dataset": "saas",
           "category": "conditions",
           "question": "MRR by plan for APAC accounts that came through partners, Q4 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -462,6 +528,8 @@
           "dataset": "saas",
           "category": "conditions",
           "question": "Churned Starter accounts in EMEA during 2024, split by signup channel",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -470,6 +538,8 @@
           "dataset": "saas",
           "category": "change",
           "question": "Why did the churn rate jump in December 2024?",
+          "expect": "change",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected change"
         },
@@ -478,6 +548,8 @@
           "dataset": "support",
           "category": "single",
           "question": "How many tickets came in during July 2024?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -486,6 +558,8 @@
           "dataset": "support",
           "category": "single",
           "question": "What was customer satisfaction across 2024?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -494,6 +568,8 @@
           "dataset": "support",
           "category": "ranking",
           "question": "Which ticket category had the worst CSAT in Q3 2024?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -502,6 +578,8 @@
           "dataset": "support",
           "category": "ranking",
           "question": "Top 3 contact reasons by number of tickets in the first half of 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -510,6 +588,8 @@
           "dataset": "support",
           "category": "trend",
           "question": "Monthly ticket volume in 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -518,6 +598,8 @@
           "dataset": "support",
           "category": "trend",
           "question": "Weekly SLA breach rate for the Technical team in Q4 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -526,6 +608,8 @@
           "dataset": "support",
           "category": "comparison",
           "question": "Tickets in December 2024 vs November 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -534,6 +618,8 @@
           "dataset": "support",
           "category": "comparison",
           "question": "Was satisfaction better in Q4 than in Q3 2024?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -542,6 +628,8 @@
           "dataset": "support",
           "category": "ratio",
           "question": "SLA breach rate by team in December 2024",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -550,6 +638,8 @@
           "dataset": "support",
           "category": "ratio",
           "question": "What proportion of tickets got reopened, per channel, in 2024?",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -558,6 +648,8 @@
           "dataset": "support",
           "category": "filters",
           "question": "phone tickets about refunds in august",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -566,6 +658,8 @@
           "dataset": "support",
           "category": "conditions",
           "question": "Average resolution time for urgent technical tickets by channel",
+          "expect": "answer",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected answer"
         },
@@ -574,6 +668,8 @@
           "dataset": "support",
           "category": "change",
           "question": "What drove the rise in SLA breach rate in December 2024?",
+          "expect": "change",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected change"
         },
@@ -582,6 +678,8 @@
           "dataset": "support",
           "category": "change",
           "question": "Why did CSAT fall in November?",
+          "expect": "change",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected change"
         },
@@ -590,6 +688,8 @@
           "dataset": "support",
           "category": "ambiguous",
           "question": "How quick are we on urgent tickets?",
+          "expect": "clarify",
+          "kind": "decline",
           "label": "over-cautious",
           "reason": "decline; expected clarify"
         }
