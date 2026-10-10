@@ -135,7 +135,7 @@
 
 - id: saas-016
   category: ratio
-  question: What was average revenue per account in 2024?
+  question: What was MRR per account in 2024?
   expect: answer
   tags: [snapshot]
   reference_sql: |
